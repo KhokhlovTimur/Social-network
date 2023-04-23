@@ -1,0 +1,8 @@
+POST localhost:8080/login
+Content-Type: application/json
+Authorization: Bearer1231223121
+
+{
+  "login" : "12",
+  "password" : "12"
+}

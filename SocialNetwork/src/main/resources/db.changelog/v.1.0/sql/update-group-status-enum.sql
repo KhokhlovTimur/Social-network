@@ -1,0 +1,1 @@
+alter type group_status add VALUE 'DELETED';

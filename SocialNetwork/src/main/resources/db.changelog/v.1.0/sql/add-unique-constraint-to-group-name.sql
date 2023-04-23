@@ -1,0 +1,1 @@
+alter table groups add constraint unique_name unique (name);

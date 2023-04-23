@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd">
+
+    <include file="/changesets/1.0--create-users-table.xml" relativeToChangelogFile="true"/>
+    <include file="/changesets/2.0--create-groups-table.xml" relativeToChangelogFile="true"/>
+    <include file="/changesets/2.1--update-group-status-enum.xml" relativeToChangelogFile="true"/>
+    <include file="/changesets/2.1.1--add-unique-constraint.xml" relativeToChangelogFile="true"/>
+    <include file="/changesets/3.0--create-posts-table.xml" relativeToChangelogFile="true"/>
+    <include file="/changesets/4.0--create-emotions-table.xml" relativeToChangelogFile="true"/>
+</databaseChangeLog>
