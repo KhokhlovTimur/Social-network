@@ -33,6 +33,8 @@ public class JwtUtilImpl implements JwtUtil {
     @Value("${refresh-token.expires-time}")
     private long REFRESH_TOKEN_EXPIRES_TIME;
     private final TokensRepository tokensRepository;
+    public final static String USERNAME_PARAMETER = "username";
+    private final static String ROLE_PARAMETER = "role";
 
     @Override
     public Map<String, String> generateTokens(String subject, String authority, String issuer) {
@@ -41,14 +43,14 @@ public class JwtUtilImpl implements JwtUtil {
         String accessToken = JWT.create()
                 .withSubject(subject)
                 .withExpiresAt(new Date(System.currentTimeMillis() + ACCESS_TOKEN_EXPIRES_TIME))
-                .withClaim("role", authority)
+                .withClaim(ROLE_PARAMETER, authority)
                 .withIssuer(issuer)
                 .sign(algorithm);
 
         String refreshToken = JWT.create()
                 .withSubject(subject)
                 .withExpiresAt(new Date(System.currentTimeMillis() + REFRESH_TOKEN_EXPIRES_TIME))
-                .withClaim("role", authority)
+                .withClaim(ROLE_PARAMETER, authority)
                 .withIssuer(issuer)
                 .sign(algorithm);
 
@@ -62,12 +64,12 @@ public class JwtUtilImpl implements JwtUtil {
             Map<String, String> data = parse(token);
             UserDetails userDetails = new UserDetailsImpl(
                     User.builder()
-                            .role(User.Role.valueOf(data.get("role")))
-                            .username(data.get("username"))
+                            .role(User.Role.valueOf(data.get(ROLE_PARAMETER)))
+                            .username(data.get(USERNAME_PARAMETER))
                             .build()
             );
             return new UsernamePasswordAuthenticationToken(userDetails, null,
-                    Collections.singleton(new SimpleGrantedAuthority(data.get("role"))));
+                    Collections.singleton(new SimpleGrantedAuthority(data.get(ROLE_PARAMETER))));
         } else {
             parse("");
         }
@@ -84,8 +86,8 @@ public class JwtUtilImpl implements JwtUtil {
 
         Map<String, String> data = new HashMap<>();
 
-        data.put("username", decodedJWT.getSubject());
-        data.put("role", decodedJWT.getClaim("role").asString());
+        data.put(USERNAME_PARAMETER, decodedJWT.getSubject());
+        data.put(ROLE_PARAMETER, decodedJWT.getClaim(ROLE_PARAMETER).asString());
         return data;
     }
 }

@@ -1,7 +1,7 @@
 package ru.itis.services.groups;
 
 import ru.itis.dto.group.GroupDto;
-import ru.itis.dto.group.UsersPage;
+import ru.itis.dto.user.UsersPage;
 import ru.itis.dto.group.NewOrUpdateGroupDto;
 import ru.itis.models.Group;
 

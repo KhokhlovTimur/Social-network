@@ -1,6 +1,6 @@
 package ru.itis.services.users;
 
-import ru.itis.dto.group.GroupDto;
+import ru.itis.dto.group.GroupsPage;
 import ru.itis.dto.user.*;
 import ru.itis.models.User;
 

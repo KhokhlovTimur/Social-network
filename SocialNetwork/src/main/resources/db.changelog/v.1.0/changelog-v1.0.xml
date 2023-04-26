@@ -11,4 +11,6 @@
     <include file="/changesets/2.1.1--add-unique-constraint.xml" relativeToChangelogFile="true"/>
     <include file="/changesets/3.0--create-posts-table.xml" relativeToChangelogFile="true"/>
     <include file="/changesets/4.0--create-emotions-table.xml" relativeToChangelogFile="true"/>
+    <include file="/changesets/6.0--create-chats-tables.xml" relativeToChangelogFile="true"/>
+    <include file="/changesets/5.0--create-messages-table.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>

@@ -3,17 +3,15 @@ package ru.itis.services.users;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import ru.itis.dto.group.GroupDto;
+import ru.itis.dto.group.GroupsPage;
 import ru.itis.dto.user.*;
 import ru.itis.exceptions.NotFoundException;
 import ru.itis.mappers.groups.GroupCollectionsMapper;
-import ru.itis.mappers.groups.GroupMapper;
 import ru.itis.mappers.users.UsersMapper;
 import ru.itis.models.Group;
 import ru.itis.models.User;
 import ru.itis.repositories.UsersRepository;
 import ru.itis.security.utils.AuthorizationsHeaderUtil;
-import ru.itis.services.groups.GroupsService;
 
 import java.util.Map;
 import java.util.Set;

@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.itis.dto.group.GroupDto;
 import ru.itis.dto.group.NewOrUpdateGroupDto;
-import ru.itis.dto.group.UsersPage;
+import ru.itis.dto.user.UsersPage;
 import ru.itis.dto.user.PublicUserDto;
 import ru.itis.exceptions.NotFoundException;
 import ru.itis.mappers.groups.GroupMapper;
@@ -13,7 +13,6 @@ import ru.itis.models.Group;
 import ru.itis.repositories.GroupsRepository;
 import ru.itis.repositories.UsersRepository;
 import ru.itis.security.utils.AuthorizationsHeaderUtil;
-import ru.itis.services.users.UsersService;
 
 import java.util.Date;
 import java.util.HashSet;

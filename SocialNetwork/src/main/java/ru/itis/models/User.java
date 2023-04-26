@@ -53,6 +53,11 @@ public class User {
     @Type(type = "postgresql_enum")
     private State state;
 
+    @ManyToMany(mappedBy = "users")
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    private Set<Chat> chats;
+
     public enum Role {
         AUTHORIZED,
         ADMIN,

@@ -6,6 +6,8 @@ spring.datasource.hikari.maximum-pool-size=20
 
 spring.main.allow-circular-references=true
 
+spring.devtools.restart.enabled=true
+
 spring.redis.host=
 spring.redis.port=
 
