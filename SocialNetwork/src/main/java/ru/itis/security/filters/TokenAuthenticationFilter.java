@@ -2,6 +2,7 @@ package ru.itis.security.filters;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -11,11 +12,12 @@ import org.springframework.stereotype.Component;
 import ru.itis.repositories.tokens.TokensRepository;
 import ru.itis.security.authentication.RefreshTokenAuthentication;
 import ru.itis.security.details.UserDetailsImpl;
-import ru.itis.security.utils.AuthorizationsHeaderUtil;
+import ru.itis.security.utils.RequestParsingUtil;
 import ru.itis.security.utils.JwtUtil;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -24,16 +26,16 @@ import java.util.Map;
 
 @Slf4j
 @Component
-public class JwtTokenAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
-    private final AuthorizationsHeaderUtil authorizationsHeaderUtil;
+public class TokenAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
+    private final RequestParsingUtil requestParsingUtil;
     private final JwtUtil jwtUtil;
     private final TokensRepository tokensRepository;
 
-    public JwtTokenAuthenticationFilter(AuthenticationConfiguration authenticationConfiguration,
-                                        AuthorizationsHeaderUtil authorizationsHeaderUtil, JwtUtil jwtUtil,
-                                        TokensRepository tokensRepository, ObjectMapper objectMapper) throws Exception {
+    public TokenAuthenticationFilter(AuthenticationConfiguration authenticationConfiguration,
+                                     RequestParsingUtil requestParsingUtil, JwtUtil jwtUtil,
+                                     TokensRepository tokensRepository, ObjectMapper objectMapper) throws Exception {
         super(authenticationConfiguration.getAuthenticationManager());
-        this.authorizationsHeaderUtil = authorizationsHeaderUtil;
+        this.requestParsingUtil = requestParsingUtil;
         this.jwtUtil = jwtUtil;
         this.tokensRepository = tokensRepository;
         this.objectMapper = objectMapper;
@@ -43,8 +45,9 @@ public class JwtTokenAuthenticationFilter extends UsernamePasswordAuthentication
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
-        if (authorizationsHeaderUtil.hasAuthorizationToken(request)) {
-            String refreshToken = authorizationsHeaderUtil.getToken(request);
+
+        if (requestParsingUtil.hasAuthorizationTokenInHeader(request)) {
+            String refreshToken = requestParsingUtil.getTokenFromHeader(request);
 
             RefreshTokenAuthentication authentication = new RefreshTokenAuthentication(refreshToken);
 
@@ -67,6 +70,9 @@ public class JwtTokenAuthenticationFilter extends UsernamePasswordAuthentication
 
         tokensRepository.addRefreshToken(tokens.get("refreshToken"));
 
-        objectMapper.writeValue(response.getOutputStream(), tokens);
+        Cookie accessCookieToken = requestParsingUtil.generateSecureCookie(tokens.get("accessToken"));
+        response.addCookie(accessCookieToken);
+
+        objectMapper.writeValue(response.getWriter(), tokens);
     }
 }

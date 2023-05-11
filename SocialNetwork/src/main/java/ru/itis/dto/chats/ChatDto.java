@@ -1,23 +1,23 @@
 package ru.itis.dto.chats;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import ru.itis.dto.other.ChatGlobalIdDto;
+import lombok.experimental.SuperBuilder;
 import ru.itis.dto.user.PublicUserDto;
-import ru.itis.models.ChatGlobalId;
 
 import java.util.Date;
 
+@EqualsAndHashCode(callSuper = true)
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
+@SuperBuilder
 @Data
-public class ChatDto {
-//    private Long id;
-    private ChatGlobalIdDto globalId;
+public class ChatDto extends ChatDtoModel {
+    //    private Long id;
     private String name;
     private PublicUserDto owner;
+    private String imageLink;
     private Date dateOfCreation;
 }

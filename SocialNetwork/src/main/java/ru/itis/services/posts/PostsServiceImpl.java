@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import ru.itis.dto.other.LikesPage;
 import ru.itis.dto.posts.NewOrUpdateGroupPostDto;
@@ -14,7 +13,7 @@ import ru.itis.dto.user.PublicUserDto;
 import ru.itis.exceptions.NotFoundException;
 import ru.itis.mappers.posts.PostsCollectionMapper;
 import ru.itis.mappers.posts.PostsMapper;
-import ru.itis.mappers.users.UsersCollectionsMapping;
+import ru.itis.mappers.users.UsersCollectionsMapper;
 import ru.itis.models.Group;
 import ru.itis.models.Post;
 import ru.itis.models.User;
@@ -32,7 +31,7 @@ public class PostsServiceImpl implements PostsService {
     private final PostsMapper postsMapper;
     private final GroupsService groupsService;
     private final PostsCollectionMapper postsCollectionMapper;
-    private final UsersCollectionsMapping usersCollectionsMapping;
+    private final UsersCollectionsMapper usersCollectionsMapper;
     private final UsersServiceUtils usersServiceUtils;
 
     @Value("${default.page-size}")
@@ -40,8 +39,8 @@ public class PostsServiceImpl implements PostsService {
 
     @Override
     public LikesPage getEmotions(Long groupId, Long postId) {
-        Set<PublicUserDto> users = usersCollectionsMapping
-                .toGroupDtoSet(getOrThrow(groupId, postId).getUsersHaveLiked());
+        Set<PublicUserDto> users = usersCollectionsMapper
+                .toPublicUsersDtoSet(getOrThrow(groupId, postId).getUsersHaveLiked());
 
         return LikesPage.builder()
                 .users(users)

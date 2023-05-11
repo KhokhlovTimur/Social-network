@@ -13,4 +13,7 @@
     <include file="/changesets/4.0--create-emotions-table.xml" relativeToChangelogFile="true"/>
     <include file="/changesets/6.0--create-chats-tables.xml" relativeToChangelogFile="true"/>
     <include file="/changesets/5.0--create-messages-table.xml" relativeToChangelogFile="true"/>
+    <include file="/changesets/7.0--create-friends-table.xml" relativeToChangelogFile="true"/>
+    <include file="/changesets/6.1--add-last_message.xml" relativeToChangelogFile="true"/>
+    <include file="/changesets/6.2--add-chat_image.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>

@@ -23,6 +23,9 @@ public class Chat {
     @JoinColumn(name = "global_id")
     private ChatGlobalId globalId;
 
+    @Column(name = "image_link")
+    private String imageLink;
+
     private String name;
 
     @OneToOne

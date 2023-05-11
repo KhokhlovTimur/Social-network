@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
+import ru.itis.controllers.rest.api.ApiController;
 import ru.itis.controllers.rest.api.PostsApi;
 import ru.itis.dto.other.LikesPage;
 import ru.itis.dto.posts.NewOrUpdateGroupPostDto;
@@ -13,7 +14,7 @@ import ru.itis.services.posts.PostsService;
 
 @RestController
 @RequiredArgsConstructor
-public class PostsController implements PostsApi {
+public class PostsController implements  PostsApi {
     private final PostsService postsService;
 
     @Override

@@ -8,11 +8,11 @@ import ru.itis.dto.user.UsersPage;
 import ru.itis.dto.user.PublicUserDto;
 import ru.itis.exceptions.NotFoundException;
 import ru.itis.mappers.groups.GroupMapper;
-import ru.itis.mappers.users.UsersCollectionsMapping;
+import ru.itis.mappers.users.UsersCollectionsMapper;
 import ru.itis.models.Group;
 import ru.itis.repositories.GroupsRepository;
 import ru.itis.repositories.UsersRepository;
-import ru.itis.security.utils.AuthorizationsHeaderUtil;
+import ru.itis.security.utils.RequestParsingUtil;
 
 import java.util.Date;
 import java.util.HashSet;
@@ -24,8 +24,8 @@ import java.util.stream.Collectors;
 public class GroupsServiceImpl implements GroupsService {
     private final GroupsRepository groupsRepository;
     private final GroupMapper groupMapper;
-    private final UsersCollectionsMapping usersCollectionsMapping;
-    private final AuthorizationsHeaderUtil authorizationsHeaderUtil;
+    private final UsersCollectionsMapper usersCollectionsMapper;
+    private final RequestParsingUtil requestParsingUtil;
     private final UsersRepository usersRepository;
 
     @Override
@@ -45,7 +45,7 @@ public class GroupsServiceImpl implements GroupsService {
                 .description(newGroupDto.getDescription())
                 .dateOfCreation(new Date())
                 .status(Group.Status.ACTIVE)
-                .creator(usersRepository.findByUsername(authorizationsHeaderUtil
+                .creator(usersRepository.findByUsername(requestParsingUtil
                         .getDataFromToken(rawToken).get("username")).orElseThrow())
                 .users(new HashSet<>())
                 .build();
@@ -76,7 +76,7 @@ public class GroupsServiceImpl implements GroupsService {
     @Override
     public UsersPage getUsers(Long id) {
         Group group = getOrThrow(id);
-        Set<PublicUserDto> users = usersCollectionsMapping.toGroupDtoSet(group.getUsers()
+        Set<PublicUserDto> users = usersCollectionsMapper.toPublicUsersDtoSet(group.getUsers()
                 .stream()
                 .filter(x -> !x.isBanned())
                 .collect(Collectors.toSet()));

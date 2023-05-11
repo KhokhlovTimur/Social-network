@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Friends</title>
+    <link rel="stylesheet" href="/css/template.css">
+</head>
+<body>
+
+
+<div class="main-container collapse">
+    <nav th:replace="navbar_template :: mainNavbar"></nav>
+    <div th:replace="navbar_template :: header"></div>
+
+    <div class="body">
+        <div class="">
+            <div class="" th:each="friend : ${friends}" th:fragment="posts">
+                <div class="" style="cursor: pointer">
+                    <p th:text="${friend.name}"></p>
+                    <p th:text="${friend.age}"></p>
+                    <!--            <p th:text="${post.group.name}" class="postGroup" th:value="${post.group.id}" ></p>-->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script th:src="@{/js/libs/http_ajax.googleapis.com_ajax_libs_jquery_3.4.1_jquery.js}"></script>
+<script th:src="@{/js/friends.js}"></script>
+<script th:src="@{/js/navbar.js}"></script>
+</body>
+</html>

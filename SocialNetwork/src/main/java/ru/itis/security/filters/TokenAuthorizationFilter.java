@@ -8,7 +8,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import ru.itis.repositories.tokens.TokensRepository;
-import ru.itis.security.utils.AuthorizationsHeaderUtil;
+import ru.itis.security.configs.SecurityConfig;
+import ru.itis.security.utils.RequestParsingUtil;
 import ru.itis.security.utils.JwtUtil;
 
 import javax.servlet.FilterChain;
@@ -19,25 +20,34 @@ import java.io.IOException;
 
 @Component
 @RequiredArgsConstructor
-public class JwtTokenAuthorizationFilter extends OncePerRequestFilter {
-    public static final String AUTHENTICATION_PATH = "/auth/token";
-    private final AuthorizationsHeaderUtil authorizationsHeaderUtil;
+public class TokenAuthorizationFilter extends OncePerRequestFilter {
+    public static final String AUTHENTICATION_PATH = "/api/auth/token";
+    private final RequestParsingUtil requestParsingUtil;
     private final JwtUtil jwtUtil;
     private final TokensRepository tokensRepository;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        if (request.getServletPath().equals(AUTHENTICATION_PATH)) {
+        if (request.getServletPath().equals(AUTHENTICATION_PATH) || request.getServletPath().equals(SecurityConfig.PAGES_AUTH_URL)) {
             filterChain.doFilter(request, response);
         } else {
-            if (authorizationsHeaderUtil.hasAuthorizationToken(request)) {
-                String token = authorizationsHeaderUtil.getToken(request);
+
+            if (requestParsingUtil.hasAuthorizationTokenInCookie(request) ||
+                    requestParsingUtil.hasAuthorizationTokenInHeader(request)) {
+
+                String token = "";
+                if (requestParsingUtil.hasAuthorizationTokenInCookie(request)) {
+                    token = requestParsingUtil.getTokenFromCookie(request);
+                } else {
+                    token = requestParsingUtil.getTokenFromHeader(request);
+                }
 
                 if (!tokensRepository.isAccessTokenInBlackList(token) && !tokensRepository.isRefreshTokenExists(token)) {
                     try {
                         Authentication authentication = jwtUtil.buildAuthentication(token);
 
                         SecurityContextHolder.getContext().setAuthentication(authentication);
+
                         filterChain.doFilter(request, response);
                     } catch (JWTVerificationException e) {
                         response.setStatus(HttpStatus.FORBIDDEN.value());

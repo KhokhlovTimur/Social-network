@@ -33,7 +33,7 @@ public interface PostsApi {
     ResponseEntity<PostDto> addPost(@PathVariable("id") Long id, @RequestBody NewOrUpdateGroupPostDto postDto);
 
 
-    @GetMapping("/{id}/posts")
+    @GetMapping("/{group_id}/posts")
     @Operation(summary = "Get group's posts")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "All group's posts",
@@ -41,7 +41,7 @@ public interface PostsApi {
                             @Content(mediaType = "application/json",
                                     schema = @Schema(implementation = PostsPage.class))})
     })
-    ResponseEntity<PostsPage> getPosts(@PathVariable("id") Long id, @RequestParam("page") int pageNumber);
+    ResponseEntity<PostsPage> getPosts(@PathVariable("group_id") Long id, @RequestParam("page") int pageNumber);
 
 
     @GetMapping("/{group_id}/posts/{post_id}")
@@ -99,7 +99,7 @@ public interface PostsApi {
 //                            @Content(mediaType = "application/json",
 //                                    schema = @Schema(implementation = NewOrUpdateGroupPostDto.class))
 //                    }
-                    ),
+            ),
             @ApiResponse(responseCode = "422", description = "Error information",
                     content = {
                             @Content(mediaType = "application/json",

@@ -1,10 +1,8 @@
 package ru.itis.models;
 
 import io.hypersistence.utils.hibernate.type.basic.PostgreSQLEnumType;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import org.apache.commons.lang3.builder.HashCodeExclude;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 
@@ -25,6 +23,8 @@ public class Message {
 
     @OneToOne
     @JoinColumn(name = "global_chat_id")
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     private ChatGlobalId chatGlobalId;
 
     @Enumerated(EnumType.STRING)

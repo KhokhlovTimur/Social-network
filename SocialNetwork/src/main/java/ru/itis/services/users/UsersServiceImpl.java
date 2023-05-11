@@ -1,18 +1,25 @@
 package ru.itis.services.users;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import ru.itis.dto.group.GroupDto;
 import ru.itis.dto.group.GroupsPage;
+import ru.itis.dto.posts.PostDto;
 import ru.itis.dto.user.*;
 import ru.itis.exceptions.NotFoundException;
 import ru.itis.mappers.groups.GroupCollectionsMapper;
+import ru.itis.mappers.posts.PostsMapper;
 import ru.itis.mappers.users.UsersMapper;
 import ru.itis.models.Group;
 import ru.itis.models.User;
 import ru.itis.repositories.UsersRepository;
-import ru.itis.security.utils.AuthorizationsHeaderUtil;
+import ru.itis.security.utils.JwtUtil;
+import ru.itis.security.utils.RequestParsingUtil;
+import ru.itis.services.utils.UsersServiceUtils;
 
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -23,18 +30,39 @@ public class UsersServiceImpl implements UsersService {
     private final UsersMapper usersMapper;
     private final PasswordEncoder passwordEncoder;
     private final GroupCollectionsMapper groupCollectionsMapper;
-    private final AuthorizationsHeaderUtil authorizationsHeaderUtil;
+    private final RequestParsingUtil requestParsingUtil;
+    private final JwtUtil jwtUtil;
+    private final UsersServiceUtils usersServiceUtils;
+    private final PostsMapper postsMapper;
     private final String ADMIN = "SUPER_ADMIN";
 
     @Override
     public <T extends PublicUserDto> T getById(Long id, String token) {
-        Map<String, String> data = authorizationsHeaderUtil.getDataFromToken(token);
+        Map<String, String> data = requestParsingUtil.getDataFromToken(token);
         User user = getOrThrow(id);
 
-        if (data.get("username").equals(user.getUsername()) || data.get("role").equals(ADMIN)){
+        if (data.get("username").equals(user.getUsername()) || data.get("role").equals(ADMIN)) {
             return (T) usersMapper.toPrivateDto(user);
         }
         return (T) usersMapper.toPublicDto(user);
+    }
+
+    @Override
+    public User findByUsername(String username) {
+        return getOrThrow(username);
+    }
+
+    @Override
+    public Set<PostDto> getPostsFromGroups(String token) {
+        User user = usersServiceUtils.getUserFromToken(token);
+        Set<Group> groups = user.getGroups();
+        Set<PostDto> posts = new HashSet<>();
+        groups.forEach(x ->
+                x.getPosts()
+                        .forEach(y -> posts.add(postsMapper.toDto(y)))
+        );
+
+        return posts;
     }
 
     @Override
@@ -81,6 +109,13 @@ public class UsersServiceImpl implements UsersService {
     }
 
     @Override
+    public Set<GroupDto> getGroups(String token) {
+        Set<Group> groups = usersServiceUtils.getUserFromToken(token).getGroups();
+        System.out.println(groups);
+        return groupCollectionsMapper.toGroupDtoSet(groups);
+    }
+
+    @Override
     public GroupsPage getGroups(Long userId) {
         Set<Group> groups = getOrThrow(userId).getGroups();
 
@@ -96,6 +131,17 @@ public class UsersServiceImpl implements UsersService {
 
         if (user.isBanned()) {
             throw new NotFoundException("User with id <" + id + "> is banned");
+        }
+
+        return user;
+    }
+
+    private User getOrThrow(String username) {
+        User user = usersRepository.findByUsername(username)
+                .orElseThrow(() -> new NotFoundException("User with username <" + username + "> not found"));
+
+        if (user.isBanned()) {
+            throw new NotFoundException("User with username <" + username + "> is banned");
         }
 
         return user;

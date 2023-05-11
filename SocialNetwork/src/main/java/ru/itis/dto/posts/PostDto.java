@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import ru.itis.dto.group.GroupDto;
 import ru.itis.dto.user.PublicUserDto;
 
 import java.util.Date;
@@ -17,4 +18,5 @@ public class PostDto {
     private String text;
     private Date dateOfPublication;
     private PublicUserDto author;
+    private GroupDto group;
 }

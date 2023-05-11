@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+<div class="sidebar-navigation" th:fragment="mainNavbar">
+    <ul class="list-unstyled">
+        <li class="navbarImage" th:value="feeds">
+            <i class="fa fa-hashtag" th:value="feeds"></i>
+            <span class="tooltip">Feeds</span>
+        </li>
+        <li class="navbarImage" th:value="profile">
+            <i class="fa fa-user-circle" th:value="profile"></i>
+            <span class="tooltip">Profile</span>
+        </li>
+        <li class="navbarImage" th:value="chats">
+            <i class="fa fa-comments" th:value="chats"></i>
+            <span class="tooltip">Chats</span>
+        </li>
+
+        <li class="navbarImage" th:value="friends">
+            <i class="fa fa-user" th:value="friends"></i>
+            <span class="tooltip">Friends</span>
+        </li>
+
+        <li class="navbarImage" th:value="groups">
+            <i class="fa fa-users" th:value="groups"></i>
+            <span class="tooltip">Groups</span>
+        </li>
+
+
+        <li class="settings">
+            <i class="fa fa-cog"></i>
+            <span class="tooltip">Settings</span>
+        </li>
+    </ul>
+</div>
+
+<div class="header" th:fragment="header">
+    <div class="line"></div>
+    <div class="header-menu">
+        <div class="title"><span class="title-hide">Social Network</span></div>
+    </div>
+</div>
+
+
+</body>
+</html>

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Chats</title>
+    <link rel="stylesheet" href="/css/template.css">
+    <link rel="stylesheet" href="/css/chat.css">
+</head>
+<body>
+
+<div class="main-container collapse">
+    <nav th:replace="navbar_template :: mainNavbar"></nav>
+    <div th:replace="navbar_template :: header"></div>
+
+    <div class="body overflow-h">
+
+        <div class="chats">
+
+            <div class="chat search">
+                <div class="searchbar">
+                    <i class="fa fa-search" aria-hidden="true"></i>
+                    <label>
+                        <input type="text" id="chat-search" placeholder="Search..."/>
+                    </label>
+                </div>
+            </div>
+
+            <div id="chats-block">
+                <div class="chat chat-div" th:each="chat : ${chats}" th:value="${chat.globalId}">
+                    <div class="photo" th:value="${chat.globalId}"
+                         th:style="'background-image: url(\'' + ${chat.imageLink} + '\')'">
+                    </div>
+                    <div class="desc-contact" th:value="${chat.globalId}">
+                        <p class="name" th:text="${chat.name}" th:value="${chat.globalId}"></p>
+                        <p class="message chat-block" th:value="${chat.globalId}" th:text="${chat.globalId.lastMessage.content}"></p>
+                    </div>
+                    <div class="timer chat-timer" th:value="${chat.globalId}"></div>
+                </div>
+
+                <div class="chat chat-div" th:each="personalChat : ${personalChats}"
+                     th:value="${personalChat.globalId}">
+                    <div class="photo"
+                         th:style="'background-image: url(\'' + ${personalChat.secondUser.avatarLink} + '\')'"
+                         th:value="${personalChat.globalId}">
+                    </div>
+                    <div class="desc-contact" th:value="${personalChat.globalId}">
+                        <p class="name" th:text="${personalChat.secondUser.username}"
+                           th:value="${personalChat.globalId}"></p>
+                        <p class="message chat-block" th:value="${personalChat.globalId}" th:text="${personalChat.globalId.lastMessage.content}"></p>
+                    </div>
+                    <div class="timer chat-timer" th:value="${personalChat.globalId}"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="messages-block">
+
+            <div class="header-chat">
+                <i class="icon fa fa-user" aria-hidden="true"></i>
+                <p class="name" id="name"></p>
+            </div>
+
+            <div class="messages-chat">
+            </div>
+
+            <div class="footer-chat">
+                <i class="icon fa fa-smile-o clickable" style="font-size:25pt;" aria-hidden="true"></i>
+                <input type="text" id="messageInput" autocomplete="off" class="write-message"
+                       placeholder="Type your message here"/>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script th:src="@{/js/libs/http_ajax.googleapis.com_ajax_libs_jquery_3.4.1_jquery.js}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.3.0/sockjs.js"></script>
+<script th:src="@{/js/navbar.js}"></script>
+<script th:src="@{/js/ajax_requests.js}"></script>
+<script th:src="@{/js/chats.js}"></script>
+
+</body>
+</html>

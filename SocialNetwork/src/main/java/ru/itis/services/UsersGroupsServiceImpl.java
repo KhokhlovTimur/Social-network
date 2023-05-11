@@ -12,6 +12,8 @@ import ru.itis.repositories.UsersRepository;
 import ru.itis.services.groups.GroupsService;
 import ru.itis.services.users.UsersService;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class UsersGroupsServiceImpl implements UsersGroupsService {
@@ -43,4 +45,5 @@ public class UsersGroupsServiceImpl implements UsersGroupsService {
 
         return groupMapper.toDto(group);
     }
+
 }

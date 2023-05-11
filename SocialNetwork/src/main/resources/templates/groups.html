@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Groups</title>
+
+    <link rel="stylesheet" href="/css/template.css">
+</head>
+<body>
+
+
+<div class="main-container collapse">
+    <nav th:replace="navbar_template :: mainNavbar"></nav>
+    <div th:replace="navbar_template :: header"></div>
+
+    <div class="body" style="position: relative;">
+        <div class="">
+            <button class="d-none" id="backGroups">К группам</button>
+
+            <div class="d-none" id="groupsList">
+                <div class="" th:each="group : ${groups}">
+                    <div class="" style="cursor: pointer" th:value="${group.id}">
+                        <p th:text="${group.name}" th:value="${group.id}"></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-none" id="groupInfo">
+                <div class="" id="groupLine">
+                </div>
+            </div>
+
+            <div class="d-none" id="posts">
+                <p>Posts</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script th:src="@{/js/libs/http_ajax.googleapis.com_ajax_libs_jquery_3.4.1_jquery.js}"></script>
+<script th:src="@{/js/ajax_requests.js}"></script>
+<script th:src="@{/js/groups.js}"></script>
+<script th:src="@{/js/navbar.js}"></script>
+</body>
+</html>

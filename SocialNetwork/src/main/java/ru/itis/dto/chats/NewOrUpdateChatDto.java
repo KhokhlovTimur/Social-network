@@ -12,4 +12,5 @@ import lombok.NoArgsConstructor;
 @Data
 public class NewOrUpdateChatDto {
     private String name;
+    private String imageLink;
 }

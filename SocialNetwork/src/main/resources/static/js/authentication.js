@@ -4,8 +4,8 @@ $(document).ready(function () {
     $('#clk').click(generateRequest)
 });
 
-function generateRequest() {
-
+function generateRequest(event) {
+    event.preventDefault();
     console.log('Form submitted');
 
     let rawUsername = $('#username');
@@ -23,14 +23,15 @@ function generateRequest() {
     console.log('sending request...')
 
     $.ajax({
-        url: '/auth/token',
+        url: '/api/auth/token',
         method: 'POST',
         contentType: 'application/x-www-form-urlencoded',
         data: $.param(details),
         dataType: 'json',
         statusCode: {
-            // 401: ,
-            // 403:
+            401: function () {
+                $("#password").css('background-color', '#E23E57')
+            },
         },
         success: function (res) {
             onSuccessAuth(res);
@@ -42,28 +43,29 @@ function onSuccessAuth(result) {
     console.log('successful auth')
 
     tokens = result;
-    localStorage.setItem('accessToken', tokens['accessToken']);
     localStorage.setItem('refreshToken', tokens['refreshToken']);
+    localStorage.setItem('accessToken', tokens['accessToken']);
 
-    $.ajaxSetup({
-        headers: {
-            'Authorization': 'Bearer ' + tokens['accessToken']
-        }
-    })
+    window.location.href = '/app/feeds'
 }
 
-function refreshAccessToken() {
-
-}
-
-setInterval(refreshAccessToken, 1700000);
-
-$('#test').click(function () {
+function generateRequestToRefreshToken() {
     $.ajax({
-        url: '/api/chats/1',
-        method: 'GET',
+        url: '/api/auth/token',
+        method: 'POST',
+        headers: {
+            'Authorization': 'Bearer ' + localStorage['refreshToken']
+        },
+        statusCode: {
+            401: function () {
+                $("#password").css('background-color', '#E23E57')
+            },
+            // 403:
+        },
         success: function (res) {
-            window.location.href = "/chats"
+            onSuccessAuth(res);
         }
     })
-})
+}
+
+setInterval(generateRequestToRefreshToken, 1700000);

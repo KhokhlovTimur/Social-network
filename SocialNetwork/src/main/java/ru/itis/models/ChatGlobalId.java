@@ -4,6 +4,7 @@ import io.hypersistence.utils.hibernate.type.basic.PostgreSQLEnumType;
 import lombok.*;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
+import ru.itis.dto.messages.MessageDto;
 
 import javax.persistence.*;
 
@@ -22,6 +23,10 @@ public class ChatGlobalId {
     @Column(columnDefinition = "chat_type_enum")
     @Type(type = "postgresql_enum")
     private ChatType chatType;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "last_msg_id")
+    private Message lastMessage;
 
     public enum ChatType {
         PERSONAL,

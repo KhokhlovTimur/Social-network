@@ -5,21 +5,29 @@ import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
-import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
+import ru.itis.dto.messages.MessageDto;
 import ru.itis.dto.messages.NewMessageDto;
+import ru.itis.mappers.chats.ChatsMapper;
 import ru.itis.models.Message;
 import ru.itis.repositories.UsersRepository;
-import ru.itis.security.utils.AuthorizationsHeaderUtil;
+import ru.itis.security.utils.JwtUtil;
+import ru.itis.services.chats.ChatsService;
+import ru.itis.services.chats.PersonalChatsService;
 import ru.itis.services.messages.MessagesService;
 import ru.itis.websocket.config.WebSocketConfig;
 
+import javax.websocket.CloseReason;
+import javax.websocket.OnClose;
+import javax.websocket.Session;
+
 import static java.lang.String.format;
 import static ru.itis.security.utils.JwtUtilImpl.USERNAME_PARAMETER;
+import static ru.itis.security.utils.RequestParsingUtilImpl.AUTHORIZATION_COOKIE;
 
 @Controller
 @RequiredArgsConstructor
@@ -27,32 +35,35 @@ public class WebSocketChatsController {
 
     private final SimpMessageSendingOperations messagingTemplate;
     private final MessagesService messagesService;
-    private final UsersRepository usersRepository;
-    private final AuthorizationsHeaderUtil authorizationsHeaderUtil;
+    private final PersonalChatsService personalChatsService;
+    private final ChatsService chatsService;
 
-    @GetMapping("/chats")
-    public String showChats(Model model, @RequestHeader("Authorization") String rawToken) {
+    @GetMapping("/app/chats")
+    public String showChats(Model model, @CookieValue(AUTHORIZATION_COOKIE) String token) {
 
-        model.addAttribute("chats", usersRepository
-                .findByUsername(authorizationsHeaderUtil.getDataFromToken(rawToken).get(USERNAME_PARAMETER))
-                .orElseThrow().getChats());
+        model.addAttribute("chats", chatsService.getByToken(token));
+        model.addAttribute("personalChats", personalChatsService.getByToken(token));
 
-        return "/html/chat.html";
+        return "/chats";
     }
 
     @MessageMapping("/chats/{id}/send")
     public void sendMessage(@DestinationVariable Long id, @Payload NewMessageDto chatMessage,
-                            SimpMessageHeaderAccessor headerAccessor) {
+                            @Header("token") String token) {
 
-        messagesService.add(id, chatMessage, (String) headerAccessor.getSessionAttributes().get("token"));
-        messagingTemplate.convertAndSend(format("/%s/%s", WebSocketConfig.BROKER_ENDPOINT, id), chatMessage);
+        MessageDto message = messagesService.add(id, chatMessage, token);
+        messagingTemplate.convertAndSend(WebSocketConfig.BROKER_ENDPOINT + "/" + id, message);
     }
 
-    @MessageMapping("/chats/{id}/addUser")
-    public void addUser(@DestinationVariable String id, @Payload Message chatMessage,
-                        SimpMessageHeaderAccessor headerAccessor, @Header("Authorization") String rawToken) {
+    @MessageMapping("/chats/{id}/subscribe")
+    public void addUser(@DestinationVariable String id, @Payload Message chatMessage) {
 
-        headerAccessor.getSessionAttributes().put("token", rawToken);
+//        chatsService.add()
         messagingTemplate.convertAndSend(format("/chat-room/%s", id), chatMessage);
+    }
+
+    @OnClose
+    public void close(Session session, CloseReason closeReason) {
+        System.out.println(session.getId() + " - " + closeReason);
     }
 }

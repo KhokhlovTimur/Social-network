@@ -9,6 +9,8 @@ import ru.itis.dto.messages.MessageDto;
 import ru.itis.dto.messages.NewMessageDto;
 import ru.itis.services.messages.MessagesService;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 public class MessagesRestController implements MessagesApi {
@@ -18,5 +20,15 @@ public class MessagesRestController implements MessagesApi {
     public ResponseEntity<MessageDto> addMessage(Long globalId, NewMessageDto messageDto, String rawToken) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(messagesService.add(globalId, messageDto, rawToken));
+    }
+
+    @Override
+    public ResponseEntity<MessageDto> getLastMessage(Long id) {
+        return ResponseEntity.ok(messagesService.findLastMessageByGlobalId(id));
+    }
+
+    @Override
+    public ResponseEntity<List<MessageDto>> getMessages(Long id) {
+        return ResponseEntity.ok(messagesService.findAllMessagesFromChat(id));
     }
 }

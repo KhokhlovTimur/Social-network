@@ -19,8 +19,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import ru.itis.security.filters.CustomLogoutFilter;
-import ru.itis.security.filters.JwtTokenAuthenticationFilter;
-import ru.itis.security.filters.JwtTokenAuthorizationFilter;
+import ru.itis.security.filters.PagesAuthorizationFilter;
+import ru.itis.security.filters.TokenAuthenticationFilter;
+import ru.itis.security.filters.TokenAuthorizationFilter;
 
 
 @Configuration
@@ -31,33 +32,44 @@ public class SecurityConfig {
     private final PasswordEncoder passwordEncoder;
     private final UserDetailsService userDetailsServiceImpl;
     private final AuthenticationProvider authenticationProvider;
+    private final String AUTH_COOKIE_NAME = "acs_token";
+    public final static String APP_PREFIX = "/app";
+    public final static String PAGES_AUTH_URL = APP_PREFIX + "/login";
+    public final static String API_PREFIX = "/app";
 
-    private final String authPath = JwtTokenAuthorizationFilter.AUTHENTICATION_PATH;
+    private final String authPath = TokenAuthorizationFilter.AUTHENTICATION_PATH;
 
     @Bean
-    protected SecurityFilterChain filterChain(HttpSecurity http, JwtTokenAuthenticationFilter tokenAuthenticationFilter,
-                                              JwtTokenAuthorizationFilter tokenAuthorizationFilter,
-                                              CustomLogoutFilter customLogoutFilter) throws Exception {
+    protected SecurityFilterChain filterChain(HttpSecurity http, TokenAuthenticationFilter tokenAuthenticationFilter,
+                                              TokenAuthorizationFilter tokenAuthorizationFilter,
+                                              CustomLogoutFilter customLogoutFilter,
+                                              PagesAuthorizationFilter pagesAuthorizationFilter) throws Exception {
         http.csrf().disable();
         tokenAuthenticationFilter.setFilterProcessesUrl(authPath);
 
         http.addFilter(tokenAuthenticationFilter)
                 .addFilterBefore(tokenAuthorizationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(pagesAuthorizationFilter, TokenAuthorizationFilter.class)
                 .addFilterAt(customLogoutFilter, LogoutFilter.class)
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
         http.authorizeHttpRequests()
                 .antMatchers("/swagger-ui/index.html/**").permitAll()
-                .antMatchers("/auth/token").permitAll()
+                .antMatchers("/api/auth/token").permitAll()
                 .antMatchers(HttpMethod.POST, "/api/users").permitAll()
-                .antMatchers("/api/chats").permitAll()
+//                .antMatchers(HttpMethod.POST, "/api/users").permitAll()
                 .antMatchers("/api/**").authenticated()
+                .antMatchers("/app/login").permitAll()
+                .antMatchers("/app/**").authenticated()
                 .and()
+//                .exceptionHandling()
+//                .accessDeniedPage("")
+//                .and()
                 .logout()
                 .logoutUrl("/logout")
                 .logoutRequestMatcher(new AntPathRequestMatcher("/logout", "POST"))
-                .deleteCookies("JSESSIONID")
+                .deleteCookies("JSESSIONID", AUTH_COOKIE_NAME)
                 .invalidateHttpSession(true);
 
         return http.build();

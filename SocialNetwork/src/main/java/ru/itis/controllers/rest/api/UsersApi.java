@@ -11,8 +11,10 @@ import ru.itis.dto.group.GroupsPage;
 import ru.itis.dto.other.ExceptionDto;
 import ru.itis.dto.user.*;
 
+import java.util.List;
+
 @RequestMapping("/api/users")
-public interface UsersApi {
+public interface UsersApi  {
 
     @PostMapping
     @Operation(summary = "User registration")
@@ -47,7 +49,7 @@ public interface UsersApi {
                                     schema = @Schema(implementation = ExceptionDto.class))
                     })
     })
-    ResponseEntity<? extends PublicUserDto> get(@PathVariable("id") Long id, @RequestHeader(name = "Authorization") String rawToken);
+    ResponseEntity<? extends PublicUserDto> get(@PathVariable("id") Long id, @RequestHeader("Authorization") String rawToken);
 
 
     @DeleteMapping("/{id}")
@@ -84,6 +86,8 @@ public interface UsersApi {
 
     @GetMapping("/{id}/groups")
     ResponseEntity<GroupsPage> getGroups(@PathVariable("id") Long id);
-//    @PatchMapping
+
+//    @GetMapping("/{id}/friends")
+//    ResponseEntity<List<PublicUserDto>> getFriends(@PathVariable("id") Long id);
 
 }

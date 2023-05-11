@@ -13,7 +13,7 @@ import ru.itis.dto.user.UsersPage;
 import ru.itis.dto.group.NewOrUpdateGroupDto;
 
 @RequestMapping("/api/groups")
-public interface GroupsApi {
+public interface GroupsApi  {
     @GetMapping("/{id}")
     @Operation(summary = "Get group")
     @ApiResponses(value = {

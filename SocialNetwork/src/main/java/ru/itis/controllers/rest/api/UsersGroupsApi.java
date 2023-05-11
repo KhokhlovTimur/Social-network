@@ -6,16 +6,13 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.*;
 import ru.itis.dto.group.GroupDto;
 import ru.itis.dto.other.ExceptionDto;
 import ru.itis.dto.group.GroupsPage;
 
+@RequestMapping("/api")
 public interface UsersGroupsApi {
-
 
     @Operation(summary = "Remove user from group")
     @ApiResponses(value = {
@@ -26,12 +23,12 @@ public interface UsersGroupsApi {
                                     schema = @Schema(implementation = ExceptionDto.class))
                     })
     })
-    @DeleteMapping(value = {"/api/users/{user_id}/groups/{group_id}", "/api/groups/{group_id}/users/{user_id}"})
+    @DeleteMapping(value = {"/users/{user_id}/groups/{group_id}", "/groups/{group_id}/users/{user_id}"})
     ResponseEntity<?> deleteUserFromGroup(@PathVariable("user_id") Long userId,
                                                  @PathVariable("group_id") Long groupId);
 
 
-    @PostMapping("/api/groups/{group_id}/users/{user_id}")
+    @PostMapping("/groups/{group_id}/users/{user_id}")
     @Operation(summary = "Add a group to the user")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "All user's groups",

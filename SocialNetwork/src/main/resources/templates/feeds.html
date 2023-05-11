@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Feeds</title>
+    <link rel="stylesheet" href="/css/template.css">
+</head>
+
+<body>
+
+<div class="main-container collapse">
+    <nav th:replace="navbar_template :: mainNavbar"></nav>
+    <div th:replace="navbar_template :: header"></div>
+
+    <div class="body">
+        <div th:each="post : ${posts}">
+            <p th:text="${post.text}"></p>
+            <p th:text="${post.dateOfPublication}"></p>
+            <p th:text="${post.group.name}" class="postGroup" th:value="${post.group.id}"
+               style="cursor: pointer"></p>
+        </div>
+    </div>
+</div>
+
+<script th:src="@{/js/libs/http_ajax.googleapis.com_ajax_libs_jquery_3.4.1_jquery.js}"></script>
+<script th:src="@{/js/feeds.js}"></script>
+<script th:src="@{/js/navbar.js}"></script>
+</body>
+</html>

@@ -7,7 +7,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import ru.itis.repositories.tokens.TokensRepository;
-import ru.itis.security.utils.AuthorizationsHeaderUtil;
+import ru.itis.security.utils.RequestParsingUtil;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -19,7 +19,7 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class CustomLogoutFilter extends OncePerRequestFilter {
 
-    private final AuthorizationsHeaderUtil authorizationsHeaderUtil;
+    private final RequestParsingUtil requestParsingUtil;
     private final TokensRepository tokensRepository;
 
     @Value("${jwt.secret.key}")
@@ -29,9 +29,9 @@ public class CustomLogoutFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         if (request.getServletPath().equals(LOGOUT_URL)) {
-            String token = authorizationsHeaderUtil.getToken(request);
+            String token = requestParsingUtil.getTokenFromCookie(request);
 
-            if (token != null && authorizationsHeaderUtil.isTokenValid(token, response)) {
+            if (token != null && requestParsingUtil.isTokenValid(token, response)) {
                 tokensRepository.addAccessToken(token);
                 SecurityContextHolder.clearContext();
             } else {

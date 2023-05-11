@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ru.itis.controllers.rest.api.ApiController;
 import ru.itis.controllers.rest.api.GroupsApi;
 import ru.itis.dto.group.GroupDto;
 import ru.itis.dto.user.UsersPage;
