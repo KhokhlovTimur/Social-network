@@ -13,7 +13,7 @@ import ru.itis.dto.user.UsersPage;
 import ru.itis.dto.group.NewOrUpdateGroupDto;
 
 @RequestMapping("/api/groups")
-public interface GroupsApi  {
+public interface GroupsApi {
     @GetMapping("/{id}")
     @Operation(summary = "Get group")
     @ApiResponses(value = {
@@ -79,15 +79,6 @@ public interface GroupsApi  {
     })
     ResponseEntity<GroupDto> update(@PathVariable("id") Long id, @RequestBody NewOrUpdateGroupDto groupDto);
 
-
-    @GetMapping("/{id}/users")
-    @Operation(summary = "Get users from group")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "All group's users",
-                    content = {
-                            @Content(mediaType = "application/json",
-                                    schema = @Schema(implementation = UsersPage.class))})
-    })
-    ResponseEntity<UsersPage> getUsers(@PathVariable("id") Long id);
-
+    @GetMapping("/{id}/users/{username}")
+    ResponseEntity<Boolean> isUserExists(@PathVariable("id") Long id, @PathVariable("username") String username);
 }

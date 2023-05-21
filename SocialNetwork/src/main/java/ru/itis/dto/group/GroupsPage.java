@@ -16,5 +16,6 @@ import java.util.Set;
 @Schema(description = "Page with groups")
 public class GroupsPage {
     private Set<GroupDto> groups;
-    private Integer totalCount;
+    private long totalCount;
+    private Integer pagesCount;
 }

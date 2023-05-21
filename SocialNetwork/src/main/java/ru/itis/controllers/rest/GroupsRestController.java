@@ -16,29 +16,34 @@ import ru.itis.services.groups.GroupsService;
 public class GroupsRestController implements GroupsApi {
     private final GroupsService groupsService;
 
+    @Override
     public ResponseEntity<GroupDto> get(Long id) {
         return ResponseEntity.ok()
                 .body(groupsService.findDtoById(id));
     }
 
+    @Override
     public ResponseEntity<GroupDto> add(NewOrUpdateGroupDto newGroupDto, String rawToken) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(groupsService.add(newGroupDto, rawToken));
     }
 
+    @Override
     public ResponseEntity<?> delete(Long id) {
         groupsService.delete(id);
         return ResponseEntity.status(HttpStatus.ACCEPTED)
                 .build();
     }
 
+    @Override
+    public ResponseEntity<Boolean> isUserExists(Long id, String username) {
+        return ResponseEntity.ok(groupsService.isUserExistsInGroup(username, id));
+    }
+
+    @Override
     public ResponseEntity<GroupDto> update(Long id, NewOrUpdateGroupDto groupDto) {
         return ResponseEntity.status(HttpStatus.ACCEPTED)
                 .body(groupsService.update(id, groupDto));
     }
 
-    public ResponseEntity<UsersPage> getUsers(Long id) {
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(groupsService.getUsers(id));
-    }
 }

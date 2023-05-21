@@ -16,4 +16,5 @@ public class NewOrUpdateGroupDto {
     private String name;
     @Schema(description = "Group's description", example = "Group about films")
     private String description;
+    private String imageLink;
 }

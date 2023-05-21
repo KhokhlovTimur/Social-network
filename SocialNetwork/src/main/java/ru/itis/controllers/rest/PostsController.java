@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
-import ru.itis.controllers.rest.api.ApiController;
+import org.springframework.web.multipart.MultipartFile;
 import ru.itis.controllers.rest.api.PostsApi;
 import ru.itis.dto.other.LikesPage;
 import ru.itis.dto.posts.NewOrUpdateGroupPostDto;
@@ -12,15 +12,21 @@ import ru.itis.dto.posts.PostDto;
 import ru.itis.dto.posts.PostsPage;
 import ru.itis.services.posts.PostsService;
 
+import java.util.Arrays;
+
 @RestController
 @RequiredArgsConstructor
 public class PostsController implements  PostsApi {
     private final PostsService postsService;
 
     @Override
-    public ResponseEntity<PostDto> addPost(Long id, NewOrUpdateGroupPostDto postDto) {
+    public ResponseEntity<PostDto> addPost(Long id, MultipartFile[] files, String text, String rawToken) {
+        NewOrUpdateGroupPostDto postDto = NewOrUpdateGroupPostDto.builder()
+                .files(files)
+                .text(text)
+                .build();
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(postsService.add(id, postDto));
+                .body(postsService.add(id, postDto, rawToken));
     }
 
     @Override
@@ -40,7 +46,25 @@ public class PostsController implements  PostsApi {
     }
 
     @Override
-    public ResponseEntity<?> removeLike(Long groupId, Long postId) {
+    public ResponseEntity<?> delete(Long groupId, Long postId) {
+        postsService.delete(postId, groupId);
+        return ResponseEntity.accepted()
+                .build();
+    }
+
+    @Override
+    public ResponseEntity<Boolean> isUserPutLikeToPost(Long groupId, Long postId, String username) {
+        return ResponseEntity.ok(postsService.isUserPutLikeToPost(username, postId, groupId));
+    }
+
+    @Override
+    public ResponseEntity<Long> getLikesCount(Long groupId, Long postId) {
+        return ResponseEntity.ok(postsService.getLikesCountByPostId(postId));
+    }
+
+    @Override
+    public ResponseEntity<?> removeLike(Long groupId, Long postId, String rawToken) {
+        postsService.removeLike(groupId, postId, rawToken);
         return ResponseEntity.status(HttpStatus.ACCEPTED)
                 .build();
     }
@@ -51,8 +75,8 @@ public class PostsController implements  PostsApi {
     }
 
     @Override
-    public ResponseEntity<?> putLike(Long groupId, Long postId) {
-        postsService.putLike(groupId, postId);
+    public ResponseEntity<?> putLike(Long groupId, Long postId, String rawToken) {
+        postsService.putLike(groupId, postId, rawToken);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .build();
     }

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Profile</title>
+    <link rel="stylesheet" href="/css/template.css">
+    <link rel="stylesheet" href="/css/profile.css">
+</head>
+<body>
+
+<div class="main-container collapse">
+
+    <nav th:replace="navbar_template :: mainNavbar"></nav>
+    <div th:replace="navbar_template :: header"></div>
+    <div class="body overflow-h">
+    </div>
+
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script th:src="@{/js/navbar.js}"></script>
+<script th:src="@{/js/ajax_requests.js}"></script>
+<script th:src="@{/js/profile.js}"></script>
+</body>
+</html>

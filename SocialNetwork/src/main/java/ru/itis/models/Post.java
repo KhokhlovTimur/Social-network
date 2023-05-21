@@ -1,10 +1,11 @@
 package ru.itis.models;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.*;
+import org.hibernate.engine.internal.Cascade;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 
 @AllArgsConstructor
@@ -23,7 +24,7 @@ public class Post {
     @Column(name = "date_of_publication")
     private Date dateOfPublication;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "group_id")
     private Group group;
 
@@ -31,9 +32,9 @@ public class Post {
     @JoinColumn(name = "author_id")
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
-    private User user;
+    private User author;
 
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany
     @JoinTable(name = "likes", joinColumns = {
             @JoinColumn(name = "post_id", referencedColumnName = "id")
     }, inverseJoinColumns = {
@@ -42,4 +43,11 @@ public class Post {
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private Set<User> usersHaveLiked;
+
+    @OneToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
+    @JoinTable(name = "post_file", joinColumns = {
+            @JoinColumn(name = "post_id")
+    },
+            inverseJoinColumns = @JoinColumn(name = "file_id"))
+    private Set<FileInfo> files;
 }

@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import ru.itis.dto.other.ExceptionDto;
 import ru.itis.dto.other.LikesPage;
 import ru.itis.dto.posts.NewOrUpdateGroupPostDto;
@@ -30,7 +31,9 @@ public interface PostsApi {
                                     schema = @Schema(implementation = ExceptionDto.class))
                     })
     })
-    ResponseEntity<PostDto> addPost(@PathVariable("id") Long id, @RequestBody NewOrUpdateGroupPostDto postDto);
+    ResponseEntity<PostDto> addPost(@PathVariable("id") Long id, @RequestParam(value = "files", required = false) MultipartFile[] files,
+                                    @RequestParam("text") String text,
+                                    @RequestHeader(name = "Authorization") String rawToken);
 
 
     @GetMapping("/{group_id}/posts")
@@ -95,10 +98,6 @@ public interface PostsApi {
     @Operation(summary = "Put a like")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201"
-//                    content = {
-//                            @Content(mediaType = "application/json",
-//                                    schema = @Schema(implementation = NewOrUpdateGroupPostDto.class))
-//                    }
             ),
             @ApiResponse(responseCode = "422", description = "Error information",
                     content = {
@@ -108,10 +107,27 @@ public interface PostsApi {
     })
     @PostMapping("/{group_id}/posts/{post_id}/likes")
     ResponseEntity<?> putLike(@PathVariable("group_id") Long groupId,
-                              @PathVariable("post_id") Long postId);
+                              @PathVariable("post_id") Long postId,
+                              @RequestHeader(name = "Authorization") String rawToken);
 
 
     @DeleteMapping("/{group_id}/posts/{post_id}/likes")
     ResponseEntity<?> removeLike(@PathVariable("group_id") Long groupId,
-                                 @PathVariable("post_id") Long postId);
+                                 @PathVariable("post_id") Long postId,
+                                 @RequestHeader(name = "Authorization") String rawToken);
+
+
+    @GetMapping("/{group_id}/posts/{post_id}/likes/count")
+    ResponseEntity<Long> getLikesCount(@PathVariable("group_id") Long groupId,
+                                       @PathVariable("post_id") Long postId);
+
+    @GetMapping("/{group_id}/posts/{post_id}/likes/{username}")
+    ResponseEntity<Boolean> isUserPutLikeToPost(@PathVariable("group_id") Long groupId,
+                                                @PathVariable("post_id") Long postId,
+                                                @PathVariable("username") String username);
+
+    @DeleteMapping("/{group_id}/posts/{post_id}")
+    ResponseEntity<?> delete(@PathVariable("group_id") Long groupId,
+                             @PathVariable("post_id") Long postId);
 }
+

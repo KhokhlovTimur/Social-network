@@ -4,6 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -11,4 +14,5 @@ import lombok.NoArgsConstructor;
 @Data
 public class NewOrUpdateGroupPostDto {
     private String text;
+    private MultipartFile[] files;
 }

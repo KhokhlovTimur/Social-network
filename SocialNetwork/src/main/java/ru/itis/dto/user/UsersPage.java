@@ -16,5 +16,6 @@ import java.util.Set;
 @Schema(description = "Page with users")
 public class UsersPage {
     private Set<? extends PublicUserDto> users;
-    private Integer totalCount;
+    private Integer pagesCount;
+    private long totalCount;
 }

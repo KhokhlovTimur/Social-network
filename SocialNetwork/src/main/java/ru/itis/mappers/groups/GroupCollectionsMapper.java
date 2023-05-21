@@ -11,4 +11,5 @@ import java.util.Set;
 @Mapper(componentModel = "spring", uses = {GroupMapper.class}, injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 public interface GroupCollectionsMapper {
     Set<GroupDto> toGroupDtoSet(Set<Group> groups);
+    Set<GroupDto> toGroupDtoSet(List<Group> groups);
 }

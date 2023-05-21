@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.itis.dto.chats.NewOrUpdatePersonalChatDto;
 import ru.itis.dto.chats.PersonalChatDto;
+import ru.itis.exceptions.IsAlreadyExists;
 import ru.itis.exceptions.NotFoundException;
 import ru.itis.mappers.chats.ChatsMapper;
 import ru.itis.models.ChatGlobalId;
@@ -11,8 +12,6 @@ import ru.itis.models.PersonalChat;
 import ru.itis.models.User;
 import ru.itis.repositories.ChatsGlobalIdsRepository;
 import ru.itis.repositories.PersonalChatsRepository;
-import ru.itis.repositories.UsersRepository;
-import ru.itis.security.utils.RequestParsingUtil;
 import ru.itis.services.users.UsersService;
 import ru.itis.services.utils.UsersServiceUtils;
 
@@ -44,12 +43,18 @@ public class PersonalChatsServiceImpl implements PersonalChatsService {
     @Override
     public PersonalChatDto add(NewOrUpdatePersonalChatDto personalChatDto, String rawToken) {
         PersonalChat chat = chatsMapper.toPersonalChat(personalChatDto);
-        chat.setFirstUser(usersServiceUtils.getUserFromToken(rawToken));
-        chat.setSecondUser(usersService.findById(personalChatDto.getSecondUserId()));
+        if (personalChatsRepository.findAllBySecondUserIdOrFirstUserId(personalChatDto.getSecondUserId()).size() == 0 &&
+                personalChatsRepository.findAllBySecondUserIdOrFirstUserId(personalChatDto.getFirstUserId()).size() == 0) {
+            chat.setFirstUser(usersServiceUtils.getUserFromToken(rawToken));
+            chat.setSecondUser(usersService.findById(personalChatDto.getSecondUserId()));
 
-        chat.setGlobalId(chatsGlobalIdsRepository.save(ChatGlobalId.builder()
-                .chatType(ChatGlobalId.ChatType.PERSONAL)
-                .build()));
+            chat.setGlobalId(chatsGlobalIdsRepository.save(ChatGlobalId.builder()
+                    .chatType(ChatGlobalId.ChatType.PERSONAL)
+                    .build()));
+        }
+        else {
+            throw new IsAlreadyExists("Chat with this users already exists");
+        }
 
         return chatsMapper.toPersonalChatDto(personalChatsRepository.save(chat));
     }

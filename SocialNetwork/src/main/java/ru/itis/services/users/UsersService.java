@@ -22,8 +22,6 @@ public interface UsersService {
 
     GroupsPage getGroups(Long userId);
 
-    Set<GroupDto> getGroups(String token);
-
     <T extends PublicUserDto> T getById(Long id, String token);
 
     Set<PostDto> getPostsFromGroups(String token);

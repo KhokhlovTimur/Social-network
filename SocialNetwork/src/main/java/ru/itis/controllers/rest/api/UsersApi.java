@@ -84,10 +84,7 @@ public interface UsersApi  {
                                    @RequestBody UserUpdateDto updateUserDto,
                                    @RequestHeader(name = "Authorization") String rawToken);
 
-    @GetMapping("/{id}/groups")
-    ResponseEntity<GroupsPage> getGroups(@PathVariable("id") Long id);
-
-//    @GetMapping("/{id}/friends")
+//        @GetMapping("/{id}/friends")
 //    ResponseEntity<List<PublicUserDto>> getFriends(@PathVariable("id") Long id);
 
 }

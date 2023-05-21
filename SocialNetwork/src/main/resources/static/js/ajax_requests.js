@@ -1,23 +1,37 @@
-function generateRequestWithHeaderAndFunc(url, method, successFunc) {
-    return new Promise(resolve => {
+function generateRequestToGetJson(url, method, successFunc, unSuccessFunc) {
+    return generatePromiseRequestWithHeader(url, method, successFunc, unSuccessFunc, 'json');
+}
+
+function generatePromiseRequestWithHeader(url, method, successFunc, unSuccessFunc, dataType) {
+    return new Promise((resolve, reject) => {
         $.ajax({
-            url: url,
+            url: '/api' + url,
             method: method,
-            dataType: 'json',
+            dataType: dataType,
             headers: {
                 'Authorization': 'Bearer ' + localStorage['accessToken']
             },
             success: function (res) {
-                successFunc(res);
+                if (typeof successFunc === 'function') {
+                    successFunc(res);
+                }
                 resolve();
             },
+            error: function (xhr, status, error) {
+                if (typeof unSuccessFunc === 'function') {
+                    unSuccessFunc(xhr);
+                }
+                console.log(xhr.status + ': ' + xhr.statusText);
+                reject(xhr.status + ': ' + xhr.statusText);
+
+            }
         })
     })
 }
 
 function generateRequestWithHeaderAndFuncWithoutPromise(url, method, successFunc) {
     $.ajax({
-        url: url,
+        url: '/api' + url,
         method: method,
         dataType: 'json',
         headers: {

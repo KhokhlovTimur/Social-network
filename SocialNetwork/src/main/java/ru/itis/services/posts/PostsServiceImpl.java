@@ -4,7 +4,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import ru.itis.dto.other.LikesPage;
 import ru.itis.dto.posts.NewOrUpdateGroupPostDto;
 import ru.itis.dto.posts.PostDto;
@@ -14,14 +16,22 @@ import ru.itis.exceptions.NotFoundException;
 import ru.itis.mappers.posts.PostsCollectionMapper;
 import ru.itis.mappers.posts.PostsMapper;
 import ru.itis.mappers.users.UsersCollectionsMapper;
+import ru.itis.models.FileInfo;
 import ru.itis.models.Group;
 import ru.itis.models.Post;
 import ru.itis.models.User;
+import ru.itis.repositories.FileInfoRepository;
+import ru.itis.repositories.GroupsRepository;
 import ru.itis.repositories.PostsRepository;
+import ru.itis.services.files.FilesService;
 import ru.itis.services.groups.GroupsService;
+import ru.itis.services.users.UsersService;
+import ru.itis.services.utils.FilesServiceUtils;
 import ru.itis.services.utils.UsersServiceUtils;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Set;
 
 @Service
@@ -30,10 +40,15 @@ public class PostsServiceImpl implements PostsService {
     private final PostsRepository postsRepository;
     private final PostsMapper postsMapper;
     private final GroupsService groupsService;
+    private final GroupsRepository groupsRepository;
     private final PostsCollectionMapper postsCollectionMapper;
     private final UsersCollectionsMapper usersCollectionsMapper;
     private final UsersServiceUtils usersServiceUtils;
+    private final UsersService usersService;
+    private final FilesService filesService;
+    private final FilesServiceUtils filesServiceUtils;
 
+    private final FileInfoRepository fileInfoRepository;
     @Value("${default.page-size}")
     private int defaultSize;
 
@@ -49,9 +64,18 @@ public class PostsServiceImpl implements PostsService {
     }
 
     @Override
-    public void putLike(Long groupId, Long postId) {
+    public Long getLikesCountByPostId(Long postId) {
+        getOrThrow(postId);
+        return postsRepository.countLikes(postId);
+    }
+
+    @Override
+    public void putLike(Long groupId, Long postId, String token) {
+//        getOrThrow(85L).getFiles().remove(fileInfoRepository.findById(4l));
+//        postsRepository.save(getOrThrow(85L));
+        fileInfoRepository.deleteById(4L);
         Post post = getOrThrow(groupId, postId);
-        User user = usersServiceUtils.getUserFromContext();
+        User user = usersServiceUtils.getUserFromToken(token);
 
         post.getUsersHaveLiked().add(user);
         user.getLikedPosts().add(post);
@@ -60,9 +84,25 @@ public class PostsServiceImpl implements PostsService {
     }
 
     @Override
-    public void removeLike(Long groupId, Long postId) {
+    public void delete(Long postId, Long groupId) {
+        Group group = groupsService.findById(groupId);
+//        group.getPosts().remove(getOrThrow(postId));
+//        postsRepository.deleteFromPostFile(postId);
+        postsRepository.delete(getOrThrow(postId));
+    }
+
+    @Override
+    public Boolean isUserPutLikeToPost(String username, Long postId, Long groupId) {
+        User user = usersService.findByUsername(username);
+        getOrThrow(postId);
+        groupsService.findById(groupId);
+        return postsRepository.isUserPutLikeToPost(user.getId(), postId);
+    }
+
+    @Override
+    public void removeLike(Long groupId, Long postId, String token) {
         Post post = getOrThrow(groupId, postId);
-        User user = usersServiceUtils.getUserFromContext();
+        User user = usersServiceUtils.getUserFromToken(token);
 
         post.getUsersHaveLiked().remove(user);
         user.getLikedPosts().remove(post);
@@ -73,9 +113,9 @@ public class PostsServiceImpl implements PostsService {
     @Override
     public PostsPage getPosts(Long id, int pageNumber) {
         groupsService.findById(id);
-        PageRequest pageRequest = PageRequest.of(pageNumber, defaultSize);
+        PageRequest pageRequest = PageRequest.of(pageNumber, defaultSize, Sort.by("dateOfPublication").descending());
 
-        Page<Post> posts = postsRepository.findAllByGroupIdOrderById(pageRequest, id);
+        Page<Post> posts = postsRepository.findAllByGroupId(pageRequest, id);
 
         return PostsPage.builder()
                 .posts(postsCollectionMapper.toDtoList(posts.getContent()))
@@ -89,13 +129,30 @@ public class PostsServiceImpl implements PostsService {
     }
 
     @Override
-    public PostDto add(Long groupId, NewOrUpdateGroupPostDto postDto) {
+    public PostDto add(Long groupId, NewOrUpdateGroupPostDto postDto, String token) {
         Post post = Post.builder()
                 .dateOfPublication(new Date())
                 .text(postDto.getText())
                 .group(groupsService.findById(groupId))
-                .user(usersServiceUtils.getUserFromContext())
+                .author(usersServiceUtils.getUserFromToken(token))
+                .files(new HashSet<>())
                 .build();
+
+        PostDto newPost = postsMapper.toDto(postsRepository.save(post));
+
+        if (postDto.getFiles() != null) {
+            for (MultipartFile file : postDto.getFiles()) {
+                String newFileName = filesServiceUtils.generateFileName(file.getOriginalFilename());
+                String fileLink = filesService.savePhoto(file, groupId + "/posts/" + newPost.getId() + "/" +
+                        newFileName, "groups");
+
+                post.getFiles().add(FileInfo.builder()
+                        .fileLink(fileLink)
+                        .originalFilename(file.getOriginalFilename())
+                        .mimeType(file.getContentType())
+                        .build());
+            }
+        }
 
         return postsMapper.toDto(postsRepository.save(post));
     }
@@ -126,4 +183,5 @@ public class PostsServiceImpl implements PostsService {
                     "with id <" + groupId + ">");
         }
     }
+
 }

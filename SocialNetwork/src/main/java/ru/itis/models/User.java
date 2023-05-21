@@ -36,11 +36,11 @@ public class User {
     @Column(name = "avatar_link")
     private String avatarLink;
 
-    @ManyToMany(mappedBy = "users", cascade = CascadeType.ALL)
+    @ManyToMany(mappedBy = "users", cascade = {CascadeType.MERGE})
     @JsonManagedReference
     private Set<Group> groups;
 
-    @ManyToMany(mappedBy = "usersHaveLiked", cascade = CascadeType.ALL)
+    @ManyToMany(mappedBy = "usersHaveLiked")
     private Set<Post> likedPosts;
 
     @Enumerated(EnumType.STRING)

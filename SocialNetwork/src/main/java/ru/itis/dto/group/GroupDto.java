@@ -25,4 +25,5 @@ public class GroupDto {
     private Date dateOfCreation;
     @Schema(description = "Group's creator")
     private PublicUserDto creator;
+    private String imageLink;
 }

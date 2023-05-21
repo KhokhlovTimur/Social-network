@@ -6,8 +6,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import ru.itis.dto.group.GroupDto;
 import ru.itis.dto.user.PublicUserDto;
+import ru.itis.models.FileInfo;
 
 import java.util.Date;
+import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -19,4 +21,5 @@ public class PostDto {
     private Date dateOfPublication;
     private PublicUserDto author;
     private GroupDto group;
+    private List<FileInfo> files;
 }

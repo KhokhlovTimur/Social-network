@@ -5,6 +5,7 @@
     <title>Groups</title>
 
     <link rel="stylesheet" href="/css/template.css">
+    <link rel="stylesheet" href="/css/group.css">
 </head>
 <body>
 
@@ -13,33 +14,57 @@
     <nav th:replace="navbar_template :: mainNavbar"></nav>
     <div th:replace="navbar_template :: header"></div>
 
-    <div class="body" style="position: relative;">
-        <div class="">
-            <button class="d-none" id="backGroups">К группам</button>
+    <div class="body relative-body">
 
-            <div class="d-none" id="groupsList">
-                <div class="" th:each="group : ${groups}">
-                    <div class="" style="cursor: pointer" th:value="${group.id}">
-                        <p th:text="${group.name}" th:value="${group.id}"></p>
+        <div class="main">
+            <span class="heading">groups</span>
+            <div class="search">
+
+                <div class="text_and-icon">
+                    <input type="text" class="search_text" id="search_text" placeholder="Search..." autocomplete="off">
+                </div>
+            </div>
+
+            <div id="groupsList">
+                <!--                <button class="vertical">Vertical</button>-->
+                <div class="card group" th:each="group : ${groups}" th:value="${group.id}">
+                    <img th:src="${group.imageLink}" alt="">
+                    <div class="card-content">
+                        <h2 th:text="${group.name}">
+                        </h2>
+                        <p th:text="${group.description}">
+                        </p>
                     </div>
                 </div>
             </div>
 
-            <div class="d-none" id="groupInfo">
-                <div class="" id="groupLine">
+        </div>
+
+
+        <div id="groupInfo">
+            <div class="group-profile">
+                <div class="group-profile-image">
+                    <img id="profile-img">
                 </div>
+                <div class="group-profile-info">
+                    <span class="name"></span>
+                    <span class="members"></span>
+                    <p id="group-description">
+                    </p>
+                </div>
+
+                <button class="join-button">Join</button>
             </div>
 
-            <div class="d-none" id="posts">
-                <p>Posts</p>
+            <div class="posts">
             </div>
+
         </div>
     </div>
 </div>
-
-<script th:src="@{/js/libs/http_ajax.googleapis.com_ajax_libs_jquery_3.4.1_jquery.js}"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script th:src="@{/js/ajax_requests.js}"></script>
-<script th:src="@{/js/groups.js}"></script>
 <script th:src="@{/js/navbar.js}"></script>
+<script th:src="@{/js/groups.js}"></script>
 </body>
 </html>

@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.itis.dto.group.GroupDto;
 import ru.itis.dto.other.ExceptionDto;
 import ru.itis.dto.group.GroupsPage;
+import ru.itis.dto.user.UsersPage;
 
 @RequestMapping("/api")
 public interface UsersGroupsApi {
@@ -23,12 +24,12 @@ public interface UsersGroupsApi {
                                     schema = @Schema(implementation = ExceptionDto.class))
                     })
     })
-    @DeleteMapping(value = {"/users/{user_id}/groups/{group_id}", "/groups/{group_id}/users/{user_id}"})
-    ResponseEntity<?> deleteUserFromGroup(@PathVariable("user_id") Long userId,
-                                                 @PathVariable("group_id") Long groupId);
+    @DeleteMapping(value = {"/groups/{group_id}/users"})
+    ResponseEntity<?> deleteUserFromGroup(@PathVariable("group_id") Long groupId,
+                                          @RequestHeader("Authorization") String token);
 
 
-    @PostMapping("/groups/{group_id}/users/{user_id}")
+    @PostMapping("/groups/{group_id}/users")
     @Operation(summary = "Add a group to the user")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "All user's groups",
@@ -36,7 +37,16 @@ public interface UsersGroupsApi {
                             @Content(mediaType = "application/json",
                                     schema = @Schema(implementation = GroupsPage.class))})
     })
-    ResponseEntity<GroupDto> addGroupToUser(@PathVariable("user_id") Long userId,
-                                            @PathVariable("group_id") Long groupId,
+    ResponseEntity<GroupDto> addGroupToUser(@PathVariable("group_id") Long groupId,
                                             @RequestHeader("Authorization") String rawToken);
+
+
+    @GetMapping("/groups/{id}/users")
+    ResponseEntity<UsersPage> getUsers(@PathVariable("id") Long groupId, @RequestParam("page") int pageNumber);
+
+    @GetMapping("/groups")
+    ResponseEntity<GroupsPage> getGroups(@RequestParam("name") String name, @RequestParam("page") int pageNumber);
+
+    @GetMapping("/users/{username}/groups")
+    ResponseEntity<GroupsPage> getGroups(@RequestParam("page") int pageNumber, @PathVariable("username") String username);
 }

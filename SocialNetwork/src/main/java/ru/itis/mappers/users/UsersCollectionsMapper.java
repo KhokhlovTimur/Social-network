@@ -15,6 +15,8 @@ public interface UsersCollectionsMapper {
     @IterableMapping(qualifiedByName = "toPublic")
     Set<PublicUserDto> toPublicUsersDtoSet(Set<User> users);
 
+    Set<PublicUserDto> toPublicUsersDtoSet(List<User> users);
+
     @IterableMapping(qualifiedByName = "toPublic")
     List<PublicUserDto> toPublicUsersDtoList(List<User> users);
 }

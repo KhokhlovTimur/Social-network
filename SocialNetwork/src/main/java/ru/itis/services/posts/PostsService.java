@@ -4,12 +4,9 @@ import ru.itis.dto.other.LikesPage;
 import ru.itis.dto.posts.NewOrUpdateGroupPostDto;
 import ru.itis.dto.posts.PostDto;
 import ru.itis.dto.posts.PostsPage;
-import ru.itis.models.Post;
-
-import java.util.List;
 
 public interface PostsService {
-    PostDto add(Long groupId, NewOrUpdateGroupPostDto postDto);
+    PostDto add(Long groupId, NewOrUpdateGroupPostDto postDto, String token);
 
     PostsPage getPosts(Long id, int pageNumber);
 
@@ -19,7 +16,13 @@ public interface PostsService {
 
     LikesPage getEmotions(Long groupId, Long postId);
 
-    void putLike(Long groupId, Long postId);
+    void putLike(Long groupId, Long postId, String token);
 
-    void removeLike(Long groupId, Long postId);
+    Long getLikesCountByPostId(Long postId);
+
+    void removeLike(Long groupId, Long postId, String token);
+
+    Boolean isUserPutLikeToPost(String username, Long postId, Long groupId);
+
+    void delete(Long postId, Long groupId);
 }

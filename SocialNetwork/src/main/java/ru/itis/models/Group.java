@@ -28,6 +28,9 @@ public class Group {
 
     private String description;
 
+    @Column(name = "image_link")
+    private String imageLink;
+
     @Temporal(TemporalType.TIMESTAMP)
     private Date dateOfCreation;
 
@@ -40,7 +43,7 @@ public class Group {
     @JoinColumn(name = "creator_id")
     private User creator;
 
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany
     @JoinTable(name = "user_group", joinColumns = {
             @JoinColumn(name = "group_id", referencedColumnName = "id")
     }, inverseJoinColumns = {
@@ -49,8 +52,7 @@ public class Group {
     @JsonBackReference
     private Set<User> users;
 
-    @JsonManagedReference
-    @OneToMany(mappedBy = "group", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "group", cascade = CascadeType.MERGE)
     private Set<Post> posts;
 
     public enum Status {

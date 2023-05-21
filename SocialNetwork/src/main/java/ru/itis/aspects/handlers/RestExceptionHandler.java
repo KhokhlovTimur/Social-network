@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.itis.dto.other.ExceptionDto;
+import ru.itis.exceptions.IsAlreadyExists;
 import ru.itis.exceptions.NoAccessException;
 import ru.itis.exceptions.NotFoundException;
 
@@ -23,6 +24,15 @@ public class RestExceptionHandler {
     @ExceptionHandler(NoAccessException.class)
     public ResponseEntity<ExceptionDto> handleNoAccessException(NoAccessException e) {
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(ExceptionDto.builder()
+                        .message(e.getMessage())
+                        .status(HttpStatus.FORBIDDEN.value())
+                        .build());
+    }
+
+    @ExceptionHandler(IsAlreadyExists.class)
+    public ResponseEntity<ExceptionDto> handleNoAccessException(IsAlreadyExists e) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(ExceptionDto.builder()
                         .message(e.getMessage())
                         .status(HttpStatus.FORBIDDEN.value())

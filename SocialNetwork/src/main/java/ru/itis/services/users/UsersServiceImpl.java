@@ -109,13 +109,6 @@ public class UsersServiceImpl implements UsersService {
     }
 
     @Override
-    public Set<GroupDto> getGroups(String token) {
-        Set<Group> groups = usersServiceUtils.getUserFromToken(token).getGroups();
-        System.out.println(groups);
-        return groupCollectionsMapper.toGroupDtoSet(groups);
-    }
-
-    @Override
     public GroupsPage getGroups(Long userId) {
         Set<Group> groups = getOrThrow(userId).getGroups();
 

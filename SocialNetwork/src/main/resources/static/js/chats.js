@@ -17,7 +17,6 @@ let currMessage;
 let currTimer;
 let chatsEndpoint = '/app/chats/';
 let brokerEndpoint = '/topic';
-let apiEnd = '/api';
 let currUsername;
 let navbarButton = $('.navbarImage');
 
@@ -26,7 +25,7 @@ $(document).ready(async function () {
     $(window).on('beforeunload', function () {
         disconnectSocket();
     });
-    generateRequestWithHeaderAndFuncWithoutPromise(apiEnd + '/chats/all', 'GET', fillLastMessages);
+    generateRequestWithHeaderAndFuncWithoutPromise('/chats/all', 'GET', fillLastMessages);
 
     chatDiv.click(tapOnChat);
 
@@ -53,7 +52,6 @@ $(document).ready(async function () {
 });
 
 function disconnectSocket() {
-    console.log(subscriptions)
     $.each(Array.from(subscriptions.values()), function (index, value) {
         value.unsubscribe();
     });
@@ -74,7 +72,8 @@ async function fillLastMessages(data) {
 
     let messages = $('.chat-block');
     for (let val of messages) {
-        const chatId = getChatId(val.getAttribute('value'));
+        const chatId = getChatId(val.closest('.chat-div').getAttribute('value'));
+        val.closest('.chat-div').setAttribute('value', JSON.stringify(chatsMap.get(chatId)['globalId']));
         let username = chatsMap.get(chatId)['globalId']['lastMessage']['sender']['username'];
         if (username !== currUsername) {
             currMessage = val;
@@ -84,7 +83,7 @@ async function fillLastMessages(data) {
 
     let timers = $('.chat-timer');
     for (let val of timers) {
-        const chatId = getChatId(val.getAttribute('value'));
+        const chatId = getChatId(val.closest('.chat-div').getAttribute('value')).toString();
         currTimer = val;
         setTimer(chatsMap.get(chatId)['globalId']['lastMessage']);
     }
@@ -133,7 +132,7 @@ function getChatId(id) {
 
 function tapOnChat(event) {
     prevChat = currentChat;
-    let glId = event.target.getAttribute('value');
+    let glId = event.target.closest('.chat-div').getAttribute('value');
     if (glId.indexOf('ChatGlobalIdDto') !== -1) {
         glId = glId.replace('ChatGlobalIdDto(id=', '');
         chatId = glId.substring(0, glId.indexOf(','));
@@ -147,7 +146,7 @@ function tapOnChat(event) {
 
 function connectToChat() {
     chatBlock.empty();
-    generateRequestWithHeaderAndFuncWithoutPromise(apiEnd + '/chats/' + chatId, 'GET', setCurrChat);
+    generateRequestWithHeaderAndFuncWithoutPromise('/chats/' + chatId, 'GET', setCurrChat);
 }
 
 function setCurrChat(data) {
@@ -155,7 +154,7 @@ function setCurrChat(data) {
     chatType = currentChat['globalId']['chatType'];
     history.replaceState(null, null, '/app/chats?id=' + chatId);
 
-    generateRequestWithHeaderAndFuncWithoutPromise(apiEnd + '/chats/' + chatId + "/messages",
+    generateRequestWithHeaderAndFuncWithoutPromise('/chats/' + chatId + "/messages",
         'get', getMessagesFromResponseAndOpenConnection)
 }
 
@@ -164,7 +163,7 @@ function findChat(event) {
     let payload = searchInput.val().trim();
     if (payload.length > 0) {
         chats.empty();
-        generateRequestWithHeaderAndFuncWithoutPromise(apiEnd + '/chats?name=' + payload, 'GET', showChats);
+        generateRequestWithHeaderAndFuncWithoutPromise('/chats?name=' + payload, 'GET', showChats);
     } else {
         chats.empty();
         showChats(Array.from(chatsMap.values()));
@@ -192,26 +191,21 @@ function createChat(imageUrl, name, id) {
     let chatDiv = $('<div>').addClass('chat').addClass('chat-div');
     chatDiv.attr('value', id);
     let photoDiv = $('<div>').addClass('photo');
-    photoDiv.attr('value', id);
     photoDiv.attr('style', 'background-image: url(\"' + imageUrl + '\")');
     chatDiv.append(photoDiv);
 
     let contactDiv = $('<div>').addClass('desc-contact');
     let nameP = $('<p>').addClass('name');
     nameP.html(name);
-    nameP.attr('value', id);
     contactDiv.append(nameP);
 
     let messageP = $('<p>').addClass('message chat-block');
-    messageP.attr('value', id);
     contactDiv.append(messageP);
     currMessage = messageP[0];
     setMessage(JSON.parse(id)['lastMessage']);
-    contactDiv.attr('value', id);
     chatDiv.append(contactDiv);
 
     let timerDiv = $('<div>').addClass('timer chat-timer');
-    timerDiv.attr('value', id);
 
     currTimer = timerDiv[0];
     setTimer(JSON.parse(id)['lastMessage']);
@@ -256,17 +250,18 @@ function processMessage(rawMessage) {
     let messages = $('.chat-block');
 
     $.each(messages, function (index, value) {
-        if (getChatId($(this).attr('value')).toString() === newMessage['globalId']['id'].toString()) {
+
+        if (getChatId($(this).closest('.chat-div').attr('value')).toString() === newMessage['globalId']['id'].toString()) {
             currMessage = value;
-            chatsMap.get(getChatId($(this).attr('value')).toString())['globalId']['lastMessage']['content'] = newMessage['content'];
+            chatsMap.get(getChatId($(this).closest('.chat-div').attr('value')).toString())['globalId']['lastMessage']['content'] = newMessage['content'];
             setMessage(newMessage);
         }
     });
 
     $.each($('.chat-timer'), function (index, value) {
-        if (getChatId($(this).attr('value')).toString() === newMessage['globalId']['id'].toString()) {
+        if (getChatId($(this).closest('.chat-div').attr('value')).toString() === newMessage['globalId']['id'].toString()) {
             currTimer = value;
-            chatsMap.get(getChatId($(this).attr('value')).toString())['globalId']['lastMessage']['sendingTime'] = newMessage['sendingTime'];
+            chatsMap.get(getChatId($(this).closest('.chat-div').attr('value')).toString())['globalId']['lastMessage']['sendingTime'] = newMessage['sendingTime'];
             setTimer(newMessage);
         }
     });
@@ -318,7 +313,7 @@ function leftMessage(value) {
     let photo = $('<div>').addClass('photo');
     photo.attr('style', 'background-image: url(' + value['sender']['avatarLink'] + ')');
     message.append(photo);
-    console.log(value)
+
     let styleText = $('<p>').addClass('message-span');
     styleText.html(value['content']);
     let timer = $('<span>').addClass('time');

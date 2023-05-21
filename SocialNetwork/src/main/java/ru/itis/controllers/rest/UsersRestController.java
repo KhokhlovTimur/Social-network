@@ -52,8 +52,4 @@ public class UsersRestController implements UsersApi {
 //        return ResponseEntity.ok(friendsService.getFriends(id));
 //    }
 
-    @Override
-    public ResponseEntity<GroupsPage> getGroups(Long id) {
-        return ResponseEntity.ok(usersService.getGroups(id));
-    }
 }

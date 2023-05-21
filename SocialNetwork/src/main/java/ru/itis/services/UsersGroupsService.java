@@ -1,11 +1,12 @@
 package ru.itis.services;
 
 import ru.itis.dto.group.GroupDto;
-
-import java.util.List;
+import ru.itis.dto.user.UsersPage;
 
 public interface UsersGroupsService {
-    void deleteUserFromGroup(Long userId, Long groupId);
+    void deleteUserFromGroup(String token, Long groupId);
 
-    GroupDto addGroupToUser(Long userId, Long groupId);
+    GroupDto addGroupToUser(String token, Long groupId);
+
+    UsersPage getUsersFromGroup(Long groupId, int pageNumber);
 }
