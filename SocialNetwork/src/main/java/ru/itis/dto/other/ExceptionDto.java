@@ -14,6 +14,4 @@ import lombok.NoArgsConstructor;
 public class ExceptionDto {
     @Schema(description = "Message")
     private String message;
-    @Schema(description = "Error's status")
-    private int status;
 }

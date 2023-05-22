@@ -10,6 +10,7 @@ import ru.itis.dto.group.GroupsPage;
 import ru.itis.dto.group.NewOrUpdateGroupDto;
 import ru.itis.dto.user.UsersPage;
 import ru.itis.dto.user.PublicUserDto;
+import ru.itis.exceptions.AlreadyExistsException;
 import ru.itis.exceptions.NotFoundException;
 import ru.itis.mappers.groups.GroupCollectionsMapper;
 import ru.itis.mappers.groups.GroupMapper;
@@ -17,7 +18,9 @@ import ru.itis.mappers.users.UsersCollectionsMapper;
 import ru.itis.models.Group;
 import ru.itis.models.User;
 import ru.itis.repositories.GroupsRepository;
+import ru.itis.services.files.FilesService;
 import ru.itis.services.users.UsersService;
+import ru.itis.services.utils.FilesServiceUtils;
 import ru.itis.services.utils.UsersServiceUtils;
 
 import java.util.Date;
@@ -34,6 +37,8 @@ public class GroupsServiceImpl implements GroupsService {
     private final UsersServiceUtils usersServiceUtils;
     private final GroupCollectionsMapper groupCollectionsMapper;
     private final UsersService usersService;
+    private final FilesService filesService;
+    private final FilesServiceUtils filesServiceUtils;
 
     @Value("${default.page-size}")
     private int pageSize;
@@ -67,7 +72,7 @@ public class GroupsServiceImpl implements GroupsService {
 
         return GroupsPage.builder()
                 .groups(groupCollectionsMapper.toGroupDtoSet(groups.getContent()))
-                .totalCount(groups.getTotalPages())
+                .pagesCount(groups.getTotalPages())
                 .build();
     }
 
@@ -88,6 +93,8 @@ public class GroupsServiceImpl implements GroupsService {
 
     @Override
     public GroupDto add(NewOrUpdateGroupDto newGroupDto, String rawToken) {
+        checkGroupName(newGroupDto.getName());
+
         Group group = Group.builder()
                 .name(newGroupDto.getName())
                 .description(newGroupDto.getDescription())
@@ -97,6 +104,9 @@ public class GroupsServiceImpl implements GroupsService {
                 .users(new HashSet<>())
                 .build();
 
+        groupsRepository.save(group);
+
+        group.setImageLink(getImageLink(newGroupDto, group.getId()));
         groupsRepository.save(group);
         return groupMapper.toDto(group);
     }
@@ -112,9 +122,19 @@ public class GroupsServiceImpl implements GroupsService {
     @Override
     public GroupDto update(Long id, NewOrUpdateGroupDto groupDto) {
         Group group = getOrThrow(id);
+        System.out.println(groupDto);
 
-        group.setDescription(groupDto.getDescription());
-        group.setName(groupDto.getName());
+        if (groupDto.getName() != null && !groupDto.getName().equals(group.getName())) {
+            checkGroupName(groupDto.getName());
+            group.setName(groupDto.getName());
+        }
+
+        if (groupDto.getDescription() != null) {
+            group.setDescription(groupDto.getDescription());
+        }
+        if (groupDto.getImage() != null) {
+            group.setImageLink(getImageLink(groupDto, id));
+        }
 
         groupsRepository.save(group);
         return groupMapper.toDto(group);
@@ -136,13 +156,25 @@ public class GroupsServiceImpl implements GroupsService {
 
     private Group getOrThrow(Long id) {
         Group group = groupsRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Group with id <" + id + "> not found"));
+                .orElseThrow(() -> new NotFoundException("Group with id \"" + id + "\" not found"));
 
         if (!group.isActive()) {
-            throw new NotFoundException("Group with id <" + id + "> is not active");
+            throw new NotFoundException("Group with id \"" + id + "\" is not active");
         }
 
         return group;
+    }
+
+    private void checkGroupName(String name) {
+        if (groupsRepository.existsByName(name)) {
+            throw new AlreadyExistsException("Group with name \"" + name + "\" already exists");
+        }
+    }
+
+    private String getImageLink(NewOrUpdateGroupDto newGroupDto, Long id) {
+        String myName = filesServiceUtils.generateFileName(newGroupDto.getImage().getOriginalFilename());
+        return filesService.savePhoto(newGroupDto.getImage(), "/" + id + "/profile/" + myName,
+                "groups");
     }
 
 }

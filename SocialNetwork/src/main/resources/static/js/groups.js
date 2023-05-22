@@ -3,9 +3,10 @@ let groups = $('#groupsList');
 let main = $('.main');
 let groupId;
 let groupInfo = $('#groupInfo');
+let usersPageNumber = 0;
 let pageNumber = 0;
-let findPageNumber = 0;
-let totalCountPages;
+let totalPostsPagesCount;
+let totalGroupsPagesCount;
 let posts = $('.posts');
 let url;
 let membersCount;
@@ -16,33 +17,95 @@ let searchInput = $('.search_text');
 let groupsSet = new Set();
 let lastUpdate;
 let updateEvery = 2500;
-let pageSize;
 let currBtn;
 let likeButton = $('.like-button');
+let limitPageHeight = 0.95;
+let isLoading = false;
 
 $(document).ready(function () {
     url = window.location.toString();
     setUsername();
-    // await
 
+    $('.add-group-btn').click(addGroup);
     if (url.includes('/app/groups?id=') && url.indexOf('?id=') !== -1) {
         groupId = url.substring(url.lastIndexOf('=') + 1, url.length);
         sendRequestToGetGroup();
     } else {
         main.css('display', 'flex');
         groups.css('display', 'flex');
-
     }
+
+    generateRequestToSendJson('/users/' + currUsername + '/groups?page=0', 'GET', updateGroupsSet);
+    scrollGroups('/users/' + currUsername + '/groups?page=');
+
     likeButton.click();
     group.click(getGroupIdFromEvent);
     joinButton.click(joinToGroup);
     searchInput.keyup(findGroup);
+    $('.edit-icon').click(editGroup);
 
     $('.like-button').click(putLike);
-    // $('.vertical').click(function () {
-    //    groups.toggleClass('block');
-    // });
 });
+
+function addGroup() {
+    let shadow = $('.body-shadow');
+    let form = $('.add-group');
+    shadow.fadeIn(500, function () {
+        form.fadeIn(300);
+    });
+
+    $('.close-button').click(function () {
+        form.fadeOut(400, function () {
+            shadow.fadeOut(600);
+            $('.error').hide();
+        })
+    })
+
+    $('#addGroupForm').submit(async function (event) {
+        event.preventDefault();
+        await sendGroup();
+    });
+}
+
+async function sendGroup() {
+    $('.error').hide();
+    let name = $('#new-group-name');
+
+    let description = $('#new-group-description');
+    let image = $('#new-group-image')[0].files[0];
+    $('#new-group-image').val('');
+
+    let data = new FormData();
+    data.append('name', name.val());
+    data.append('description', description.val());
+    data.append('image', image);
+    description.val('');
+    name.val('');
+
+    await $.ajax({
+        url: '/api/groups',
+        method: 'POST',
+        data: data,
+        contentType: false,
+        processData: false,
+        headers: {
+            'Authorization': 'Bearer ' + localStorage['accessToken']
+        },
+        success: function (value) {
+            $('#addGroupForm').fadeOut(400, function () {
+                $('.body-shadow').fadeOut(600);
+            })
+            createGroup(value).hide().prependTo(groups).slideDown();
+        },
+        error: function (xhr) {
+            console.log(data)
+            let json = xhr.responseText;
+            $('.error').css('display', 'flex');
+            console.log(xhr.status + ': ' + xhr.statusText);
+            $('.error').html(JSON.parse(json)['message']);
+        }
+    })
+}
 
 async function putLike(event) {
     let postId = event.target.closest('.post').getAttribute('value');
@@ -67,8 +130,6 @@ function setLikesCount(data) {
 
 let currCount;
 let isLikePut;
-let imgsBlock;
-let index = 0;
 let deletePostId;
 
 async function createPost(value) {
@@ -77,18 +138,11 @@ async function createPost(value) {
     let inner = $('<div>').addClass('post-inner');
     if (isCurrUserOwner) {
         let menuBtn = $('<div>').addClass('menu-btn');
-        let menu = $('<ul>').addClass('menu');
-        let deleteBtn = $('<li>').addClass('delete').html('Delete');
-        let editBtn = $('<li>').addClass('edit').html('Edit');
-        menu.append(editBtn);
-        menu.append(deleteBtn);
+
+        let menu = createPostMenu(value['id']);
         menuBtn.html('...');
         menuBtn.click(function () {
             menu.toggleClass('visible');
-        });
-        deleteBtn.click(function (event) {
-            deletePostId = event.target.closest('.post').getAttribute('value');
-            generatePromiseRequestWithHeader('/groups/' + groupId + '/posts/' + deletePostId, 'DELETE', deletePost);
         });
         inner.append(menuBtn);
         inner.append(menu);
@@ -98,34 +152,10 @@ async function createPost(value) {
     let groupName = $('<p>').addClass('group-name');
     groupName.html(value['group']['name']);
 
-    let imagesDiv = $('<div>').addClass('images');
-    let files = value['files'];
-    let imagesCount = 0;
-    for (let file of files) {
-        if (file['mimeType'] !== null && file['mimeType'].startsWith('image/')) {
-            let img = $('<img>').addClass('post-img');
-            img.attr('src', file['fileLink']);
-            imagesDiv.append(img);
-            imagesCount++;
-        }
-    }
-
-    imgsBlock = imagesDiv.children('.post-img');
-    imgsBlock.eq(index).addClass('active');
-
-    if (imagesCount > 1) {
-        let prev = $('<div>').addClass('prev');
-        prev.html('&lt;');
-        let next = $('<div>').addClass('next');
-        next.html('&gt;');
-        imagesDiv.append(prev);
-        imagesDiv.append(next);
-        prev.click(showPreviousImage);
-        next.click(showNextImage);
-    }
+    let imagesDiv = createImagesDiv(value);
 
     let author = $('<p>').addClass('post-author');
-    author.html(value['author']['username']);
+    // author.html(value['author']['username']);
     let text = $('<div>').addClass('post-description');
     text.html(value['text']);
 
@@ -160,39 +190,127 @@ async function createPost(value) {
     textDiv.append(footer);
     inner.append(textDiv);
     post.append(inner);
-
     return post;
 }
 
 function deletePost() {
-    let post = $('.delete').filter(function() {
+    let post = $('.post').filter(function () {
         return $(this).attr('value') === deletePostId;
     });
-    console.log(post)
-    post.fadeOut();
-    post.remove();
+    post.fadeOut(250, function () {
+        post.remove();
+    });
 }
 
-function showPreviousImage() {
-    console.log(1)
-    imgsBlock.eq(index).removeClass('active');
-    index--;
-    if (index < 0) {
-        index = imgsBlock.length - 1;
+function createImagesDiv(value) {
+    let imagesDiv = $('<div>').addClass('images');
+    let files = value['files'];
+    let imagesCount = 0;
+    for (let file of files) {
+        if (file['mimeType'] !== null && file['mimeType'].startsWith('image/')) {
+            let img = $('<img>').addClass('post-img');
+            img.attr('src', file['fileLink']);
+            imagesDiv.append(img);
+            imagesCount++;
+        }
     }
-    imgsBlock.eq(index).addClass('active');
-}
 
-function showNextImage() {
-    console.log(2)
-    imgsBlock.eq(index).removeClass('active');
-    index++;
-    if (index >= imgsBlock.length) {
-        index = 0;
+    let images = imagesDiv.children('.post-img');
+    let index = 0;
+    images.eq(index).addClass('active');
+    if (imagesCount > 1) {
+        let prev = $('<div>').addClass('prev').html('&lt;');
+        let next = $('<div>').addClass('next').html('&gt;');
+        imagesDiv.append(prev);
+        imagesDiv.append(next);
+
+        prev.click(function () {
+            images.eq(index).removeClass('active');
+            index--;
+            if (index < 0) {
+                index = imagesCount - 1;
+            }
+            images.eq(index).addClass('active');
+        });
+
+        next.click(function () {
+            images.eq(index).removeClass('active');
+            index++;
+            if (index >= imagesCount) {
+                index = 0;
+            }
+            images.eq(index).addClass('active');
+        });
     }
-    imgsBlock.eq(index).addClass('active');
+
+    return imagesDiv;
 }
 
+function createPostMenu(postId) {
+    let menu = $('<ul>').addClass('menu');
+    let deleteBtn = $('<li>').addClass('delete').html('Delete');
+    deleteBtn.click(function (event) {
+        menu.toggleClass('visible');
+        deletePostId = event.target.closest('.post').getAttribute('value');
+        generatePromiseRequestWithHeader('/groups/' + groupId + '/posts/' + deletePostId, 'DELETE', deletePost);
+    });
+
+    let editBtn = $('<li>').addClass('edit').html('Edit');
+    editBtn.click(function () {
+        menu.toggleClass('visible');
+        let description = editBtn.closest('.post[value=' + postId + ']').find('.post-description');
+        let descriptionText;
+        let postArea = description.find('.update-area');
+        if (postArea.length > 0) {
+            descriptionText = postArea.val();
+        } else {
+            descriptionText = description.text();
+        }
+
+        let textarea = $('<textarea>').addClass('post-area update-area');
+        let buttons = $('<div>').addClass('buttons');
+        let sendBtn = $('<button>').html('&#10003;');
+        let cancelBtn = $('<button>').html('&times;');
+        description.addClass('update-description');
+        cancelBtn.click(function () {
+            description.removeClass('update-description');
+            description.html(descriptionText);
+        });
+
+        sendBtn.click(function () {
+                let updatedPost = {
+                    'text': textarea.val(),
+                    'files': null
+                };
+                console.log(updatedPost)
+
+                $.ajax({
+                    url: '/api/groups/' + groupId + '/posts/' + postId,
+                    method: 'PUT',
+                    data: JSON.stringify(updatedPost),
+                    contentType: 'application/json',
+                    headers: {
+                        'Authorization': 'Bearer ' + localStorage['accessToken']
+                    },
+                    success: function (res) {
+                        description.html(res['text']);
+                    }
+                })
+
+                description.removeClass('update-description');
+            }
+        );
+
+        buttons.append(sendBtn);
+        buttons.append(cancelBtn);
+        textarea.html(descriptionText);
+        description.html(textarea);
+        description.append(buttons);
+    })
+    menu.append(editBtn);
+    menu.append(deleteBtn);
+    return menu;
+}
 
 function setLikeStatus(status) {
     isLikePut = status;
@@ -204,23 +322,59 @@ function setLikesCountToBlock(count) {
 
 async function findGroup() {
     groups.empty();
-    let name = searchInput.val().trim();
+    let name = searchInput.val().toString().trim();
+    name = encodeURIComponent(name);
+    isLoading = false;
     if (name.length > 0) {
-        generateRequestWithHeaderAndFuncWithoutPromise('/groups?name=' + name + '&page=' + findPageNumber, 'GET', processGroups);
+        pageNumber = 0;
+        console.log('NAME > 0')
+        generateRequestWithHeaderAndFuncWithoutPromise('/groups?name=' + name + '&page=' + pageNumber, 'GET', processGroups);
+        scrollGroups('/groups?name=' + name + '&page=');
+
     } else if (typeof lastUpdate === 'undefined' || (new Date() - lastUpdate) > updateEvery) {
         lastUpdate = new Date();
-        await generateRequestToGetJson('/users/' + currUsername + '/groups?page=0', 'GET', updateGroupsSet);
+        console.log(213)
+        await generateRequestToSendJson('/users/' + currUsername + '/groups?page=0', 'GET', updateGroupsSet);
+
         for (let group of groupsSet) {
-            createGroup(group);
+            groups.append(createGroup(group));
         }
+        scrollGroups('/users/' + currUsername + '/groups?page=');
+
     } else {
+        pageNumber = 1;
+        console.log(groupsSet)
         for (let group of groupsSet) {
-            createGroup(group);
+            groups.append(createGroup(group));
         }
+        scrollGroups('/users/' + currUsername + '/groups?page=');
     }
 }
 
+function scrollGroups(url, method) {
+    $(window).off('scroll');
+
+    $(window).scroll(async function () {
+
+        let scrollHeight = $(window).scrollTop(); //dynamic: window + scroll
+        let windowHeight = $(window).height(); //const: window
+        let documentHeight = $(document).height(); //const: window + scroll space
+
+        if ((scrollHeight + windowHeight) / documentHeight >= limitPageHeight) {
+            console.log('scroll')
+            console.log(isLoading)
+            if (!isLoading && pageNumber <= totalGroupsPagesCount - 1) {
+                console.log('ok')
+                isLoading = true;
+                generateRequestWithHeaderAndFuncWithoutPromise(url + pageNumber, 'GET', processGroups);
+            }
+        }
+    });
+}
+
 function updateGroupsSet(data) {
+    totalGroupsPagesCount = data['pagesCount'];
+    pageNumber = 1;
     groupsSet.clear();
     console.log(data)
     for (let group of data['groups']) {
@@ -229,13 +383,16 @@ function updateGroupsSet(data) {
 }
 
 function processGroups(data) {
-    pageSize = data['groups'].length;
+    totalGroupsPagesCount = data['pagesCount'];
+    pageNumber++;
+    console.log(data)
     for (let value of data['groups']) {
-        createGroup(value);
+        groups.append(createGroup(value));
     }
 }
 
 function createGroup(value) {
+    console.log(value)
     let group = $('<div>').addClass('card group');
     group.attr('value', value['id']);
     let img = $('<img>').attr('src', value['imageLink']);
@@ -248,8 +405,7 @@ function createGroup(value) {
     content.append(name);
     content.append(description);
     group.append(content);
-
-    groups.append(group);
+    return group;
 }
 
 function setUsername() {
@@ -262,7 +418,7 @@ function setUsername() {
 
 async function setGroupMetadata() {
     await setMembersCount();
-    await generateRequestToGetJson('/groups/' + groupId + '/users/' + currUsername, 'GET', checkCurrUser);
+    await generateRequestToSendJson('/groups/' + groupId + '/users/' + currUsername, 'GET', checkCurrUser);
 }
 
 function getGroupIdFromEvent(event) {
@@ -288,16 +444,40 @@ function setUrl() {
         main.css('display', 'flex');
         groups.css('display', 'flex');
         posts.empty();
+        pageNumber = 0;
+        groups.empty();
+        console.log('BACK');
+        $('html, body').animate({scrollTop: 0}, 'slow');
+        $(window).off('scroll');
+        searchInput.val('');
+        findGroup();
+        usersPageNumber = 0;
+        pageNumber = 0;
     }
 }
+
 
 function showGroup(data) {
     main.hide();
     groupInfo.css('display', 'flex');
-
+    $('html, body').animate({scrollTop: 0}, 'slow');
     generateProfile(data);
 
     generateRequestWithHeaderAndFuncWithoutPromise('/groups/' + groupId + '/posts?page=' + pageNumber, 'GET', processPosts);
+    $(window).scroll(async function () {
+
+        let scrollHeight = $(window).scrollTop(); //dynamic: window + scroll
+        let windowHeight = $(window).height(); //const: window
+        let documentHeight = $(document).height(); //const: window + scroll space
+
+
+        if ((scrollHeight + windowHeight) / documentHeight >= limitPageHeight) {
+            if (!isLoading && pageNumber <= totalPostsPagesCount - 1) {
+                isLoading = true;
+                await generateRequestWithHeaderAndFuncWithoutPromise('/groups/' + groupId + '/posts?page=' + pageNumber, 'GET', processPosts);
+            }
+        }
+    });
 }
 
 let isCurrUserOwner = false;
@@ -317,20 +497,109 @@ function generateProfile(data) {
         }
     });
 
-    if (data['creator']['username'].toString() === currUsername) {
+    if (data['creator'] !== null && data['creator']['username'].toString() === currUsername) {
         $('.add-post').show();
+        $('.edit-icon').show();
         isCurrUserOwner = true;
     } else {
         $('.add-post').hide();
         isCurrUserOwner = false;
     }
 
-    pageNumber = 0;
+    usersPageNumber = 0;
     $('#profile-img').attr('src', data['imageLink']);
     $('.name').html(data['name']);
 
-    $('.members').html('members: ' + membersCount);
+    $('.members').html('members: ' + membersCount)
     $('#group-description').html(data['description']);
+}
+
+function editGroup() {
+    let name = $('.name');
+    let description = $('#group-description');
+    let lastName = name.text();
+    let lastDescr = description.text();
+    console.log(lastName)
+    $('#profile-img').addClass('edit-img');
+    let editPhoto = $('.image-edit-icon');
+    editPhoto.css('display', 'flex');
+    let editProfileIcon = $('.edit-icon');
+    editProfileIcon.hide();
+
+    editPhoto.click(function () {
+        $('#new-image').click();
+    });
+
+    let inputName = $('<input>').addClass('name edit-name');
+    inputName.val(lastName);
+    console.log(lastName)
+    let descrArea = $('<textarea>').addClass('post-area update-area');
+    console.log(lastDescr)
+    descrArea.val(lastDescr);
+
+    name.html(inputName);
+    description.html(descrArea);
+
+    let buttons = $('<div>').addClass('profile-edit-buttons');
+    let sendBtn = $('<button>').html('&#10003;  ');
+    let cancelBtn = $('<button>').html('&times;');
+    buttons.append(sendBtn);
+    buttons.append(cancelBtn);
+    $('.group-profile-info').append(buttons);
+
+    cancelBtn.click(function () {
+        name.html(lastName);
+        description.html(lastDescr);
+        editPhoto.hide();
+        editProfileIcon.show();
+        description.removeClass('update-description');
+        $('#profile-img').removeClass('edit-img');
+        buttons.remove();
+        name.removeClass('edit-name');
+        inputName.remove();
+    });
+
+    sendBtn.click(function () {
+            let data = new FormData();
+            data.append('name', inputName.val());
+            data.append('description', descrArea.val());
+            data.append('image', $('#new-image')[0].files[0]);
+
+            console.log($('#new-image')[0].files[0])
+            console.log(data.get('image'))
+
+            console.log(data)
+
+            editPhoto.hide();
+            editProfileIcon.show();
+            description.removeClass('update-description');
+            buttons.remove();
+            $('#profile-img').removeClass('edit-img');
+            name.removeClass('edit-name');
+            inputName.remove();
+
+            $.ajax({
+                url: '/api/groups/' + groupId,
+                data: data,
+                method: 'PATCH',
+                contentType: false,
+                processData: false,
+                headers: {
+                    'Authorization': 'Bearer ' + localStorage['accessToken']
+                },
+                success: function (res) {
+                    console.log(res)
+                    name.html(res['name']);
+                    description.text(res['description']);
+                    $('#profile-img').attr('src', res['imageLink']);
+                },
+                error: function () {
+                    name.html(lastName);
+                    description.text(lastDescr);
+                }
+            })
+        }
+    );
 }
 
 function generateFieldToAddPost() {
@@ -420,9 +689,10 @@ function sendNewPost() {
         data.append('files', file);
     }
 
-    data.append('text', $('.post-area').val());
-    $('.post-area').val('');
-    $('.files')
+    let text = $('.post-area');
+    data.append('text', text.val());
+    text.val('');
+    $('.files').val('');
 
     $.ajax({
         url: '/api/groups/' + groupId + '/posts',
@@ -439,11 +709,11 @@ function sendNewPost() {
     })
 }
 
-function appendNewPost(data) {
+async function appendNewPost(data) {
     $('.new-post').slideUp(300);
     let addPostBtn = $('.add-post');
     addPostBtn.slideDown();
-    createPost(data).then((post) => addPostBtn.after(post.hide().fadeIn(1000)));
+    await createPost(data).then((post) => addPostBtn.after(post.hide().fadeIn(1000)));
 }
 
 function checkCurrUser(isExists) {
@@ -455,7 +725,7 @@ function checkCurrUser(isExists) {
 }
 
 async function setMembersCount() {
-    await generateRequestToGetJson('/groups/' + groupId + '/users?page=' + pageNumber, 'GET', setCount);
+    await generateRequestToSendJson('/groups/' + groupId + '/users?page=' + usersPageNumber, 'GET', setCount);
 }
 
 function setCount(data) {
@@ -464,12 +734,15 @@ function setCount(data) {
 }
 
 async function processPosts(data) {
+    pageNumber++;
     let postsData = data['posts'];
-    totalCountPages = data['totalPagesCount'];
+    totalPostsPagesCount = data['totalPagesCount'];
 
     for (let post of postsData) {
         await createPost(post).then((data) => posts.append(data));
     }
+
+    isLoading = false;
 }
 
 function setJoinButtonValue(value) {
@@ -484,7 +757,7 @@ function setJoinButtonValue(value) {
 
 async function joinToGroup() {
     if (!joinButton.hasClass('subscribed')) {
-        await generateRequestToGetJson('/groups/' + groupId + '/users', 'POST');
+        await generateRequestToSendJson('/groups/' + groupId + '/users', 'POST');
         await setMembersCount();
         setJoinButtonValue('joined');
     } else {
@@ -492,7 +765,7 @@ async function joinToGroup() {
         await setMembersCount();
         setJoinButtonValue('join');
     }
-    await generateRequestToGetJson('/groups?name=&page=0', 'GET', updateGroupsSet);
+    await generateRequestToSendJson('/groups?name=&page=0', 'GET', updateGroupsSet);
     $('.members').html('members: ' + membersCount);
 }
 

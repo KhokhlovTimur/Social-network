@@ -40,7 +40,6 @@ public class PostsServiceImpl implements PostsService {
     private final PostsRepository postsRepository;
     private final PostsMapper postsMapper;
     private final GroupsService groupsService;
-    private final GroupsRepository groupsRepository;
     private final PostsCollectionMapper postsCollectionMapper;
     private final UsersCollectionsMapper usersCollectionsMapper;
     private final UsersServiceUtils usersServiceUtils;
@@ -48,12 +47,11 @@ public class PostsServiceImpl implements PostsService {
     private final FilesService filesService;
     private final FilesServiceUtils filesServiceUtils;
 
-    private final FileInfoRepository fileInfoRepository;
-    @Value("${default.page-size}")
+    @Value("${default.posts-page-size}")
     private int defaultSize;
 
     @Override
-    public LikesPage getEmotions(Long groupId, Long postId) {
+    public LikesPage getLikes(Long groupId, Long postId) {
         Set<PublicUserDto> users = usersCollectionsMapper
                 .toPublicUsersDtoSet(getOrThrow(groupId, postId).getUsersHaveLiked());
 
@@ -71,9 +69,6 @@ public class PostsServiceImpl implements PostsService {
 
     @Override
     public void putLike(Long groupId, Long postId, String token) {
-//        getOrThrow(85L).getFiles().remove(fileInfoRepository.findById(4l));
-//        postsRepository.save(getOrThrow(85L));
-        fileInfoRepository.deleteById(4L);
         Post post = getOrThrow(groupId, postId);
         User user = usersServiceUtils.getUserFromToken(token);
 
@@ -169,7 +164,7 @@ public class PostsServiceImpl implements PostsService {
 
     private Post getOrThrow(Long id) {
         return postsRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Post with id <" + id + "> not found"));
+                .orElseThrow(() -> new NotFoundException("Post with id \"" + id + "\" not found"));
     }
 
     private Post getOrThrow(Long groupId, Long postId) {
@@ -179,8 +174,8 @@ public class PostsServiceImpl implements PostsService {
         if (group.getPosts().contains(post)) {
             return post;
         } else {
-            throw new NotFoundException("Post with id <" + postId + "> not found in group " +
-                    "with id <" + groupId + ">");
+            throw new NotFoundException("Post with id \"" + postId + "\" not found in group " +
+                    "with id \"" + groupId + "\"");
         }
     }
 

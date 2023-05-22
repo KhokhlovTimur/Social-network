@@ -120,10 +120,10 @@ public class UsersServiceImpl implements UsersService {
 
     private User getOrThrow(Long id) {
         User user = usersRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("User with id <" + id + "> not found"));
+                .orElseThrow(() -> new NotFoundException("User with id \"" + id + "\" not found"));
 
         if (user.isBanned()) {
-            throw new NotFoundException("User with id <" + id + "> is banned");
+            throw new NotFoundException("User with id \"" + id + "\" is banned");
         }
 
         return user;
@@ -131,10 +131,10 @@ public class UsersServiceImpl implements UsersService {
 
     private User getOrThrow(String username) {
         User user = usersRepository.findByUsername(username)
-                .orElseThrow(() -> new NotFoundException("User with username <" + username + "> not found"));
+                .orElseThrow(() -> new NotFoundException("User with username \"" + username + "\" not found"));
 
         if (user.isBanned()) {
-            throw new NotFoundException("User with username <" + username + "> is banned");
+            throw new NotFoundException("User with username \"" + username + "\" is banned");
         }
 
         return user;

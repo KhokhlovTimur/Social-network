@@ -118,7 +118,7 @@ body {
     line-height: 1.3;
     max-width: 80%;
     transition: opacity 0.3s ease-out;
-    inset: 20% auto 11% 30px;
+    inset: 30% auto 11% 30px;
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
     overflow: hidden;
     word-break: break-word;
@@ -132,7 +132,7 @@ body {
 }
 
 .card:hover h2 {
-    inset: auto auto 83% 30px;
+    inset: 30px auto 83% 30px;
     transition: inset 0.2s ease-out;
     text-shadow: 1px 5px 7px #0A0A0A;
 }
@@ -168,7 +168,7 @@ body {
 .search {
     padding-left: 25px;
     display: flex;
-    margin: 25px 25% 15px auto;
+    margin: 25px auto 15px auto;
     align-items: center;
     width: 50%;
     height: 54px;
@@ -177,6 +177,119 @@ body {
     -webkit-box-shadow: 0px 10px 38px 0px rgba(0, 0, 0, 0.1);
     -moz-box-shadow: 0px 10px 38px 0px rgba(0, 0, 0, 0.1);
     box-shadow: 0px 10px 38px 0px rgba(0, 0, 0, 0.1);
+}
+
+.body-shadow {
+    position: fixed;
+    display: none;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    z-index: 500;
+}
+
+.add-group-btn {
+    margin: auto;
+    text-transform: uppercase;
+    font-size: 2rem;
+    padding: 1rem;
+    cursor: pointer;
+    color: #5b5b5b;
+    border-radius: 20px;
+    background-color: #dedede;
+    -webkit-box-shadow: 0px 10px 38px 0px rgba(0, 0, 0, 0.1);
+    -moz-box-shadow: 0px 10px 38px 0px rgba(0, 0, 0, 0.1);
+    box-shadow: 0px 10px 38px 0px rgba(0, 0, 0, 0.1);
+}
+
+.add-group {
+    display: none;
+    width: 30%;
+    height: 60%;
+    top: 15%;
+    z-index: 600;
+    border-radius: 10px;
+    left: 35%;
+    padding: 20px;
+    background-color: white;
+    position: fixed;
+    box-shadow: 0px 10px 38px 0px rgba(0, 0, 0, 0.1);
+}
+
+.close-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 15px;
+    cursor: pointer;
+}
+
+.form-title {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #5b5b5b;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.add-input {
+    /*opacity: 0.97 !important;*/
+}
+
+.form-label {
+    display: block;
+    font-size: 16px;
+    margin-bottom: 5px;
+    color: #5b5b5b;
+}
+
+.form-input {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ddd;
+    border-radius: 15px;
+}
+
+.form-input:focus {
+    outline: none;
+}
+
+.form-add-button {
+    display: block;
+    width: 30%;
+    margin-left: 35%;
+    padding: 10px;
+    font-size: 16px;
+    border-radius: 15px;
+    border: none;
+    margin-top: 10px;
+    background-color: #16a085;
+    color: #fff;
+    cursor: pointer;
+}
+
+.add-area {
+    margin-top: 10px !important;
+    width: 100% !important;
+    height: 30%;
+    border-radius: 5px;
+}
+
+.error {
+    float: left;
+    display: none;
+    margin-left: 15px;
+    font-size: 13px;
+    color: red
+}
+
+.form-button:hover {
+    background-color: #555;
 }
 
 .select_area {
@@ -228,6 +341,7 @@ body {
     border-radius: 15px;
     margin: 1.75rem auto 2rem;
     max-height: 15%;
+    position: relative;
 }
 
 .group-profile-image img {
@@ -235,8 +349,12 @@ body {
     height: 11rem;
     object-fit: cover;
     border-radius: 50%;
-    margin-left: 50px;
+    /*margin-left: 50px;*/
+    margin-right: auto;
     margin-top: 20px;
+    position: relative;
+    filter: brightness(100%);
+    display: flex;
 }
 
 .group-profile-info {
@@ -256,6 +374,48 @@ body {
     margin: 10px 20px 0 40px;
 }
 
+.edit-icon {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 1.5rem;
+    padding: 0.5rem;
+    color: #6c6c6c;
+    cursor: pointer;
+    display: none;
+}
+
+.edit-name {
+    font-size: 15px !important;
+    max-height: 6%;
+    border: 0px;
+}
+
+.edit-name:focus {
+    outline: none !important;
+}
+
+.image-edit-icon {
+    position: absolute;
+    top: 55%;
+    left: 50%;
+    border-radius: 50%;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transform: translate(-50%, -50%);
+    font-size: 40px;
+    color: white;
+    background-color: rgba(0, 0, 0, 0.5);
+    width: 20%;
+    height: 20%;
+    z-index: 3;
+}
+
+.edit-img {
+    filter: brightness(70%) !important;
+}
 
 .group-profile-info .name {
     margin-top: 0;
@@ -276,6 +436,17 @@ body {
 .members {
     font-size: 0.9rem;
     margin-bottom: 10px;
+    margin-right: auto;
+    cursor: pointer;
+    color: #6c6c6c;
+}
+
+.members-block {
+    position: absolute;
+    display: flex;
+    width: 100px;
+    height: 100px;
+    border: 1px solid black;
 }
 
 .join-button {
@@ -389,6 +560,54 @@ body {
     resize: none;
     background-color: #fff;
 }
+
+.update-area {
+    margin: 0px auto !important;
+    position: relative;
+}
+
+.update-description {
+    position: relative;
+}
+
+.button, .profile-edit-buttons {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 4px;
+    margin-right: 4px;
+}
+
+.profile-edit-buttons {
+    right: 20px !important;
+    top: 20px !important;
+    display: block !important;
+    margin-right: 10px !important;
+    font-size: 25px !important;
+    padding-right: 10px !important;
+}
+
+.profile-edit-buttons:first-child {
+    margin-right: 15px!important;
+}
+
+.buttons, .profile-edit-buttons button {
+    background-color: inherit;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    font-size: 18px;
+    color: #6c6c6c;
+}
+
+.buttons button:last-child {
+    font-size: 25px !important;
+}
+
 
 .post-area:focus {
     border-color: #1e1e1e;
@@ -634,6 +853,8 @@ body {
     font-size: 1.37rem;
     font-weight: bold;
     display: flex;
+    margin-right: auto;
+    cursor: pointer;
     /*display: inline-block;*/
     color: #005364;
     width: auto;
@@ -686,13 +907,14 @@ body {
     margin-top: 3%;
     font-family: 'Voces', 'Open Sans', arial, sans-serif;
     color: #888;
+    width: 50%;
 }
 
 .likes {
     display: flex;
     flex-direction: row;
     width: auto;
-    margin-left: 65%;
+    margin-left: auto;
     margin-top: 3%;
 }
 

@@ -36,7 +36,7 @@ public class UsersServiceUtilsImpl implements UsersServiceUtils {
         }
 
         User user = usersRepository.findByUsername(username)
-                .orElseThrow(() -> new NotFoundException("User with username <" + username + "> not found"));
+                .orElseThrow(() -> new NotFoundException("User with username \"" + username + "\" not found"));
 
         return user;
     }

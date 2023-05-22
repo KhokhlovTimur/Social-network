@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.itis.dto.chats.NewOrUpdatePersonalChatDto;
 import ru.itis.dto.chats.PersonalChatDto;
-import ru.itis.exceptions.IsAlreadyExists;
+import ru.itis.exceptions.AlreadyExistsException;
 import ru.itis.exceptions.NotFoundException;
 import ru.itis.mappers.chats.ChatsMapper;
 import ru.itis.models.ChatGlobalId;
@@ -53,7 +53,7 @@ public class PersonalChatsServiceImpl implements PersonalChatsService {
                     .build()));
         }
         else {
-            throw new IsAlreadyExists("Chat with this users already exists");
+            throw new AlreadyExistsException("Chat with this users already exists");
         }
 
         return chatsMapper.toPersonalChatDto(personalChatsRepository.save(chat));

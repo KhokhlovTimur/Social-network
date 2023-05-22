@@ -12,6 +12,7 @@ import java.util.List;
 
 public interface GroupsRepository extends JpaRepository<Group, Long> {
     List<Group> findAllByStatus(Group.Status status);
+    Boolean existsByName(String name);
 
     @Query(value = "select * from groups g join user_group ug on g.id = ug.group_id " +
             "where ug.user_id = :id", nativeQuery = true)

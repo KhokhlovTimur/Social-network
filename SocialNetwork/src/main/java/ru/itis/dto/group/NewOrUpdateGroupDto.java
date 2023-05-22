@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.web.multipart.MultipartFile;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -16,5 +17,5 @@ public class NewOrUpdateGroupDto {
     private String name;
     @Schema(description = "Group's description", example = "Group about films")
     private String description;
-    private String imageLink;
+    private MultipartFile image;
 }

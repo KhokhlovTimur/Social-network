@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.util.Set;
 
 @Data
@@ -17,6 +18,7 @@ public class FileInfo {
     private Long id;
 
     @Column(name = "file_link")
+    @NotNull
     private String fileLink;
     @Column(name = "original_filename")
     private String originalFilename;

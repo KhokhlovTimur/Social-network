@@ -14,7 +14,7 @@ public interface PostsService {
 
     PostDto update(Long groupId, Long postId, NewOrUpdateGroupPostDto postDto);
 
-    LikesPage getEmotions(Long groupId, Long postId);
+    LikesPage getLikes(Long groupId, Long postId);
 
     void putLike(Long groupId, Long postId, String token);
 

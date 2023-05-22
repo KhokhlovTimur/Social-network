@@ -49,7 +49,7 @@ public class MessagesServiceImpl implements MessagesService {
     @Override
     public MessageDto findLastMessageByGlobalId(Long id) {
         Message message = chatsGlobalIdsRepository.findById(id).orElseThrow(
-                () -> new NotFoundException("There are no messages in the chat with id <" + id + "> ")
+                () -> new NotFoundException("There are no messages in the chat with id \"" + id + "\" ")
         ).getLastMessage();
         return messagesMapper.toDto(message);
     }

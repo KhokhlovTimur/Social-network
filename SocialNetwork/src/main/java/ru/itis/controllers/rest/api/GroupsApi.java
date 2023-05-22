@@ -7,9 +7,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import ru.itis.dto.other.ExceptionDto;
 import ru.itis.dto.group.GroupDto;
-import ru.itis.dto.user.UsersPage;
 import ru.itis.dto.group.NewOrUpdateGroupDto;
 
 @RequestMapping("/api/groups")
@@ -45,7 +45,9 @@ public interface GroupsApi {
                                     schema = @Schema(implementation = ExceptionDto.class))
                     })
     })
-    ResponseEntity<GroupDto> add(@RequestBody NewOrUpdateGroupDto newGroupDto,
+    ResponseEntity<GroupDto> add(@RequestParam("description") String description,
+                                 @RequestParam("name") String name,
+                                 @RequestParam(value = "image", required = false) MultipartFile image,
                                  @RequestHeader("Authorization") String rawToken);
 
 
@@ -62,7 +64,7 @@ public interface GroupsApi {
     ResponseEntity<?> delete(@PathVariable("id") Long id);
 
 
-    @PutMapping("/{id}")
+    @PatchMapping("/{id}")
     @Operation(summary = "Update group")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "202", description = "Updated group",
@@ -77,7 +79,10 @@ public interface GroupsApi {
                     })
 
     })
-    ResponseEntity<GroupDto> update(@PathVariable("id") Long id, @RequestBody NewOrUpdateGroupDto groupDto);
+    ResponseEntity<GroupDto> update(@PathVariable("id") Long id, @RequestParam(value = "description", required = false) String description,
+                                    @RequestParam(value = "name", required = false) String name,
+                                    @RequestParam(value = "image", required = false) MultipartFile image,
+                                    @RequestHeader("Authorization") String rawToken);
 
     @GetMapping("/{id}/users/{username}")
     ResponseEntity<Boolean> isUserExists(@PathVariable("id") Long id, @PathVariable("username") String username);

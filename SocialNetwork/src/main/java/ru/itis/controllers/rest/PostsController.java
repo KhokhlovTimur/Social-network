@@ -12,8 +12,6 @@ import ru.itis.dto.posts.PostDto;
 import ru.itis.dto.posts.PostsPage;
 import ru.itis.services.posts.PostsService;
 
-import java.util.Arrays;
-
 @RestController
 @RequiredArgsConstructor
 public class PostsController implements  PostsApi {
@@ -71,7 +69,7 @@ public class PostsController implements  PostsApi {
 
     @Override
     public ResponseEntity<LikesPage> getLikes(Long groupId, Long postId) {
-        return ResponseEntity.ok(postsService.getEmotions(groupId, postId));
+        return ResponseEntity.ok(postsService.getLikes(groupId, postId));
     }
 
     @Override

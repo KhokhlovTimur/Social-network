@@ -15,18 +15,37 @@
     <div th:replace="navbar_template :: header"></div>
 
     <div class="body relative-body">
-
         <div class="main">
+            <div class="body-shadow"></div>
             <span class="heading">groups</span>
             <div class="search">
-
                 <div class="text_and-icon">
                     <input type="text" class="search_text" id="search_text" placeholder="Search..." autocomplete="off">
                 </div>
             </div>
+            <div class="add-group-btn">add group</div>
+
+            <form id="addGroupForm" class="add-group">
+                <span class="close-button">&#10006;</span>
+                <h2 class="form-title">Group</h2>
+                <div class="form-group">
+                    <label for="new-group-name" class="form-label">Group name:</label>
+                    <input type="text" id="new-group-name" class="form-input" autocomplete="off" required>
+                    <span class="error"></span>
+                </div>
+                <div class="form-group">
+                    <label for="new-group-description" class="form-label">Description:</label>
+                    <textarea id="new-group-description" class="post-area add-area"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="new-group-image" class="file-label">Image</label>
+                    <input type="file" id="new-group-image" class="file-input add-input" required>
+                </div>
+                <button type="submit" class="form-add-button">Submit</button>
+            </form>
+
 
             <div id="groupsList">
-                <!--                <button class="vertical">Vertical</button>-->
                 <div class="card group" th:each="group : ${groups}" th:value="${group.id}">
                     <img th:src="${group.imageLink}" alt="">
                     <div class="card-content">
@@ -43,8 +62,10 @@
 
         <div id="groupInfo">
             <div class="group-profile">
-                <div class="group-profile-image">
+                <div class="group-profile-image" style="position: relative">
                     <img id="profile-img">
+                    <span class="image-edit-icon">+</span>
+                    <input type="file" id="new-image" style="display: none;">
                 </div>
                 <div class="group-profile-info">
                     <span class="name"></span>
@@ -53,12 +74,12 @@
                     </p>
                 </div>
 
+                <span class="edit-icon">&#9998;</span>
                 <button class="join-button">Join</button>
             </div>
 
             <div class="posts">
             </div>
-
         </div>
     </div>
 </div>
