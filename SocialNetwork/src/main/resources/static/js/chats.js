@@ -25,7 +25,7 @@ $(document).ready(async function () {
     $(window).on('beforeunload', function () {
         disconnectSocket();
     });
-    generateRequestWithHeaderAndFuncWithoutPromise('/chats/all', 'GET', fillLastMessages);
+    generateRequestWithHeaderAndFuncWithoutPromise('/chats/all', 'GET', fillLastMessages, null);
 
     chatDiv.click(tapOnChat);
 
@@ -146,7 +146,7 @@ function tapOnChat(event) {
 
 function connectToChat() {
     chatBlock.empty();
-    generateRequestWithHeaderAndFuncWithoutPromise('/chats/' + chatId, 'GET', setCurrChat);
+    generateRequestWithHeaderAndFuncWithoutPromise('/chats/' + chatId, 'GET', setCurrChat, null);
 }
 
 function setCurrChat(data) {
@@ -155,7 +155,7 @@ function setCurrChat(data) {
     history.replaceState(null, null, '/app/chats?id=' + chatId);
 
     generateRequestWithHeaderAndFuncWithoutPromise('/chats/' + chatId + "/messages",
-        'get', getMessagesFromResponseAndOpenConnection)
+        'get', getMessagesFromResponseAndOpenConnection, null)
 }
 
 
@@ -163,7 +163,7 @@ function findChat(event) {
     let payload = searchInput.val().trim();
     if (payload.length > 0) {
         chats.empty();
-        generateRequestWithHeaderAndFuncWithoutPromise('/chats?name=' + payload, 'GET', showChats);
+        generateRequestWithHeaderAndFuncWithoutPromise('/chats?name=' + payload, 'GET', showChats, null);
     } else {
         chats.empty();
         showChats(Array.from(chatsMap.values()));

@@ -4,25 +4,32 @@ spring.datasource.url=jdbc:postgresql://localhost:5432/social_network
 spring.datasource.driver-class-name=org.postgresql.Driver
 spring.datasource.hikari.maximum-pool-size=20
 
-spring.main.allow-circular-references=true
+spring.main.banner-mode=off
 
-spring.devtools.restart.enabled=true
+spring.main.allow-circular-references=true
+spring.devtools.restart.additional-paths= /static
+
+spring.servlet.multipart.max-file-size=4MB
 
 spring.redis.host=
 spring.redis.port=
 
+minio.url=http://localhost:9000
+minio.accessKey=
+minio.secretKey=
+
 logging.level.org.springframework.web=TRACE
 
-spring.jpa.show-sql=true
-spring.jpa.properties.hibernate.format_sql=true
 spring.jpa.generate-ddl=false
 spring.jpa.hibernate.ddl-auto=none
 spring.sql.init.mode=never
 
-spring.liquibase.change-log=
+spring.liquibase.change-log=classpath:/db.changelog/db.changelog-master.xml
+spring.thymeleaf.suffix=.html
 
 jwt.secret.key=
 
-default.page-size=5
-refresh-token.expires-time=
-access-token.expires-time=
+default.page-size=16
+default.posts-page-size=8
+refresh-token.expires-time=10800000
+access-token.expires-time=1800000

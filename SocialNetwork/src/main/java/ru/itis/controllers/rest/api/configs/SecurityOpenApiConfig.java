@@ -13,7 +13,7 @@ import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import static ru.itis.security.filters.TokenAuthorizationFilter.AUTHENTICATION_PATH;
+import static ru.itis.security.filters.ApiAuthorizationFilter.AUTHENTICATION_PATH;
 
 @Configuration
 public class SecurityOpenApiConfig {

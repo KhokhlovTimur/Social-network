@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Friends</title>
     <link rel="stylesheet" href="/css/template.css">
+    <link rel="stylesheet" href="/css/friends.css">
 </head>
 <body>
 
@@ -12,7 +13,76 @@
     <nav th:replace="navbar_template :: mainNavbar"></nav>
     <div th:replace="navbar_template :: header"></div>
 
-    <div class="body">
+    <div class="body moved">
+        <span class="heading header-title">friends</span>
+        <div class="search">
+            <div class="text_and-icon">
+                <input type="text" class="search_text" id="search_text" placeholder="Search..." autocomplete="off">
+            </div>
+        </div>
+
+        <div class="friends">
+
+            <div class="friend-card">
+                <img class="round" src="https://img.championat.com/i/c/h/16848237651262292671.jpg" alt="user"/>
+                <h3>Ricky Park</h3>
+                <h6>New York</h6>
+                <div class="buttons">
+                    <button class="primary">
+                        Message
+                    </button>
+                    <button class="primary ghost">
+                        Following
+                    </button>
+                </div>
+            </div>
+
+            <div class="friend-card">
+                <img class="round" src="https://img.championat.com/i/c/h/16848237651262292671.jpg" alt="user"/>
+                <h3>Ricky Park</h3>
+                <h6>New York</h6>
+                <div class="buttons">
+                    <button class="primary">
+                        Message
+                    </button>
+                    <button class="primary ghost">
+                        Following
+                    </button>
+                </div>
+            </div>
+
+            <div class="friend-card">
+                <img class="round" src="https://img.championat.com/i/c/h/16848237651262292671.jpg" alt="user"/>
+                <h3>Ricky Park</h3>
+                <h6>New York</h6>
+                <div class="buttons" style="margin-bottom:30px; margin-top: 30px;">
+                    <button class="primary">
+                        Message
+                    </button>
+                    <button class="primary ghost">
+                        Following
+                    </button>
+                </div>
+            </div>
+
+            <div class="friend-card">
+                <img class="round" src="https://img.championat.com/i/c/h/16848237651262292671.jpg" alt="user"/>
+                <h3>Ricky Park</h3>
+                <h6>New York</h6>
+                <div class="buttons" style="margin-bottom:30px; margin-top: 30px;">
+                    <button class="primary">
+                        Message
+                    </button>
+                    <button class="primary ghost">
+                        Following
+                    </button>
+                </div>
+            </div>
+
+
+        </div>
+
+
         <div class="">
             <div class="" th:each="friend : ${friends}" th:fragment="posts">
                 <div class="" style="cursor: pointer">
@@ -27,7 +97,8 @@
 
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-<script th:src="@{/js/friends.js}"></script>
+<script th:src="@{/js/ajax_requests.js}"></script>
 <script th:src="@{/js/navbar.js}"></script>
+<script th:src="@{/js/friends.js}"></script>
 </body>
 </html>

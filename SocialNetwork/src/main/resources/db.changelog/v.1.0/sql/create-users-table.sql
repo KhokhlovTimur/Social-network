@@ -7,7 +7,7 @@ create table if not exists users
     name         varchar(30)        not null check (length(name) > 0),
     surname      varchar(30)        not null check (length(name) > 0),
     password     varchar(255)       not null check (length(password) > 5),
-    age          int                not null,
+    age          int               ,
     username     varchar(50) unique not null check (length(username) > 0),
     email        varchar(50) check (email ~ '^[A-Za-z0-9._%-]+@[A-Za-z0-9.-]+[.][A-Za-z]+$'),
     phone_number varchar(15) check (phone_number ~ '^[0-9]+$'),

@@ -22,9 +22,11 @@ public interface UsersService {
 
     GroupsPage getGroups(Long userId);
 
-    <T extends PublicUserDto> T getById(Long id, String token);
+    <T extends PublicUserDto> T getByIdAndToken(Long id, String token);
 
     Set<PostDto> getPostsFromGroups(String token);
 
     User findByUsername(String username);
+
+    boolean isMyProfile(String token, Long id);
 }

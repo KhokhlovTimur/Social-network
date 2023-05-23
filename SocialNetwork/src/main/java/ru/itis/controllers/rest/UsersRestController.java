@@ -5,14 +5,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.itis.annotations.TokenValid;
-import ru.itis.controllers.rest.api.ApiController;
 import ru.itis.controllers.rest.api.UsersApi;
-import ru.itis.dto.group.GroupsPage;
 import ru.itis.dto.user.*;
 import ru.itis.services.users.FriendsService;
 import ru.itis.services.users.UsersService;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -29,7 +25,7 @@ public class UsersRestController implements UsersApi {
     @Override
     public ResponseEntity<? extends PublicUserDto> get(Long id, String token) {
         return ResponseEntity.status(HttpStatus.OK)
-                .body(usersService.getById(id, token));
+                .body(usersService.getByIdAndToken(id, token));
     }
 
     @Override

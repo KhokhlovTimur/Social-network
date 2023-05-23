@@ -1,5 +1,6 @@
 package ru.itis.aspects.handlers;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -12,45 +13,62 @@ import ru.itis.exceptions.NoAccessException;
 import ru.itis.exceptions.NotFoundException;
 
 import javax.validation.ConstraintViolationException;
+import java.util.ArrayList;
+import java.util.List;
 
 @RestControllerAdvice
+@Slf4j
 public class RestExceptionHandler {
 
     @ExceptionHandler(NotFoundException.class)
-    public ResponseEntity<ExceptionDto> handleNotFoundException(NotFoundException e) {
+    public ResponseEntity<List<ExceptionDto>> handleNotFoundException(NotFoundException e) {
+        log.error(e.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(ExceptionDto.builder()
+                .body(List.of(ExceptionDto.builder()
                         .message(e.getMessage())
-                        .build());
+                        .build()));
     }
 
     @ExceptionHandler(NoAccessException.class)
-    public ResponseEntity<ExceptionDto> handleNoAccessException(NoAccessException e) {
+    public ResponseEntity<List<ExceptionDto>> handleNoAccessException(NoAccessException e) {
+        log.error(e.getMessage());
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                .body(ExceptionDto.builder()
+                .body(List.of(ExceptionDto.builder()
                         .message(e.getMessage())
-                        .build());
+                        .build()));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseEntity<ExceptionDto> handleValidationException(MethodArgumentNotValidException e) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(ExceptionDto.builder()
-                        .message(e.getMessage())
-                        .build());
+    public ResponseEntity<List<ExceptionDto>> handleValidationException(MethodArgumentNotValidException e) {
+        log.error(e.getMessage());
+
+        List<ExceptionDto> errors = new ArrayList<>();
+
+        e.getBindingResult().getAllErrors().forEach(error -> {
+            ExceptionDto errorDto = ExceptionDto.builder()
+                    .message(error.getDefaultMessage())
+                    .build();
+
+            errors.add(errorDto);
+        });
+
+        return ResponseEntity.badRequest()
+                .body(errors);
     }
 
     @ExceptionHandler(AlreadyExistsException.class)
-    public ResponseEntity<ExceptionDto> handleNoAccessException(AlreadyExistsException e) {
+    public ResponseEntity<List<ExceptionDto>> handleNoAccessException(AlreadyExistsException e) {
+        log.error(e.getMessage());
         return ResponseEntity.status(HttpStatus.CONFLICT)
-                .body(ExceptionDto.builder()
+                .body(List.of(ExceptionDto.builder()
                         .message(e.getMessage())
-                        .build());
+                        .build()));
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<ExceptionDto> handleConstraintValidationException(ConstraintViolationException e) {
+        log.error(e.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(ExceptionDto.builder()
                         .message(e.getMessage())

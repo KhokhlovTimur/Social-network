@@ -17,7 +17,6 @@ import ru.itis.services.users.UsersService;
 public class AspectsService {
     private final RequestParsingUtil requestParsingUtil;
     private final UsersService usersService;
-    private final JwtUtil jwtUtil;
 
     @Around(value = "@annotation(ru.itis.annotations.TokenValid) ")
     public Object checkUserRights(ProceedingJoinPoint joinPoint) throws Throwable {

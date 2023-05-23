@@ -1,17 +1,118 @@
 let tokens;
 
 $(document).ready(function () {
-    $('#clk').click(generateRequest)
+    $('.signUp').submit(signUp);
+    $('.signIn').submit(signIn);
+
+    $(".log-in").click(function () {
+        $('.err-message').empty();
+        $('.signIn').addClass("active-dx");
+        $('.signUp').addClass("inactive-sx");
+        $('.signUp').removeClass("active-sx");
+        $('.signIn').removeClass("inactive-dx");
+        $('.back').prop('disabled', false);
+        $('.login-submit').prop('disabled', false);
+        $('.log-in').prop('disabled', true);
+        $('.register-submit').prop('disabled', true);
+    });
+
+    $(".log-in").click();
+
+    $(".back").click(function () {
+        $('.err-message').empty();
+        $(".signUp").addClass("active-sx");
+        $(".signIn").addClass("inactive-dx");
+        $(".signIn").removeClass("active-dx");
+        $(".signUp").removeClass("inactive-sx");
+
+        $('.back').prop('disabled', true);
+        $('.login-submit').prop('disabled', true);
+        $('.log-in').prop('disabled', false);
+        $('.register-submit').prop('disabled', false);
+    });
 });
 
-function generateRequest(event) {
+async function signUp(event) {
     event.preventDefault();
-    console.log('Form submitted');
+    $('.err-message').empty();
 
-    let rawUsername = $('#username');
+    let rawUsername = $('#username-registration');
     let rawPassword = $('#password');
+    let rawPasswordVerify = $('#password-verify')
     let username = rawUsername.val();
     let password = rawPassword.val();
+    let name = $('#name').val();
+    let gender;
+
+    let male = $('#Male');
+    let female = $('#Female');
+    console.log(female.is(':checked'))
+    if (male.is(':checked')) {
+        gender = 'Male';
+    } else if (female.is(':checked')){
+        gender = 'Female';
+    }
+
+    console.log(gender)
+
+    let age = $('#age');
+    console.log()
+    if (isNaN(parseInt(age.val()))) {
+        age.css('border-bottom', '1px solid #ff6363');
+        age.val('');
+        return;
+    }
+
+    let surname = $('#surname').val();
+    let passwordVerify = rawPasswordVerify.val();
+
+    if (password !== passwordVerify) {
+        rawPasswordVerify.css('border-bottom', '1px solid #ff6363');
+        rawPasswordVerify.val('');
+        return;
+    }
+
+    rawPasswordVerify.css('border-bottom', '1px solid #a4c2f3');
+
+    rawUsername.val('');
+    rawPassword.val('');
+    rawPasswordVerify.val('');
+    $('#name').val('');
+    $('#surname').val('');
+    age.val('');
+
+    const details = {
+        'name': name,
+        'surname': surname,
+        'username': username,
+        'password': password,
+        'gender': gender,
+        'age': parseInt(age.val())
+    };
+
+    console.log(JSON.stringify(details))
+    await generateRequestWithoutToken('/users', 'POST',
+        function () {
+            $('.log-in').prop('disabled', false);
+            $('.log-in').click();
+        },
+        function (xhr) {
+            onErrorAuth(xhr, $('.registration-err'));
+        },
+        'application/json', JSON.stringify(details));
+}
+
+
+function signIn(event) {
+    $('.err-message').empty();
+    event.preventDefault();
+    console.log('Try to log in...');
+
+    let rawUsername = $('#username-login');
+    let rawPassword = $('#login-password');
+    let username = rawUsername.val();
+    let password = rawPassword.val();
+
     rawUsername.val('');
     rawPassword.val('');
 
@@ -20,7 +121,7 @@ function generateRequest(event) {
         'password': password
     };
 
-    console.log('sending request...')
+    console.log('Sending request...')
 
     $.ajax({
         url: '/api/auth/token',
@@ -28,12 +129,12 @@ function generateRequest(event) {
         contentType: 'application/x-www-form-urlencoded',
         data: $.param(details),
         dataType: 'json',
-        statusCode: {
-            401: function () {
-                $("#password").css('background-color', '#E23E57')
-            },
+        error: function (xhr) {
+            $('#username-login').css('border-bottom', '1px solid #ff6363');
+            $('#login-password').css('border-bottom', '1px solid #ff6363');
         },
         success: function (res) {
+            localStorage.setItem('entryTime', new Date().getTime().toString());
             onSuccessAuth(res);
         }
     })
@@ -49,23 +150,40 @@ function onSuccessAuth(result) {
     window.location.href = '/app/feeds'
 }
 
-function generateRequestToRefreshToken() {
-    $.ajax({
-        url: '/api/auth/token',
-        method: 'POST',
-        headers: {
-            'Authorization': 'Bearer ' + localStorage['refreshToken']
-        },
-        statusCode: {
-            401: function () {
-                $("#password").css('background-color', '#E23E57')
-            },
-            // 403:
-        },
+
+function generateRequestWithoutToken(url, method, successFunc, unSuccessFunc, contentType, data) {
+    return new Promise((resolve, reject) => $.ajax({
+        url: '/api' + url,
+        method: method,
+        contentType: contentType,
+        dataType: 'json',
+        data: data,
         success: function (res) {
-            onSuccessAuth(res);
+            successFunc(res);
+            $('.registration-err').empty();
+            $('.login-err').empty();
+            resolve();
+        }, error: function (xhr) {
+            unSuccessFunc(xhr);
+            reject();
         }
-    })
+    }))
 }
 
-setInterval(generateRequestToRefreshToken, 1700000);
+function onErrorAuth(xhr, object) {
+    let contentType = xhr.getResponseHeader('Content-type');
+    if (contentType != null && contentType === 'application/json') {
+        let rawResponse = xhr.responseText;
+        let response = JSON.parse(rawResponse);
+        if (rawResponse !== null && response !== undefined) {
+            for (let key in response) {
+                if (response[key] !== null && response[key]['message'] !== undefined) {
+                    console.log(response[key])
+                    object.append('<li>' + response[key]['message'] + '<li>');
+                }
+            }
+        } else {
+            console.log(rawResponse);
+        }
+    }
+}

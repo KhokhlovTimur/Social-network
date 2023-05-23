@@ -40,7 +40,6 @@ public class RequestParsingUtilImpl implements RequestParsingUtil {
     public String getTokenFromHeader(HttpServletRequest request) {
         String authorizationHeader = request.getHeader(AUTHORIZATION_HEADER_NAME);
         return authorizationHeader.substring(BEARER.length());
-
     }
 
     @Override

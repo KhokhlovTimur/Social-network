@@ -28,4 +28,8 @@ public class PublicUserDto {
     private String avatarLink;
     @Schema(description = "User's gender", example = "male")
     private String gender;
+    @Schema(description = "User's email", example = "bob@gmail.com")
+    private String email;
+    @Schema(description = "User's phone number")
+    private String phoneNumber;
 }

@@ -1,0 +1,107 @@
+.moved {
+    overflow: hidden;
+    position: relative;
+    margin-left: 0;
+    /*padding: 35px;*/
+}
+
+.header-title {
+    position: absolute;
+    margin-top: 25px!important;
+}
+
+.moved-search {
+    /*margin-top: 5px!important;*/
+}
+
+.friends {
+    display: flex;
+    width: 90%;
+    flex-direction: row;
+    height: auto;
+    margin-left: 5%;
+}
+
+.friend-card h3 {
+    margin: 10px 0;
+}
+
+.friend-card h6 {
+    margin: 5px 0;
+    text-transform: uppercase;
+}
+
+.friend-card p {
+    font-size: 14px;
+    line-height: 21px;
+}
+
+.friend-card {
+    background-color: #f1f2ed;
+    border-radius: 5px;
+    box-shadow: 0px 10px 20px -10px rgba(0, 0, 0, 0.75);
+    color: #aeb7dc;
+    padding-top: 30px;
+    position: relative;
+    width: 350px;
+    max-width: 100%;
+    text-align: center;
+    margin: 1rem;
+    font-family: Montserrat, sans-serif;
+}
+
+.friend-card .pro {
+    color: #231E39;
+    background-color: #FEBB0B;
+    border-radius: 3px;
+    font-size: 14px;
+    font-weight: bold;
+    padding: 3px 7px;
+    position: absolute;
+    top: 30px;
+    left: 30px;
+}
+
+.friend-card .round {
+    border: 3px solid #545454;
+    border-radius: 50%;
+    padding: 7px;
+    width: 200px;
+    height: 200px;
+    object-fit: cover;
+    background-size: cover;
+    background-position: center;
+}
+
+.buttons {
+    margin-bottom: 30px;
+    margin-top: 30px;
+}
+
+.buttons button {
+    cursor: pointer;
+}
+
+.friend-card button.primary {
+    background-color: #545454;
+    border: 1px solid black;
+    border-radius: 3px;
+    color: white;
+    font-family: Montserrat, sans-serif;
+    font-weight: 500;
+    padding: 10px 25px;
+}
+
+.friend-card button.primary:hover {
+    background-color: #212121;
+}
+
+.friend-card button.primary.ghost {
+    background-color: #ececec;
+    color: #545454;
+}
+
+.friend-card button.primary.ghost:hover {
+    background-color: white;
+}
+

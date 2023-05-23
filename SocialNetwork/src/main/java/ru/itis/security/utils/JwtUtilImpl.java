@@ -6,24 +6,36 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import ru.itis.models.User;
 import ru.itis.repositories.tokens.TokensRepository;
+import ru.itis.security.configs.SecurityConfig;
 import ru.itis.security.details.UserDetailsImpl;
 
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import static ru.itis.security.filters.AppAuthorizationFilter.REDIRECT_URL;
+
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class JwtUtilImpl implements JwtUtil {
 
     @Value("${jwt.secret.key}")
@@ -75,6 +87,36 @@ public class JwtUtilImpl implements JwtUtil {
         }
 
         return null;
+    }
+
+    @Override
+    public void setAuthentication(String token, HttpServletRequest request, HttpServletResponse response, FilterChain filterChain, boolean isAuthPage) throws ServletException, IOException {
+        if (!tokensRepository.isAccessTokenInBlackList(token) && !tokensRepository.isRefreshTokenExists(token)) {
+            try {
+                Authentication authentication = buildAuthentication(token);
+
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+
+                if (isAuthPage) {
+                    response.sendRedirect(REDIRECT_URL);
+                } else {
+                    filterChain.doFilter(request, response);
+                }
+            } catch (JWTVerificationException e) {
+                log.error(e.getMessage());
+                response.setStatus(HttpStatus.FORBIDDEN.value());
+            }
+        } else if (tokensRepository.isAccessTokenInBlackList(token)) {
+            if (isAuthPage) {
+                filterChain.doFilter(request, response);
+            } else {
+//                response.setStatus(HttpStatus.FORBIDDEN.value());
+                response.sendRedirect(SecurityConfig.PAGES_AUTH_PATH);
+            }
+        } else {
+//            response.setStatus(HttpStatus.FORBIDDEN.value());
+            response.sendRedirect(SecurityConfig.PAGES_AUTH_PATH);
+        }
     }
 
     public Map<String, String> parse(String token) throws JWTVerificationException {

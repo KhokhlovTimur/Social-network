@@ -11,6 +11,7 @@ import ru.itis.dto.group.GroupsPage;
 import ru.itis.dto.other.ExceptionDto;
 import ru.itis.dto.user.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RequestMapping("/api/users")
@@ -30,7 +31,7 @@ public interface UsersApi  {
                                     schema = @Schema(implementation = ExceptionDto.class))
                     })
     })
-    ResponseEntity<PrivateUserDto> signUp(@RequestBody UserSignUpDto userSignUpDto);
+    ResponseEntity<PrivateUserDto> signUp(@Valid @RequestBody UserSignUpDto userSignUpDto);
 
 
     @GetMapping("/{id}")

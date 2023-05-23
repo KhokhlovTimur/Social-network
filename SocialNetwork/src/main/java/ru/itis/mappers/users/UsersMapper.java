@@ -15,7 +15,6 @@ public interface UsersMapper {
 
     User toUser(PublicUserDto userDto);
 
-
     User toUser(UserUpdateDto userDto);
 
     PrivateUserDto toDto(UserSignUpDto signUpDto);

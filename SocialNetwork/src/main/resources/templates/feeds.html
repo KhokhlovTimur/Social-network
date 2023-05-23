@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <title>Feeds</title>
     <link rel="stylesheet" href="/css/template.css">
+    <link rel="stylesheet" href="/css/feeds.css">
+    <link rel="stylesheet" href="/css/posts.css">
 </head>
 
 <body>
@@ -12,18 +14,32 @@
     <nav th:replace="navbar_template :: mainNavbar"></nav>
     <div th:replace="navbar_template :: header"></div>
 
-    <div class="body">
-        <div th:each="post : ${posts}">
-            <p th:text="${post.text}"></p>
-            <p th:text="${post.dateOfPublication}"></p>
-            <p th:text="${post.group.name}" class="postGroup" th:value="${post.group.id}"
-               style="cursor: pointer"></p>
+    <div class="body body-relative">
+        <span class="heading">#feeds</span>
+        <div class="posts">
+            <div class="post" th:each="post : ${posts}">
+                <div class="post-inner">
+                    <div class="post-text">
+                        <p class="group-name" th:text="${post.group.name}"></p>
+                        <div class="images"></div>
+                        <div class="post-description" th:text="${post.text}"></div>
+                        <div class="post-footer">
+                            <span class="time">12:12</span>
+                            <div class="likes">
+                                <button class="like-button"></button>
+                                <span class="count">23</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-<script th:src="@{/js/feeds.js}"></script>
+<script th:src="@{/js/ajax_requests.js}"></script>
 <script th:src="@{/js/navbar.js}"></script>
+<script th:src="@{/js/feeds.js}"></script>
 </body>
 </html>

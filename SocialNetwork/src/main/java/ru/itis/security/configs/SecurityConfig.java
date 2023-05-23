@@ -18,10 +18,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-import ru.itis.security.filters.CustomLogoutFilter;
-import ru.itis.security.filters.PagesAuthorizationFilter;
-import ru.itis.security.filters.TokenAuthenticationFilter;
-import ru.itis.security.filters.TokenAuthorizationFilter;
+import ru.itis.security.filters.*;
 
 
 @Configuration
@@ -32,24 +29,24 @@ public class SecurityConfig {
     private final PasswordEncoder passwordEncoder;
     private final UserDetailsService userDetailsServiceImpl;
     private final AuthenticationProvider authenticationProvider;
-    private final String AUTH_COOKIE_NAME = "acs_token";
+    private final String AUTH_COOKIE_NAME = "access_token";
     public final static String APP_PREFIX = "/app";
-    public final static String PAGES_AUTH_URL = APP_PREFIX + "/login";
-    public final static String API_PREFIX = "/app";
+    public final static String PAGES_AUTH_PATH = APP_PREFIX + "/login";
+    public final static String API_PREFIX = "/api";
 
-    private final String authPath = TokenAuthorizationFilter.AUTHENTICATION_PATH;
+    private final String authPath = ApiAuthorizationFilter.AUTHENTICATION_PATH;
 
     @Bean
     protected SecurityFilterChain filterChain(HttpSecurity http, TokenAuthenticationFilter tokenAuthenticationFilter,
-                                              TokenAuthorizationFilter tokenAuthorizationFilter,
+                                              ApiAuthorizationFilter apiAuthorizationFilter,
                                               CustomLogoutFilter customLogoutFilter,
-                                              PagesAuthorizationFilter pagesAuthorizationFilter) throws Exception {
+                                              AppAuthorizationFilter appAuthorizationFilter) throws Exception {
         http.csrf().disable();
         tokenAuthenticationFilter.setFilterProcessesUrl(authPath);
 
         http.addFilter(tokenAuthenticationFilter)
-                .addFilterBefore(tokenAuthorizationFilter, UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(pagesAuthorizationFilter, TokenAuthorizationFilter.class)
+                .addFilterBefore(apiAuthorizationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(appAuthorizationFilter, ApiAuthorizationFilter.class)
                 .addFilterAt(customLogoutFilter, LogoutFilter.class)
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
@@ -60,7 +57,7 @@ public class SecurityConfig {
                 .antMatchers(HttpMethod.POST, "/api/users").permitAll()
 //                .antMatchers(HttpMethod.POST, "/api/users").permitAll()
                 .antMatchers("/api/**").authenticated()
-                .antMatchers("/app/login").permitAll()
+                .antMatchers(PAGES_AUTH_PATH).permitAll()
                 .antMatchers("/app/**").authenticated()
                 .and()
 //                .exceptionHandling()

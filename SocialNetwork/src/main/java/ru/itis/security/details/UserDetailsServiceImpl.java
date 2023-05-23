@@ -13,9 +13,9 @@ import ru.itis.repositories.UsersRepository;
 public class UserDetailsServiceImpl implements UserDetailsService {
     private final UsersRepository usersRepository;
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = usersRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User with nickname <" + username + "> not found"));
+    public UserDetails loadUserByUsername(String login) throws UsernameNotFoundException {
+        User user = usersRepository.findByUsername(login)
+                .orElseThrow(() -> new UsernameNotFoundException("User with login\"" + login + "\" not found"));
         return new UserDetailsImpl(user);
     }
 }
