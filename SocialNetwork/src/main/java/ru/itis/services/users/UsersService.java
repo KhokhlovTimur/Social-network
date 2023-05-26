@@ -1,14 +1,11 @@
 package ru.itis.services.users;
 
-import ru.itis.dto.chats.PersonalChatDto;
-import ru.itis.dto.group.GroupDto;
 import ru.itis.dto.group.GroupsPage;
 import ru.itis.dto.posts.PostDto;
 import ru.itis.dto.user.*;
-import ru.itis.models.Group;
 import ru.itis.models.User;
 
-import java.util.List;
+import javax.servlet.http.HttpServletResponse;
 import java.util.Set;
 
 public interface UsersService {
@@ -18,7 +15,7 @@ public interface UsersService {
 
     void banUser(Long id);
 
-    PrivateUserDto update(Long id, UserUpdateDto userDto);
+    UserUpdateResponseDto update(String username, UserUpdateDto userDto, HttpServletResponse response);
 
     GroupsPage getGroups(Long userId);
 
@@ -28,5 +25,9 @@ public interface UsersService {
 
     User findByUsername(String username);
 
-    boolean isMyProfile(String token, Long id);
+    <T extends PublicUserDto> T getByUsername(String username, String token);
+
+    boolean isMyProfile(String token, String username);
+
+    boolean isUsernameExists(String username);
 }

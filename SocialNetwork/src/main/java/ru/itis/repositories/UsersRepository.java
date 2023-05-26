@@ -13,6 +13,8 @@ import java.util.Optional;
 public interface UsersRepository extends JpaRepository<User, Long> {
     Optional<User> findByUsername(String username);
 
+    boolean existsByUsername(String username);
+
     Optional<User> findByEmail(String email);
 
     @Query(value = "select * from users join user_group ug on users.id = ug.user_id where ug.group_id = :id",

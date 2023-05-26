@@ -4,14 +4,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.itis.dto.chats.ChatDtoModel;
 import ru.itis.dto.chats.ChatGlobalIdDto;
+import ru.itis.exceptions.NoAccessException;
 import ru.itis.exceptions.NotFoundException;
 import ru.itis.mappers.chats.ChatsMapper;
 import ru.itis.models.ChatGlobalId;
 import ru.itis.models.PersonalChat;
 import ru.itis.models.User;
 import ru.itis.repositories.ChatsGlobalIdsRepository;
-import ru.itis.security.utils.RequestParsingUtilImpl;
-import ru.itis.services.users.UsersService;
 import ru.itis.services.utils.UsersServiceUtils;
 
 import java.util.HashSet;
@@ -42,6 +41,11 @@ public class ChatsGlobalIdsServiceImpl implements ChatsGlobalIdsService {
     }
 
     @Override
+    public boolean isUserInChat(Long chatGlobalId, Long userId) {
+        return chatsGlobalIdsRepository.isUserInChat(chatGlobalId, userId);
+    }
+
+    @Override
     public Set<? extends ChatDtoModel> getAllChats(String rawToken) {
         User user = usersServiceUtils.getUserFromToken(rawToken);
         Set<ChatDtoModel> chats = new HashSet<>();
@@ -65,13 +69,21 @@ public class ChatsGlobalIdsServiceImpl implements ChatsGlobalIdsService {
         ChatGlobalId.ChatType type = getOrThrow(id).getChatType();
         switch (type) {
             case PUBLIC -> {
-                return (T) chatsMapper.toDto(chatsService.getByGlobalChatId(getOrThrow(id)));
+                if (isUserInChat(id, user.getId())) {
+                    return (T) chatsMapper.toDto(chatsService.getByGlobalChatId(getOrThrow(id)));
+                } else {
+                    throw new NoAccessException("You are not in the chat");
+                }
             }
 
             case PERSONAL -> {
-                PersonalChat personalChat = switchUsers(personalChatsService.getByGlobalId(getOrThrow(id)), user);
-                return (T) chatsMapper.
-                        toPersonalChatDto(personalChat);
+                if (isUserInChat(id, user.getId())) {
+                    PersonalChat personalChat = switchUsers(personalChatsService.getByGlobalId(getOrThrow(id)), user);
+                    return (T) chatsMapper.toPersonalChatDto(personalChat);
+                }
+                else {
+                    throw new NoAccessException("You are not in the chat");
+                }
             }
         }
 

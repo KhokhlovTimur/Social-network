@@ -37,7 +37,6 @@ public class GroupsServiceImpl implements GroupsService {
     private final UsersServiceUtils usersServiceUtils;
     private final GroupCollectionsMapper groupCollectionsMapper;
     private final UsersService usersService;
-    private final FilesService filesService;
     private final FilesServiceUtils filesServiceUtils;
 
     @Value("${default.page-size}")
@@ -94,19 +93,24 @@ public class GroupsServiceImpl implements GroupsService {
     @Override
     public GroupDto add(NewOrUpdateGroupDto newGroupDto, String rawToken) {
         checkGroupName(newGroupDto.getName());
+        User creator = (usersServiceUtils.getUserFromToken(rawToken));
 
         Group group = Group.builder()
                 .name(newGroupDto.getName())
                 .description(newGroupDto.getDescription())
                 .dateOfCreation(new Date())
                 .status(Group.Status.ACTIVE)
-                .creator(usersServiceUtils.getUserFromToken(rawToken))
+                .creator(creator)
                 .users(new HashSet<>())
                 .build();
 
         groupsRepository.save(group);
 
-        group.setImageLink(getImageLink(newGroupDto, group.getId()));
+        creator.getGroups().add(group);
+        group.getUsers().add(creator);
+
+        group.setImageLink(filesServiceUtils.generatePathToFile("groups", newGroupDto.getImage(),
+                "/" + group.getId() + "/profile/"));
         groupsRepository.save(group);
         return groupMapper.toDto(group);
     }
@@ -133,11 +137,17 @@ public class GroupsServiceImpl implements GroupsService {
             group.setDescription(groupDto.getDescription());
         }
         if (groupDto.getImage() != null) {
-            group.setImageLink(getImageLink(groupDto, id));
+            group.setImageLink(filesServiceUtils.generatePathToFile("groups", groupDto.getImage(),
+                    "/" + group.getId() + "/profile/"));
         }
 
         groupsRepository.save(group);
         return groupMapper.toDto(group);
+    }
+
+    @Override
+    public boolean isNameOccupied(String name) {
+        return groupsRepository.existsByName(name);
     }
 
     @Override
@@ -169,12 +179,6 @@ public class GroupsServiceImpl implements GroupsService {
         if (groupsRepository.existsByName(name)) {
             throw new AlreadyExistsException("Group with name \"" + name + "\" already exists");
         }
-    }
-
-    private String getImageLink(NewOrUpdateGroupDto newGroupDto, Long id) {
-        String myName = filesServiceUtils.generateFileName(newGroupDto.getImage().getOriginalFilename());
-        return filesService.savePhoto(newGroupDto.getImage(), "/" + id + "/profile/" + myName,
-                "groups");
     }
 
 }

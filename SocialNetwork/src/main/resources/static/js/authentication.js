@@ -46,14 +46,11 @@ async function signUp(event) {
 
     let male = $('#Male');
     let female = $('#Female');
-    console.log(female.is(':checked'))
     if (male.is(':checked')) {
         gender = 'Male';
     } else if (female.is(':checked')){
         gender = 'Female';
     }
-
-    console.log(gender)
 
     let age = $('#age');
     console.log()
@@ -79,7 +76,6 @@ async function signUp(event) {
     rawPasswordVerify.val('');
     $('#name').val('');
     $('#surname').val('');
-    age.val('');
 
     const details = {
         'name': name,
@@ -89,6 +85,8 @@ async function signUp(event) {
         'gender': gender,
         'age': parseInt(age.val())
     };
+
+    age.val('');
 
     console.log(JSON.stringify(details))
     await generateRequestWithoutToken('/users', 'POST',

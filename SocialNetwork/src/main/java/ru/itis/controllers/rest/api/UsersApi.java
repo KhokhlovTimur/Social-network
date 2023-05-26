@@ -7,15 +7,14 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.itis.dto.group.GroupsPage;
 import ru.itis.dto.other.ExceptionDto;
 import ru.itis.dto.user.*;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
-import java.util.List;
 
 @RequestMapping("/api/users")
-public interface UsersApi  {
+public interface UsersApi {
 
     @PostMapping
     @Operation(summary = "User registration")
@@ -34,7 +33,7 @@ public interface UsersApi  {
     ResponseEntity<PrivateUserDto> signUp(@Valid @RequestBody UserSignUpDto userSignUpDto);
 
 
-    @GetMapping("/{id}")
+    @GetMapping("/{username}")
     @Operation(summary = "Get user")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "User's info",
@@ -50,7 +49,8 @@ public interface UsersApi  {
                                     schema = @Schema(implementation = ExceptionDto.class))
                     })
     })
-    ResponseEntity<? extends PublicUserDto> get(@PathVariable("id") Long id, @RequestHeader("Authorization") String rawToken);
+    ResponseEntity<? extends PublicUserDto> get(@PathVariable("username") String username,
+                                                @RequestHeader("Authorization") String rawToken);
 
 
     @DeleteMapping("/{id}")
@@ -66,7 +66,7 @@ public interface UsersApi  {
     ResponseEntity<?> delete(@PathVariable("id") Long id, @RequestHeader(name = "Authorization") String rawToken);
 
 
-    @PutMapping("/{id}")
+    @PatchMapping("/{username}")
     @Operation(summary = "Update user")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "202", description = "Updated user",
@@ -81,9 +81,11 @@ public interface UsersApi  {
                     })
 
     })
-    ResponseEntity<PrivateUserDto> update(@PathVariable("id") Long id,
-                                   @RequestBody UserUpdateDto updateUserDto,
-                                   @RequestHeader(name = "Authorization") String rawToken);
+    ResponseEntity<UserUpdateResponseDto> update(@PathVariable("username") String username,
+                                                 @Valid @ModelAttribute UserUpdateDto updateUserDto,
+                                                 @RequestHeader(name = "Authorization") String rawToken,
+                                                 HttpServletResponse response);
+
 
 //        @GetMapping("/{id}/friends")
 //    ResponseEntity<List<PublicUserDto>> getFriends(@PathVariable("id") Long id);

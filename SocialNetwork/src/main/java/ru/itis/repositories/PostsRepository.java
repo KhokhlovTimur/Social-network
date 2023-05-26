@@ -9,6 +9,11 @@ import org.springframework.data.repository.query.Param;
 import ru.itis.models.Post;
 
 public interface PostsRepository extends JpaRepository<Post, Long> {
+
+    @Query(value = "select post from posts post join post.group g " +
+            "where exists (select 1 from users u join u.groups gr where u.username = :username and gr.id = g.id)")
+    Page<Post> findAllByUsername(Pageable pageable, @Param("username") String username);
+
     Page<Post> findAllByGroupId(Pageable pageable, Long groupId);
 
     @Query(value = "select count(*) from likes l where post_id = :post_id", nativeQuery = true)
@@ -18,7 +23,5 @@ public interface PostsRepository extends JpaRepository<Post, Long> {
             "likes l where post_id = :post_id and user_id = :user_id", nativeQuery = true)
     Boolean isUserPutLikeToPost(@Param("user_id") Long userId, @Param("post_id") Long postId);
 
-//    @Modifying
-//    @Query(value = "delete from post_file where post_id = ?1", nativeQuery = true)
-//    void deleteFromPostFile(Long postId);
+    ;
 }

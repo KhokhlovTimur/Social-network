@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.Range;
+import ru.itis.validation.constraints.UniqueUsername;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.Pattern;
@@ -18,32 +19,26 @@ import javax.validation.constraints.Size;
 @Schema(description = "Model for user's registration or updating")
 public class UserSignUpDto {
     @Schema(description = "User's name", example = "Bob", required = true)
-    @Size(min = 1)
+    @Size(min = 1, max = 50)
     private String name;
 
     @Schema(description = "User's surname", example = "Henderson", required = true)
-    @Size(min = 1)
+    @Size(min = 1, max = 50)
     private String surname;
 
     @Schema(description = "User's username", example = "hend222", required = true)
+    @Size(min = 1, max = 50, message = "{username.incorrect-size}")
+    @UniqueUsername
     private String username;
 
-    @Schema(description = "User's age", example = "23", required = false)
-    @Range(min = 10, max = 150, message = "{age.incorrect}")
+    @Schema(description = "User's age", example = "23", required = true)
+    @Range(min = 1, max = 150, message = "{age.incorrect}")
     private int age;
 
     @Schema(description = "User's password", required = true)
     @Size(min = 6, max = 25, message = "{password.incorrect-size}")
     private String password;
 
-    @Schema(description = "User's phone number")
-    @Pattern(regexp = "^((8|\\+7)[\\- ]?)?(\\(?\\d{3}\\)?[\\- ]?)?[\\d\\- ]{7,10}")
-    private String phoneNumber;
-
-    @Schema(description = "User's email", example = "bob@gmail.com")
-    @Email
-    private String email;
-
-    @Schema(description = "User's gender", example = "male")
+    @Schema(description = "User's gender", example = "male", required = true)
     private String gender;
 }

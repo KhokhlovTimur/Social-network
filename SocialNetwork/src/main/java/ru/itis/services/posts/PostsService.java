@@ -8,7 +8,7 @@ import ru.itis.dto.posts.PostsPage;
 public interface PostsService {
     PostDto add(Long groupId, NewOrUpdateGroupPostDto postDto, String token);
 
-    PostsPage getPosts(Long id, int pageNumber);
+    PostsPage getPosts(Long id, int pageNumber, String token);
 
     PostDto get(Long groupId, Long postId);
 
@@ -23,6 +23,10 @@ public interface PostsService {
     void removeLike(Long groupId, Long postId, String token);
 
     Boolean isUserPutLikeToPost(String username, Long postId, Long groupId);
+
+    PostsPage getPostsByUsername(String username, int pageNumber);
+
+    PostsPage getPostsByToken(String token, int pageNumber);
 
     void delete(Long postId, Long groupId);
 }

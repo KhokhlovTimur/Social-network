@@ -17,17 +17,22 @@
     <div class="body body-relative">
         <span class="heading">#feeds</span>
         <div class="posts">
-            <div class="post" th:each="post : ${posts}">
+            <div class="post" th:each="post : ${posts}" th:value="${post.group.id}">
                 <div class="post-inner">
                     <div class="post-text">
                         <p class="group-name" th:text="${post.group.name}"></p>
-                        <div class="images"></div>
+                        <div class="images" th:if="${post.files != null}">
+                            <img class="post-img" th:each="file, iterStat: ${post.files}" th:src="${file.fileLink}" th:classappend="${iterStat.first}? 'active' : ''">
+                            <div th:if="${post.files.size > 1}" class="prev">&lt;</div>
+                            <div th:if="${post.files.size > 1}" class="next">&gt;</div>
+                        </div>
                         <div class="post-description" th:text="${post.text}"></div>
                         <div class="post-footer">
-                            <span class="time">12:12</span>
+                            <span class="time" th:text="${#dates.format(post.dateOfPublication, 'HH:mm, dd MMM')}"></span>
                             <div class="likes">
-                                <button class="like-button"></button>
-                                <span class="count">23</span>
+                                <button th:if="${post.isLikedByUser}" class="like-button liked"></button>
+                                <button th:if="${!post.isLikedByUser}" class="like-button"></button>
+                                <span class="count" th:text="${post.likesCount}"></span>
                             </div>
                         </div>
                     </div>

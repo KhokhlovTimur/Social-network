@@ -39,7 +39,7 @@ public class Group {
     @Type(type = "postgresql_enum")
     private Status status;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "creator_id")
     private User creator;
 

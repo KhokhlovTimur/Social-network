@@ -1,26 +1,21 @@
-function generateRequestToSendJson(url, method, successFunc, unSuccessFunc) {
-    return generatePromiseRequestWithHeader(url, method, successFunc, unSuccessFunc, 'json');
-}
-
 let entryTime;
 let passedTime;
 let updateTime = 1600000;
 let remainedTime;
 
 $(document).ready(function () {
-
     if (!window.location.href.toString().includes('/app/login')) {
         let time = localStorage.getItem('deltaTime');
         entryTime = localStorage.getItem('entryTime');
         if (remainedTime < 60000) {
-            checkToken();
+            updateToken();
         }
 
         if (time === null) {
-            setTimeout(checkToken, updateTime);
+            setTimeout(updateToken, updateTime);
         } else {
             console.log(parseInt(time))
-            setTimeout(checkToken, parseInt(time));
+            setTimeout(updateToken, parseInt(time));
         }
     }
 })
@@ -35,11 +30,15 @@ window.addEventListener("beforeunload", function () {
         console.log(remainedTime);
 
         if (remainedTime < 60000) {
-            checkToken();
+            updateToken();
         }
         localStorage.setItem('deltaTime', remainedTime);
     }
 })
+
+function generateRequestToGetJson(url, method, successFunc, unSuccessFunc) {
+    return generatePromiseRequestWithHeader(url, method, successFunc, unSuccessFunc, 'json');
+}
 
 async function generatePromiseRequestWithHeader(url, method, successFunc, unSuccessFunc, dataType) {
     return new Promise((resolve, reject) => {
@@ -99,8 +98,7 @@ function onError(xhr, unSuccessFunc, reject) {
     reject(xhr.status + ': ' + xhr.statusText);
 }
 
-function checkToken() {
-
+function updateToken() {
     console.log('updating token...')
     $.ajax({
         url: '/api/auth/token',
@@ -114,7 +112,7 @@ function checkToken() {
             localStorage.setItem('refreshToken', tokens['refreshToken']);
             localStorage.setItem('accessToken', tokens['accessToken']);
 
-            setInterval(checkToken, updateTime);
+            setInterval(updateToken, updateTime);
             localStorage.setItem('deltaTime', updateTime.toString());
         }
     })

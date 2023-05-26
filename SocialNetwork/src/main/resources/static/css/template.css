@@ -318,3 +318,74 @@ body {
     border-bottom: 2px solid black;
     padding-bottom: 5px;
 }
+
+
+.edit-img {
+    filter: brightness(65%) !important;
+}
+
+.image-edit-icon {
+    position: absolute;
+    top: 55%;
+    left: 50%;
+    border-radius: 50%;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transform: translate(-50%, -50%);
+    font-size: 40px;
+    color: white;
+    background-color: rgba(0, 0, 0, 0.5);
+    width: 20%;
+    height: 20%;
+    z-index: 15;
+}
+
+.body-shadow {
+    position: fixed;
+    display: none;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    z-index: 500;
+}
+
+.edit-icon {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 1.5rem;
+    padding: 0.5rem;
+    color: #6c6c6c;
+    cursor: pointer;
+    display: none;
+}
+
+.flex-10 {
+    display: flex;
+    z-index: 10;
+}
+
+
+.post-area {
+    display: flex;
+    width: 95%;
+    margin: 12% auto 20px;
+    min-height: 5px;
+    padding: 6px 12px;
+    font-size: 20px;
+    line-height: 1.4;
+    max-height: 200px;
+    color: #6c6c6c;
+    resize: none;
+    background-color: #fff;
+}
+
+.post-area:focus {
+    border-color: #1e1e1e;
+    outline: 0;
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(68, 69, 70, 0.6);
+}

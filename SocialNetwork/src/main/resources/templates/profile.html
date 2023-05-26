@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Profile</title>
     <link rel="stylesheet" href="/css/template.css">
+    <link rel="stylesheet" href="/css/authentication.css">
     <link rel="stylesheet" href="/css/profile.css">
 </head>
 <body>
@@ -14,22 +15,27 @@
     <div th:replace="navbar_template :: header"></div>
     <div class="body overflow-h">
 
-
         <div class="container">
             <div class="profile-header">
+                <span th:if="${isMyProfile}" class="edit-icon flex-10">&#9998;</span>
                 <div class="profile-img">
-                    <img th:src="${user.avatarLink}" width="200">
+                    <div style="display: inline-flex" class="image">
+                        <span th:if="${isMyProfile}" class="image-edit-icon edit-btn-moved"
+                              style="display: none;">+</span>
+                        <img th:src="${user.avatarLink}" id="profile-image" width="200">
+                    </div>
+                    <input type="file" id="new-profile-image" style="display: none;">
                 </div>
                 <div class="profile-nav-info">
                     <div class="name-surname">
                         <h3 class="user-name" th:text="${user.name + ' ' + user.surname}"></h3>
                     </div>
                     <div class="username">
-                        <p id="state" class="state" th:text="${user.username}"></p>
+                        <p id="state" class="state" th:text="${'@' + user.username}"></p>
                     </div>
 
                     <div class="bio">
-                        <span style="font-weight: bold; margin-top: 2px">Bio:  </span>
+                        <span class="bio-header" style="font-weight: bold; margin-top: 2px">Bio:  </span>
                         <span class="bio-text" th:text="${user.bio}"></span>
                     </div>
 
@@ -41,21 +47,25 @@
 
                     <div class="profile-side">
                         <div class="info-block">
-                            <div class="mobile-no">
+                            <div class="info-row">
                                 <span class="bold-text">Phone: </span>
-                                <span th:text="${user.phoneNumber}"></span>
+                                <span class="phone" th:text="${user.phoneNumber}"></span>
                             </div>
-                            <div class="user-mail">
+                            <div class="info-row">
                                 <span class="bold-text">Email: </span>
-                                <span th:text="${user.email}">></span>
+                                <span class="email" th:text="${user.email}">></span>
                             </div>
-                            <div>
+                            <div class="info-row">
                                 <span class="bold-text">Gender: </span>
-                                <span th:text="${user.gender}"></span>
+                                <span class="gender" th:text="${user.gender}"></span>
+                            </div>
+                            <div class="info-row">
+                                <span class="bold-text">Age: </span>
+                                <span class="age" th:text="${user.age}"></span>
                             </div>
                         </div>
 
-                        <div th:if="${!isMyProfile}" нормclass="profile-btn">
+                        <div th:if="${!isMyProfile}" class="profile-btn">
                             <button class="chatbtn" id="chatBtn"><i class="fa fa-comment"></i> Chat</button>
                             <button class="createbtn" id="Create-post"><i class="fa fa-plus"></i> Add</button>
                         </div>

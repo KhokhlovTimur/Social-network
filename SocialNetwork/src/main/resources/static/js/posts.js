@@ -8,6 +8,7 @@ $(document).ready(function () {
 
 let currCount;
 let isLikePut;
+
 async function putLike(event) {
     let postId = event.target.closest('.post').getAttribute('value');
     currBtn = $(event.target);
@@ -62,19 +63,19 @@ async function createPost(value) {
 
     let likes = $('<div>').addClass('likes');
 
-    await generatePromiseRequestWithHeader('/groups/' + groupId + '/posts/' + value['id'] + '/likes/' + currUsername,
-        'GET', setLikeStatus);
+    // await generatePromiseRequestWithHeader('/groups/' + groupId + '/posts/' + value['id'] + '/likes/' + currUsername,
+    //     'GET', setLikeStatus);
     let likesBtn = $('<button>').addClass('like-button');
-    if (isLikePut) {
+    if (value['isLikedByUser']) {
         likesBtn.addClass('liked');
     }
 
     likesBtn.click(putLike);
     let count = $('<span>').addClass('count');
-    await generatePromiseRequestWithHeader('/groups/' + groupId + '/posts/' + value['id'] + '/likes/count', 'GET',
-        setLikesCountToBlock, null, 'json');
+    // await generatePromiseRequestWithHeader('/groups/' + groupId + '/posts/' + value['id'] + '/likes/count', 'GET',
+    //     setLikesCountToBlock, null, 'json');
 
-    count.html(currCount);
+    count.html(value['likesCount']);
     likes.append(likesBtn);
     likes.append(count);
     footer.append(time);
@@ -220,7 +221,7 @@ function setLikesCountToBlock(count) {
 }
 
 async function setMembersCount() {
-    await generateRequestToSendJson('/groups/' + groupId + '/users?page=' + usersPageNumber, 'GET', setCount);
+    await generateRequestToGetJson('/groups/' + groupId + '/users?page=' + usersPageNumber, 'GET', setCount);
 }
 
 function setCount(data) {
@@ -229,17 +230,15 @@ function setCount(data) {
 }
 
 async function processPosts(data) {
-    pageNumber++;
     let postsData = data['posts'];
     totalPostsPagesCount = data['totalPagesCount'];
 
     for (let post of postsData) {
         await createPost(post).then((data) => posts.append(data));
     }
-
-    isLoading = false;
+    postsPageNumber++;
+    isPostsLoading = false;
 }
-
 
 function convertDate(timestamp) {
     let time = new Date(timestamp);
@@ -253,4 +252,21 @@ function convertDate(timestamp) {
         minutes.toString()
             .padStart(2, '0') + ', ' + day.toString()
             .padStart(2, '0') + ' ' + month.toString();
+}
+
+function scrollPosts() {
+    $(window).scroll(async function () {
+
+        let scrollHeight = $(window).scrollTop(); //dynamic: window + scroll
+        let windowHeight = $(window).height(); //const: window
+        let documentHeight = $(document).height(); //const: window + scroll space
+
+        if ((scrollHeight + windowHeight) / documentHeight >= limitPageHeight) {
+            console.log(postsPageNumber)
+            if (!isPostsLoading && postsPageNumber <= totalPostsPagesCount - 1) {
+                isPostsLoading = true;
+                await generateRequestWithHeaderAndFuncWithoutPromise('/groups/' + groupId + '/posts?page=' + postsPageNumber, 'GET', processPosts);
+            }
+        }
+    });
 }

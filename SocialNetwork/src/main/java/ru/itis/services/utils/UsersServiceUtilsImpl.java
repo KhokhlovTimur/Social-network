@@ -18,14 +18,6 @@ public class UsersServiceUtilsImpl implements UsersServiceUtils {
     private final JwtUtil jwtUtil;
     private final RequestParsingUtil requestParsingUtil;
 
-    public User getUserFromContext() {
-        String username = ((UserDetailsImpl) SecurityContextHolder.getContext()
-                .getAuthentication().getPrincipal()).getUsername();
-
-        return usersRepository.findByUsername(username).orElseThrow();
-    }
-
-
     @Override
     public User getUserFromToken(String token) {
         String username;

@@ -1,5 +1,8 @@
 package ru.itis.services.utils;
 
+import org.springframework.web.multipart.MultipartFile;
+
 public interface FilesServiceUtils {
-    String generateFileName(String originalFileName);
+
+    public String generatePathToFile(String bucketName, MultipartFile multipartFile, String directories);
 }

@@ -22,4 +22,6 @@ public class PostDto {
     private PublicUserDto author;
     private GroupDto group;
     private List<FileInfo> files;
+    private Long likesCount;
+    private Boolean isLikedByUser;
 }

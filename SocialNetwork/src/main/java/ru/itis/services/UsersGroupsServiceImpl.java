@@ -20,7 +20,6 @@ import ru.itis.services.utils.UsersServiceUtils;
 @Service
 @RequiredArgsConstructor
 public class UsersGroupsServiceImpl implements UsersGroupsService {
-    private final UsersService usersService;
     private final GroupsRepository groupsRepository;
     private final GroupsService groupsService;
     private final UsersRepository usersRepository;

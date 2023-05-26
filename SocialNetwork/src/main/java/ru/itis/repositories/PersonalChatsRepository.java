@@ -11,7 +11,7 @@ import java.util.Optional;
 import java.util.Set;
 
 public interface PersonalChatsRepository extends JpaRepository<PersonalChat, Long> {
-    @Query(value = "select * from personal_chats where first_user_id = :user_id or second_user_id = :user_id", nativeQuery = true)
+    @Query(value = "from personal_chats chat where chat.firstUser.id = :user_id or chat.secondUser.id = :user_id", nativeQuery = false)
     Set<PersonalChat> findAllBySecondUserIdOrFirstUserId(@Param("user_id") Long userId);
 
     Optional<PersonalChat> findByGlobalId(ChatGlobalId globalId);

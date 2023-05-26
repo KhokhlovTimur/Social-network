@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -20,19 +21,17 @@ import ru.itis.models.FileInfo;
 import ru.itis.models.Group;
 import ru.itis.models.Post;
 import ru.itis.models.User;
-import ru.itis.repositories.FileInfoRepository;
-import ru.itis.repositories.GroupsRepository;
 import ru.itis.repositories.PostsRepository;
-import ru.itis.services.files.FilesService;
 import ru.itis.services.groups.GroupsService;
 import ru.itis.services.users.UsersService;
 import ru.itis.services.utils.FilesServiceUtils;
 import ru.itis.services.utils.UsersServiceUtils;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -44,7 +43,6 @@ public class PostsServiceImpl implements PostsService {
     private final UsersCollectionsMapper usersCollectionsMapper;
     private final UsersServiceUtils usersServiceUtils;
     private final UsersService usersService;
-    private final FilesService filesService;
     private final FilesServiceUtils filesServiceUtils;
 
     @Value("${default.posts-page-size}")
@@ -106,15 +104,33 @@ public class PostsServiceImpl implements PostsService {
     }
 
     @Override
-    public PostsPage getPosts(Long id, int pageNumber) {
+    public PostsPage getPostsByToken(String token, int pageNumber) {
+        return getPostsByUsername(usersServiceUtils.getUserFromToken(token).getUsername(), pageNumber);
+    }
+
+    @Override
+    public PostsPage getPostsByUsername(String username, int pageNumber) {
+        PageRequest pageable = PageRequest.of(pageNumber, defaultSize, Sort.by("dateOfPublication").descending());
+
+        Page<Post> page = postsRepository.findAllByUsername(pageable, username);
+        return PostsPage.builder()
+                .posts(addLikesCountAndLikeStatus(page.getContent(), username))
+                .totalPagesCount(page.getTotalPages())
+                .build();
+    }
+
+    @Override
+    public PostsPage getPosts(Long id, int pageNumber, String token) {
         groupsService.findById(id);
+        User user = usersServiceUtils.getUserFromToken(token);
+
         PageRequest pageRequest = PageRequest.of(pageNumber, defaultSize, Sort.by("dateOfPublication").descending());
 
-        Page<Post> posts = postsRepository.findAllByGroupId(pageRequest, id);
+        Page<Post> page = postsRepository.findAllByGroupId(pageRequest, id);
 
         return PostsPage.builder()
-                .posts(postsCollectionMapper.toDtoList(posts.getContent()))
-                .totalPagesCount(posts.getTotalPages())
+                .posts(addLikesCountAndLikeStatus(page.getContent(), user.getUsername()))
+                .totalPagesCount(page.getTotalPages())
                 .build();
     }
 
@@ -137,12 +153,11 @@ public class PostsServiceImpl implements PostsService {
 
         if (postDto.getFiles() != null) {
             for (MultipartFile file : postDto.getFiles()) {
-                String newFileName = filesServiceUtils.generateFileName(file.getOriginalFilename());
-                String fileLink = filesService.savePhoto(file, groupId + "/posts/" + newPost.getId() + "/" +
-                        newFileName, "groups");
+                String newFileName = filesServiceUtils.generatePathToFile("groups", file,
+                        "/" + groupId + "/posts/" + newPost.getId() + "/");
 
                 post.getFiles().add(FileInfo.builder()
-                        .fileLink(fileLink)
+                        .fileLink(newFileName)
                         .originalFilename(file.getOriginalFilename())
                         .mimeType(file.getContentType())
                         .build());
@@ -177,6 +192,16 @@ public class PostsServiceImpl implements PostsService {
             throw new NotFoundException("Post with id \"" + postId + "\" not found in group " +
                     "with id \"" + groupId + "\"");
         }
+    }
+
+    private List<PostDto> addLikesCountAndLikeStatus(List<Post> posts, String username) {
+        return postsCollectionMapper.toDtoList(posts)
+                .stream()
+                .peek(x -> {
+                    x.setLikesCount(getLikesCountByPostId(x.getId()));
+                    x.setIsLikedByUser(isUserPutLikeToPost(username, x.getId(), x.getGroup().getId()));
+                })
+                .collect(Collectors.toList());
     }
 
 }

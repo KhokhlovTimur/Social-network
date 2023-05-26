@@ -7,10 +7,17 @@ import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import ru.itis.dto.posts.PostDto;
 import ru.itis.dto.user.PublicUserDto;
 import ru.itis.services.groups.GroupsService;
+import ru.itis.services.posts.PostsService;
 import ru.itis.services.users.FriendsService;
 import ru.itis.services.users.UsersService;
+
+import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.Locale;
 
 import static ru.itis.security.utils.RequestParsingUtilImpl.AUTHORIZATION_COOKIE;
 
@@ -21,6 +28,7 @@ public class PagesController {
     private final UsersService usersService;
     private final FriendsService friendsService;
     private final GroupsService groupsService;
+    private final PostsService postsService;
 
     @GetMapping("/login")
     public String getAuthPage() {
@@ -29,15 +37,15 @@ public class PagesController {
 
     @GetMapping("/feeds")
     public String getFeedsPage(Model model, @CookieValue(AUTHORIZATION_COOKIE) String token) {
-        model.addAttribute("posts", usersService.getPostsFromGroups(token));
+        model.addAttribute("posts", postsService.getPostsByToken(token, 0).getPosts());
         return "feeds";
     }
 
-    @GetMapping("/profile/{id}")
-    public String getProfilePage(Model model, @CookieValue(AUTHORIZATION_COOKIE) String token, @PathVariable("id") Long id) {
-        PublicUserDto user = usersService.getByIdAndToken(id, token);
+    @GetMapping("/profile/{username}")
+    public String getProfilePage(Model model, @CookieValue(AUTHORIZATION_COOKIE) String token, @PathVariable("username") String username) {
+        PublicUserDto user = usersService.getByUsername(username, token);
         model.addAttribute("user", user);
-        model.addAttribute("isMyProfile", usersService.isMyProfile(token, id));
+        model.addAttribute("isMyProfile", usersService.isMyProfile(token, username));
         return "profile";
     }
 

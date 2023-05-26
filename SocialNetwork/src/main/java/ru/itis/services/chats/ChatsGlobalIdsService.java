@@ -16,4 +16,6 @@ public interface ChatsGlobalIdsService {
     Set<? extends ChatDtoModel> getChatsByName(String name, String rawToken);
 
     Set<? extends ChatDtoModel> getAllChats(String rawToken);
+
+    boolean isUserInChat(Long chatGlobalId, Long userId);
 }

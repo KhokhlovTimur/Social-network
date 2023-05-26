@@ -7,7 +7,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 import ru.itis.dto.other.ExceptionDto;
 import ru.itis.dto.group.GroupDto;
 import ru.itis.dto.group.NewOrUpdateGroupDto;
@@ -45,9 +44,7 @@ public interface GroupsApi {
                                     schema = @Schema(implementation = ExceptionDto.class))
                     })
     })
-    ResponseEntity<GroupDto> add(@RequestParam("description") String description,
-                                 @RequestParam("name") String name,
-                                 @RequestParam(value = "image", required = false) MultipartFile image,
+    ResponseEntity<GroupDto> add(@ModelAttribute NewOrUpdateGroupDto groupDto,
                                  @RequestHeader("Authorization") String rawToken);
 
 
@@ -79,9 +76,8 @@ public interface GroupsApi {
                     })
 
     })
-    ResponseEntity<GroupDto> update(@PathVariable("id") Long id, @RequestParam(value = "description", required = false) String description,
-                                    @RequestParam(value = "name", required = false) String name,
-                                    @RequestParam(value = "image", required = false) MultipartFile image,
+    ResponseEntity<GroupDto> update(@ModelAttribute NewOrUpdateGroupDto groupDto,
+                                    @PathVariable("id") Long id,
                                     @RequestHeader("Authorization") String rawToken);
 
     @GetMapping("/{id}/users/{username}")

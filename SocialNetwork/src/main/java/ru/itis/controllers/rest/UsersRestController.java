@@ -4,11 +4,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.itis.annotations.TokenValid;
 import ru.itis.controllers.rest.api.UsersApi;
 import ru.itis.dto.user.*;
 import ru.itis.services.users.FriendsService;
 import ru.itis.services.users.UsersService;
+
+import javax.servlet.http.HttpServletResponse;
 
 @RestController
 @RequiredArgsConstructor
@@ -23,13 +24,13 @@ public class UsersRestController implements UsersApi {
     }
 
     @Override
-    public ResponseEntity<? extends PublicUserDto> get(Long id, String token) {
+    public ResponseEntity<? extends PublicUserDto> get(String username, String token) {
         return ResponseEntity.status(HttpStatus.OK)
-                .body(usersService.getByIdAndToken(id, token));
+                .body(usersService.getByUsername(username, token));
     }
 
     @Override
-    @TokenValid
+//    @TokenValid
     public ResponseEntity<?> delete(Long id, String rawToken) {
         usersService.banUser(id);
             return ResponseEntity.status(HttpStatus.ACCEPTED)
@@ -37,10 +38,10 @@ public class UsersRestController implements UsersApi {
     }
 
     @Override
-    @TokenValid
-    public ResponseEntity<PrivateUserDto> update(Long id, UserUpdateDto updateUserDto, String rawToken) {
+//    @TokenValid
+    public ResponseEntity<UserUpdateResponseDto> update(String username, UserUpdateDto updateUserDto, String rawToken, HttpServletResponse response) {
         return ResponseEntity.accepted()
-                .body(usersService.update(id, updateUserDto));
+                .body(usersService.update(username, updateUserDto, response));
     }
 
 //    @Override

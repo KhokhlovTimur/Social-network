@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 import ru.itis.controllers.rest.api.GroupsApi;
 import ru.itis.dto.group.GroupDto;
 import ru.itis.dto.group.NewOrUpdateGroupDto;
@@ -22,13 +21,9 @@ public class GroupsRestController implements GroupsApi {
     }
 
     @Override
-    public ResponseEntity<GroupDto> add(String description, String name, MultipartFile image,
+    public ResponseEntity<GroupDto> add(@ModelAttribute NewOrUpdateGroupDto groupDto,
                                         String rawToken) {
-        NewOrUpdateGroupDto groupDto = NewOrUpdateGroupDto.builder()
-                .description(description)
-                .name(name)
-                .image(image)
-                .build();
+        System.out.println(groupDto);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(groupsService.add(groupDto, rawToken));
     }
@@ -46,12 +41,8 @@ public class GroupsRestController implements GroupsApi {
     }
 
     @Override
-    public ResponseEntity<GroupDto> update(Long id, String description, String name, MultipartFile image, String rawToken) {
-        NewOrUpdateGroupDto groupDto = NewOrUpdateGroupDto.builder()
-                .description(description)
-                .name(name)
-                .image(image)
-                .build();
+    public ResponseEntity<GroupDto> update(NewOrUpdateGroupDto groupDto, Long id, String rawToken) {
+        System.out.println(groupDto);
         return ResponseEntity.status(HttpStatus.ACCEPTED)
                 .body(groupsService.update(id, groupDto));
     }

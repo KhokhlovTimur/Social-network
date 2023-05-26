@@ -8,19 +8,14 @@ import ru.itis.exceptions.NotFoundException;
 import ru.itis.mappers.chats.ChatsMapper;
 import ru.itis.models.Chat;
 import ru.itis.models.ChatGlobalId;
-import ru.itis.models.User;
 import ru.itis.repositories.ChatsGlobalIdsRepository;
 import ru.itis.repositories.ChatsRepository;
-import ru.itis.repositories.UsersRepository;
-import ru.itis.security.utils.RequestParsingUtil;
 import ru.itis.services.utils.UsersServiceUtils;
 
 import java.util.Date;
 import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import static ru.itis.security.utils.JwtUtilImpl.USERNAME_PARAMETER;
 
 @Service
 @RequiredArgsConstructor

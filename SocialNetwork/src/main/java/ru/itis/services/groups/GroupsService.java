@@ -27,5 +27,5 @@ public interface GroupsService {
 
     UsersPage getUsers(Long id);
 
-
+    boolean isNameOccupied(String name);
 }

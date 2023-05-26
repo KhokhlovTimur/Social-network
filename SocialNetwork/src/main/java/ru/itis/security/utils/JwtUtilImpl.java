@@ -106,16 +106,13 @@ public class JwtUtilImpl implements JwtUtil {
                 log.error(e.getMessage());
                 response.setStatus(HttpStatus.FORBIDDEN.value());
             }
-        } else if (tokensRepository.isAccessTokenInBlackList(token)) {
+        } else {
             if (isAuthPage) {
                 filterChain.doFilter(request, response);
             } else {
 //                response.setStatus(HttpStatus.FORBIDDEN.value());
                 response.sendRedirect(SecurityConfig.PAGES_AUTH_PATH);
             }
-        } else {
-//            response.setStatus(HttpStatus.FORBIDDEN.value());
-            response.sendRedirect(SecurityConfig.PAGES_AUTH_PATH);
         }
     }
 
