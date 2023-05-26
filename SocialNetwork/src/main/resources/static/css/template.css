@@ -38,7 +38,7 @@ body {
     height: 50px;
     left: 250px;
     display: flex;
-    z-index:5000;
+    z-index: 5000;
     top: 0;
 }
 
@@ -388,4 +388,14 @@ body {
     border-color: #1e1e1e;
     outline: 0;
     box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(68, 69, 70, 0.6);
+}
+
+.friend-added {
+    content: 'Added';
+    background-color: #ceffce;
+}
+
+.friend-in-request {
+    content: 'Sent';
+    background-color: #22252E;
 }

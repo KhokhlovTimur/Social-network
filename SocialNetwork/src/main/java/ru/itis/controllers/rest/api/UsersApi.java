@@ -87,7 +87,11 @@ public interface UsersApi {
                                                  HttpServletResponse response);
 
 
-//        @GetMapping("/{id}/friends")
-//    ResponseEntity<List<PublicUserDto>> getFriends(@PathVariable("id") Long id);
+    @PostMapping("/{username}/friends/{friend_username}")
+    ResponseEntity<?> addFriend(@PathVariable("username") String username, @PathVariable("friend_username") String friendUsername);
+
+    @GetMapping("/{username}/friends")
+    ResponseEntity<UsersPage> getFriends(@PathVariable("username") String username, @RequestParam("type") String type,
+                                         @RequestParam("page") int pageNumber);
 
 }

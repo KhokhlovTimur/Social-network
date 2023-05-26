@@ -1,5 +1,6 @@
 let posts = $('.posts');
-let totalPostsPagesCount;
+let totalPostsPagesCount = 0;
+let isCurrUserOwner = false;
 let likeButton = $('.like-button');
 
 $(document).ready(function () {
@@ -11,6 +12,7 @@ let isLikePut;
 
 async function putLike(event) {
     let postId = event.target.closest('.post').getAttribute('value');
+    let groupId = event.target.closest('.post-inner').getAttribute('value');
     currBtn = $(event.target);
     if (!currBtn.hasClass('liked')) {
         await generatePromiseRequestWithHeader('/groups/ + ' + groupId + '/posts/' + postId + '/likes', 'POST',
@@ -34,6 +36,7 @@ async function createPost(value) {
     let post = $('<div>').addClass('post');
     post.attr('value', value['id']);
     let inner = $('<div>').addClass('post-inner');
+    inner.attr('value', value['group']['id'])
     if (isCurrUserOwner) {
         let menuBtn = $('<div>').addClass('menu-btn');
 
@@ -243,8 +246,9 @@ async function processPosts(data) {
 function convertDate(timestamp) {
     let time = new Date(timestamp);
     let hours = time.getUTCHours() + 3;
-    let day = time.toLocaleString("en-US", {day: "numeric"});
-    let month = time.toLocaleString("en-US", {month: "short"});
+    let day = time.toLocaleString("ru-RU", {day: "numeric"});
+    let month = time.toLocaleString("ru-RU", {month: "long"});
+    month = month.slice(0, -1) + "я";
 
     let minutes = time.getUTCMinutes();
     return hours.toString()
@@ -254,7 +258,7 @@ function convertDate(timestamp) {
             .padStart(2, '0') + ' ' + month.toString();
 }
 
-function scrollPosts() {
+function scrollPosts(url) {
     $(window).scroll(async function () {
 
         let scrollHeight = $(window).scrollTop(); //dynamic: window + scroll
@@ -262,10 +266,9 @@ function scrollPosts() {
         let documentHeight = $(document).height(); //const: window + scroll space
 
         if ((scrollHeight + windowHeight) / documentHeight >= limitPageHeight) {
-            console.log(postsPageNumber)
             if (!isPostsLoading && postsPageNumber <= totalPostsPagesCount - 1) {
                 isPostsLoading = true;
-                await generateRequestWithHeaderAndFuncWithoutPromise('/groups/' + groupId + '/posts?page=' + postsPageNumber, 'GET', processPosts);
+                await generateRequestWithHeaderWithoutPromise(url + postsPageNumber, 'GET', processPosts);
             }
         }
     });

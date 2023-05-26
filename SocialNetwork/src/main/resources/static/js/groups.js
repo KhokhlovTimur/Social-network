@@ -4,7 +4,6 @@ let main = $('.main');
 let groupId;
 let groupInfo = $('#groupInfo');
 let usersPageNumber = 0;
-let postsPageNumber = 0;
 let groupsPageNumber = 0;
 let totalGroupsPagesCount;
 let url;
@@ -119,7 +118,7 @@ async function findGroup() {
     if (name.length > 0) {
         groupsPageNumber = 0;
         console.log('NAME > 0')
-        generateRequestWithHeaderAndFuncWithoutPromise('/groups?name=' + name + '&page=' + groupsPageNumber, 'GET', processGroups);
+        generateRequestWithHeaderWithoutPromise('/groups?name=' + name + '&page=' + groupsPageNumber, 'GET', processGroups);
         scrollGroups('/groups?name=' + name + '&page=');
 
     } else if (typeof lastUpdate === 'undefined' || (new Date() - lastUpdate) > updateEvery) {
@@ -153,7 +152,7 @@ function scrollGroups(url, method) {
         if ((scrollHeight + windowHeight) / documentHeight >= limitPageHeight) {
             if (!isGroupsLoading && groupsPageNumber <= totalGroupsPagesCount - 1) {
                 isGroupsLoading = true;
-                generateRequestWithHeaderAndFuncWithoutPromise(url + groupsPageNumber, 'GET', processGroups);
+                generateRequestWithHeaderWithoutPromise(url + groupsPageNumber, 'GET', processGroups);
             }
         }
     });
@@ -218,7 +217,7 @@ function sendRequestToGetGroup() {
     usersPageNumber = 0;
     posts.empty();
     setGroupMetadata().then(r =>
-        generateRequestWithHeaderAndFuncWithoutPromise('/groups/' + groupId, 'GET', showGroup, processError));
+        generateRequestWithHeaderWithoutPromise('/groups/' + groupId, 'GET', showGroup, processError));
 }
 
 function processError() {
@@ -264,11 +263,9 @@ async function showGroup(data) {
     isPostsLoading = false;
     isGroupsLoading = false;
 
-    await generateRequestWithHeaderAndFuncWithoutPromise('/groups/' + groupId + '/posts?page=' + postsPageNumber, 'GET', processPosts);
-    scrollPosts();
+    await generateRequestWithHeaderWithoutPromise('/groups/' + groupId + '/posts?page=' + postsPageNumber, 'GET', processPosts);
+    scrollPosts('/groups/' + groupId + '/posts?page=');
 }
-
-let isCurrUserOwner = false;
 
 function generateProfile(data) {
     if (data['creator'] !== null && data['creator']['username'].toString() === currUsername) {
@@ -319,7 +316,7 @@ function editGroup() {
 
     let inputName = $('<input>').addClass('name edit-name');
     inputName.val(lastName);
-    let descrArea = $('<textarea>').addClass('post-area update-area');
+    let descrArea = $('<textarea>').addClass('post-area update-area').attr('maxlength', '255');
     descrArea.val(lastDescr);
 
     name.html(inputName);

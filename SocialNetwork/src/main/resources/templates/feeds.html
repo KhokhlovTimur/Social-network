@@ -17,8 +17,8 @@
     <div class="body body-relative">
         <span class="heading">#feeds</span>
         <div class="posts">
-            <div class="post" th:each="post : ${posts}" th:value="${post.group.id}">
-                <div class="post-inner">
+            <div class="post" th:each="post : ${posts}" th:value="${post.id}">
+                <div class="post-inner" th:value="${post.group.id}">
                     <div class="post-text">
                         <p class="group-name" th:text="${post.group.name}"></p>
                         <div class="images" th:if="${post.files != null}">
@@ -45,6 +45,7 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script th:src="@{/js/ajax_requests.js}"></script>
 <script th:src="@{/js/navbar.js}"></script>
+<script th:src="@{/js/posts.js}"></script>
 <script th:src="@{/js/feeds.js}"></script>
 </body>
 </html>

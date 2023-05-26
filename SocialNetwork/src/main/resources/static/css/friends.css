@@ -1,25 +1,26 @@
 .moved {
-    overflow: hidden;
     position: relative;
     margin-left: 0;
-    /*padding: 35px;*/
 }
 
 .header-title {
     position: absolute;
-    margin-top: 25px!important;
+    margin-top: 5px !important;
 }
 
 .moved-search {
-    /*margin-top: 5px!important;*/
+    margin-top: 35px !important;
 }
 
 .friends {
     display: flex;
-    width: 90%;
+    width: 85%;
     flex-direction: row;
-    height: auto;
-    margin-left: 5%;
+    /*height: auto;*/
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    margin: auto auto 300px;
 }
 
 .friend-card h3 {
@@ -43,10 +44,11 @@
     color: #aeb7dc;
     padding-top: 30px;
     position: relative;
-    width: 350px;
+    width: 250px;
     max-width: 100%;
     text-align: center;
-    margin: 1rem;
+    margin: 2rem;
+    justify-content: center;
     font-family: Montserrat, sans-serif;
 }
 
@@ -82,7 +84,7 @@
     cursor: pointer;
 }
 
-.friend-card button.primary {
+.friend-card button.primary, .request-button {
     background-color: #545454;
     border: 1px solid black;
     border-radius: 3px;
@@ -93,7 +95,7 @@
 }
 
 .friend-card button.primary:hover {
-    background-color: #212121;
+    background-color: #545454;
 }
 
 .friend-card button.primary.ghost {
@@ -105,3 +107,129 @@
     background-color: white;
 }
 
+.friend-name {
+    /*display: flex;*/
+    /*margin-right: auto;*/
+    /*margin-left: auto;/*/
+    cursor: pointer;
+    width: auto;
+}
+
+
+.requests {
+    position: absolute;
+    right: 60px;
+    display: flex;
+    top: 0px;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    border-radius: 5px;
+    border: 2px solid #646464;
+    padding: 5px;
+}
+
+.request-button {
+    margin-bottom: 12px;
+    cursor: pointer;
+    font-family: 'Dosis';
+    /*height: 40px;*/
+    padding: 3px 15px !important;
+    font-size: 1rem;
+    font-weight: 400 !important;
+}
+
+.request-button:last-child {
+    margin-bottom: 5px;
+}
+
+.requests-heading {
+    font-size: 1.3rem;
+    margin-right: 5px;
+    margin-bottom: 6px;
+    font-family: 'Dosis';
+}
+
+.global-search {
+    font-size: 16px;
+    font-family: 'Dosis';
+    position: absolute;
+    font-weight: bold;
+    right: 242px;
+    top: -10px;
+}
+
+.toggle {
+    position: absolute;
+    display: block;
+    width: 40px;
+    height: 30px;
+    right: 240px;
+    top: 15px;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transform: translate3d(0, 0, 0);
+}
+
+.toggle:before {
+    content: "";
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 34px;
+    height: 22px;
+    display: block;
+    background: #9A9999;
+    border-radius: 8px;
+    transition: background .2s ease;
+}
+
+.toggle span {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 26px;
+    height: 26px;
+    display: block;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 3px 8px rgba(154, 153, 153, 0.5);
+    transition: all .2s ease;
+}
+
+.toggle span:before {
+    content: "";
+    position: absolute;
+    display: block;
+    margin: -18px;
+    width: 56px;
+    height: 56px;
+    background: rgba(61, 61, 61, 0.5);
+    border-radius: 50%;
+    transform: scale(0);
+    opacity: 1;
+    pointer-events: none;
+}
+
+#cbx:checked + .toggle:before {
+    background: #444444;
+}
+
+#cbx:checked + .toggle span {
+    background-color: #545454;
+    transform: translateX(20px);
+    transition: all 0.2s cubic-bezier(0.8, 0.4, 0.3, 1.25), background 0.15s ease;
+    box-shadow: 0 3px 8px rgba(80, 80, 80, 0.2);
+}
+
+#cbx:checked + .toggle span:before {
+    transform: scale(1);
+    opacity: 0;
+    transition: all .4s ease;
+}
+
+.center {
+    position: absolute;
+    top: calc(50% - 10px);
+    left: calc(50% - 20px);
+}

@@ -30,7 +30,6 @@ public class UsersRestController implements UsersApi {
     }
 
     @Override
-//    @TokenValid
     public ResponseEntity<?> delete(Long id, String rawToken) {
         usersService.banUser(id);
             return ResponseEntity.status(HttpStatus.ACCEPTED)
@@ -38,10 +37,20 @@ public class UsersRestController implements UsersApi {
     }
 
     @Override
-//    @TokenValid
     public ResponseEntity<UserUpdateResponseDto> update(String username, UserUpdateDto updateUserDto, String rawToken, HttpServletResponse response) {
         return ResponseEntity.accepted()
                 .body(usersService.update(username, updateUserDto, response));
+    }
+
+    @Override
+    public ResponseEntity<UsersPage> getFriends(String username, String type, int pageNumber) {
+        return ResponseEntity.ok(friendsService.getRequestsOrFriends(username, type, pageNumber));
+    }
+
+    @Override
+    public ResponseEntity<?> addFriend(String username, String friendUsername) {
+        friendsService.sendFriendRequest(username, friendUsername);
+        return ResponseEntity.ok().build();
     }
 
 //    @Override

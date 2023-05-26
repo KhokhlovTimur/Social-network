@@ -57,7 +57,7 @@ public class PagesController {
 
     @GetMapping("/friends")
     public String getFriendsPage(Model model, @CookieValue(AUTHORIZATION_COOKIE) String token) {
-        model.addAttribute("friends", friendsService.getFriends(token));
+        model.addAttribute("friends", friendsService.getFriendsByToken(token, "friends", 0).getUsers());
         return "friends";
     }
 }

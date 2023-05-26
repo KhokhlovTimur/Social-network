@@ -2,19 +2,18 @@ package ru.itis.services.users;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import ru.itis.dto.group.GroupsPage;
 import ru.itis.dto.other.TokensDto;
-import ru.itis.dto.posts.PostDto;
 import ru.itis.dto.user.*;
 import ru.itis.exceptions.AlreadyExistsException;
 import ru.itis.exceptions.NotFoundException;
 import ru.itis.exceptions.WrongPasswordException;
-import ru.itis.mappers.groups.GroupCollectionsMapper;
-import ru.itis.mappers.posts.PostsMapper;
+import ru.itis.mappers.users.UsersCollectionsMapper;
 import ru.itis.mappers.users.UsersMapper;
-import ru.itis.models.Group;
 import ru.itis.models.User;
 import ru.itis.repositories.UsersRepository;
 import ru.itis.security.utils.JwtUtil;
@@ -32,12 +31,14 @@ public class UsersServiceImpl implements UsersService {
     private final UsersRepository usersRepository;
     private final UsersMapper usersMapper;
     private final PasswordEncoder passwordEncoder;
-    private final GroupCollectionsMapper groupCollectionsMapper;
     private final UsersServiceUtils usersServiceUtils;
-    private final PostsMapper postsMapper;
     private final FilesServiceUtils filesServiceUtils;
     private final JwtUtil jwtUtil;
     private final RequestParsingUtil requestParsingUtil;
+    private final UsersCollectionsMapper usersCollectionsMapper;
+
+    @Value("${default.page-size}")
+    private int pageSize;
 
     @Override
     public <T extends PublicUserDto> T getByIdAndToken(Long id, String token) {
@@ -48,6 +49,20 @@ public class UsersServiceImpl implements UsersService {
             return (T) usersMapper.toPrivateDto(user);
         }
         return (T) usersMapper.toPublicDto(user);
+    }
+
+    @Override
+    public UsersPage findAllExcludeByUsername(String username, int pageNumber) {
+        getOrThrowByUsername(username);
+
+        PageRequest pageRequest = PageRequest.of(pageNumber, pageSize);
+        Page<User> page = usersRepository.getAllByUsernameNot(username, pageRequest);
+
+        return UsersPage.builder()
+                .users(usersCollectionsMapper.toPublicUsersDtoSet(page.getContent()))
+                .totalCount(page.getTotalElements())
+                .pagesCount(page.getTotalPages())
+                .build();
     }
 
     @Override
@@ -65,19 +80,6 @@ public class UsersServiceImpl implements UsersService {
     @Override
     public User findByUsername(String username) {
         return getOrThrowByUsername(username);
-    }
-
-    @Override
-    public Set<PostDto> getPostsFromGroups(String token) {
-        User user = usersServiceUtils.getUserFromToken(token);
-        Set<Group> groups = user.getGroups();
-        Set<PostDto> posts = new HashSet<>();
-        groups.forEach(x ->
-                x.getPosts()
-                        .forEach(y -> posts.add(postsMapper.toDto(y)))
-        );
-
-        return posts;
     }
 
     @Override
@@ -155,16 +157,6 @@ public class UsersServiceImpl implements UsersService {
         userUpdateResponseDto.setTokens(updateTokens(user, response));
 
         return userUpdateResponseDto;
-    }
-
-    @Override
-    public GroupsPage getGroups(Long userId) {
-        Set<Group> groups = getOrThrow(userId).getGroups();
-
-        return GroupsPage.builder()
-                .groups(groupCollectionsMapper.toGroupDtoSet(groups))
-                .totalCount(groups.size())
-                .build();
     }
 
     @Override

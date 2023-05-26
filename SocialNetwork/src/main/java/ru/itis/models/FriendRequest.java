@@ -12,7 +12,6 @@ import javax.persistence.*;
 @Builder
 @Data
 @Entity(name = "friends")
-@TypeDef(name = "postgresql_enum", typeClass = PostgreSQLEnumType.class)
 public class FriendRequest {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,20 +25,15 @@ public class FriendRequest {
     @JoinColumn(name = "second_user_id")
     private User secondUser;
 
-//    @Enumerated(EnumType.STRING)
-//    @Column(columnDefinition = "friends_state_enum")
-//    @Type(type = "postgresql_enum")
-//    private Status state;
+    private String state;
 
     @Getter
+    @AllArgsConstructor
+    @NoArgsConstructor
     public enum Status {
-        ACCEPTED(0),
-        FIRST_WAIT(-1),
-        SECOND_WAIT(1);
-        private int state;
-
-        Status(int state) {
-            this.state = state;
-        }
+        ACCEPTED("0"),
+        FIRST_WAIT("-1"),
+        SECOND_WAIT("1");
+        private String state;
     }
 }

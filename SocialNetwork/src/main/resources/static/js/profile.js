@@ -1,10 +1,7 @@
 let currUsername;
+let profileUsername;
 $(document).ready(function () {
-    let token = localStorage.getItem('refreshToken');
-    let payload = token.split('.')[1];
-    payload = window.atob(payload);
-    payload = JSON.parse(payload);
-    currUsername = payload['sub'];
+    setMetaData();
     $('.bio').click(updateBio);
 
     $('.logout-button').click(logout);
@@ -12,7 +9,28 @@ $(document).ready(function () {
     $('.edit-icon').click(async function () {
         await generatePromiseRequestWithHeader('/users/' + currUsername, 'GET', editProfile, null, 'json');
     });
+    console.log(currUsername);
+    console.log(profileUsername)
+    if (currUsername !== profileUsername) {
+        console.log('add')
+        $('.add-friend-btn').click(sendRequestToAddFriend);
+    }
 });
+
+function setMetaData() {
+    let token = localStorage.getItem('refreshToken');
+    let payload = token.split('.')[1];
+    payload = window.atob(payload);
+    payload = JSON.parse(payload);
+    currUsername = payload['sub'];
+    profileUsername = window.location.href.split('/').filter(Boolean).pop();
+}
+
+function sendRequestToAddFriend() {
+    console.log(123)
+    generateRequestWithHeaderWithoutPromise('/users/' + currUsername + '/friends/' + profileUsername, 'POST')
+        // .then(r => );
+}
 
 function logout() {
     $.ajax({
@@ -116,7 +134,6 @@ function editProfile(data) {
         .attr('autocomplete', 'off').val(data['password']);
 
     let errors = ('<ul class="err-message update-errors"></ul>');
-
 
     let newPasswordInput = $('<input>').attr('type', 'password')
         .attr('placeholder', 'New password').attr('id', 'new-password')
@@ -294,46 +311,48 @@ function updateProfileFromResponse(data) {
 }
 
 function updateBio() {
-    let bio = $('.bio');
-    let bioPrev = bio.html();
-    console.log()
-    let area = $('<textarea>').addClass('post-area bio-area').val($('.bio-text').html());
-    let buttons = $('<div>').addClass('bio-buttons');
-    let sendBtn = $('<button>').html('&#10003;');
-    let cancelBtn = $('<button>').html('&times;');
-    area.val();
-    buttons.append(sendBtn, cancelBtn);
-    $('.profile-nav-info').append(buttons);
-    bio.replaceWith(area);
+    if (currUsername === profileUsername) {
+        let bio = $('.bio');
+        let bioPrev = bio.html();
+        console.log()
+        let area = $('<textarea>').addClass('post-area bio-area').val($('.bio-text').html()).attr('maxlength', '255');
+        let buttons = $('<div>').addClass('bio-buttons');
+        let sendBtn = $('<button>').html('&#10003;');
+        let cancelBtn = $('<button>').html('&times;');
+        area.val();
+        buttons.append(sendBtn, cancelBtn);
+        $('.profile-nav-info').append(buttons);
+        bio.replaceWith(area);
 
-    cancelBtn.click(function () {
-        area.replaceWith(bio);
-        bio.html(bioPrev);
-        buttons.remove();
-        bio.click(updateBio);
-    });
-    sendBtn.click(function () {
-        let updatedBio = new FormData();
-        updatedBio.append('bio', area.val());
-        console.log(updatedBio.get('bio'))
+        cancelBtn.click(function () {
+            area.replaceWith(bio);
+            bio.html(bioPrev);
+            buttons.remove();
+            bio.click(updateBio);
+        });
+        sendBtn.click(function () {
+            let updatedBio = new FormData();
+            updatedBio.append('bio', area.val());
+            console.log(updatedBio.get('bio'))
 
-        $.ajax({
-            url: '/api/users/' + currUsername,
-            method: 'PATCH',
-            data: updatedBio,
-            contentType: false,
-            processData: false,
-            dataType: 'json',
-            headers: {
-                'Authorization': 'Bearer ' + localStorage['accessToken']
-            },
-            success: function (res) {
-                area.replaceWith(bio);
-                bio.html(bioPrev);
-                buttons.remove();
-                bio.click(updateBio);
-                $('.bio-text').text(res['bio']);
-            }
+            $.ajax({
+                url: '/api/users/' + currUsername,
+                method: 'PATCH',
+                data: updatedBio,
+                contentType: false,
+                processData: false,
+                dataType: 'json',
+                headers: {
+                    'Authorization': 'Bearer ' + localStorage['accessToken']
+                },
+                success: function (res) {
+                    area.replaceWith(bio);
+                    bio.html(bioPrev);
+                    buttons.remove();
+                    bio.click(updateBio);
+                    $('.bio-text').text(res['bio']);
+                }
+            })
         })
-    })
+    }
 }

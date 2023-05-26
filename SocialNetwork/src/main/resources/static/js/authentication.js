@@ -53,6 +53,7 @@ async function signUp(event) {
     }
 
     let age = $('#age');
+    age.css('border-bottom', '1px solid #a4c2f3');
     console.log()
     if (isNaN(parseInt(age.val()))) {
         age.css('border-bottom', '1px solid #ff6363');
@@ -102,6 +103,7 @@ async function signUp(event) {
 
 
 function signIn(event) {
+    $('#age').css('border-bottom', '1px solid #a4c2f3');
     $('.err-message').empty();
     event.preventDefault();
     console.log('Try to log in...');

@@ -1,38 +1,49 @@
 let currUsername;
 let postsPageNumber = 0;
+let isPostsLoading = false;
+let limitPageHeight = 0.85;
+
 $(document).ready(function () {
     setUsername();
     $('.group-name').click(redirectToGroups);
-    generateRequestToGetJson('/posts/' + currUsername + '?page=' + postsPageNumber, 'GET', updatePostsImages, null);
+    updatePostsImages();
+    generateRequestToGetJson('/posts/' + currUsername + '?page=' + 0, 'GET', setCounters, null);
 });
 
 function redirectToGroups(event) {
-    let groupId = event.target.closest('.post').getAttribute('value');
+    let groupId = event.target.closest('.post-inner').getAttribute('value');
     window.location.href = '/app/groups?id=' + groupId;
 }
 
-function showP() {
-
-}
-
-let postsMap = new Map();
-
-function updatePostsImages(data) {
-    setPostsMap(data['posts']);
+function updatePostsImages() {
     let posts = $('.post');
-    $.each(posts, function (value) {
-        let id = $(value).closest('.post').getAttribute('value');
-        $(value).find('.time').val(postsMap.get(id)['dateOfPublication']);
+    postsPageNumber = 1;
+    $.each(posts, function () {
+        let index = 0;
+        let images = $(this).find('.images').children('.post-img');
+        $(this).find('.prev').click(function () {
+            images.eq(index).removeClass('active');
+            index--;
+            if (index < 0) {
+                index = images.length - 1
+            }
+            images.eq(index).addClass('active');
+        });
+        $(this).find('.next').click(function () {
+            images.eq(index).removeClass('active');
+            index++;
+            if (index >= images.length) {
+                index = 0;
+            }
+            images.eq(index).addClass('active');
+        });
     })
 }
 
-
-function setPostsMap(data) {
-    for (let post of data) {
-        postsMap.set(post['id'], post);
-    }
+function setCounters(data) {
+    totalPostsPagesCount = data['totalPagesCount'];
+    scrollPosts('/posts/' + currUsername + '?page=');
 }
-
 
 function setUsername() {
     let token = localStorage.getItem('refreshToken');
