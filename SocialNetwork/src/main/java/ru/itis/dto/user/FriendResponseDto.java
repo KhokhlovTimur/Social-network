@@ -9,7 +9,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 @Data
-public class FriendRequestDto {
+public class FriendResponseDto {
     private Long firstUserId;
     private Long secondUserId;
+    private String state;
 }

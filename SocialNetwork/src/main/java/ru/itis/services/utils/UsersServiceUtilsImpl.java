@@ -3,6 +3,7 @@ package ru.itis.services.utils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import ru.itis.dto.user.UserFriendResponseDto;
 import ru.itis.exceptions.NotFoundException;
 import ru.itis.models.User;
 import ru.itis.repositories.UsersRepository;
@@ -10,6 +11,8 @@ import ru.itis.security.details.UserDetailsImpl;
 import ru.itis.security.utils.JwtUtil;
 import ru.itis.security.utils.RequestParsingUtil;
 import ru.itis.security.utils.RequestParsingUtilImpl;
+
+import java.util.Set;
 
 @RequiredArgsConstructor
 @Service

@@ -4,6 +4,7 @@ import org.mapstruct.InjectionStrategy;
 import org.mapstruct.IterableMapping;
 import org.mapstruct.Mapper;
 import ru.itis.dto.user.PublicUserDto;
+import ru.itis.dto.user.UserFriendResponseDto;
 import ru.itis.models.User;
 
 import java.util.List;
@@ -19,4 +20,10 @@ public interface UsersCollectionsMapper {
 
     @IterableMapping(qualifiedByName = "toPublic")
     List<PublicUserDto> toPublicUsersDtoList(List<User> users);
+
+    @IterableMapping(qualifiedByName = "toFriendResponse")
+    Set<UserFriendResponseDto> toFriendResponseDtoSet(List<User> users);
+
+    @IterableMapping(qualifiedByName = "toFriendResponse")
+    Set<UserFriendResponseDto> toFriendResponseDtoSet(Set<PublicUserDto> users);
 }

@@ -52,20 +52,6 @@ public class UsersServiceImpl implements UsersService {
     }
 
     @Override
-    public UsersPage findAllExcludeByUsername(String username, int pageNumber) {
-        getOrThrowByUsername(username);
-
-        PageRequest pageRequest = PageRequest.of(pageNumber, pageSize);
-        Page<User> page = usersRepository.getAllByUsernameNot(username, pageRequest);
-
-        return UsersPage.builder()
-                .users(usersCollectionsMapper.toPublicUsersDtoSet(page.getContent()))
-                .totalCount(page.getTotalElements())
-                .pagesCount(page.getTotalPages())
-                .build();
-    }
-
-    @Override
     public boolean isMyProfile(String token, String username) {
         User profile = getOrThrowByUsername(username);
         User me = usersServiceUtils.getUserFromToken(token);

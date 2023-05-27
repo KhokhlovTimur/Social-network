@@ -88,10 +88,13 @@ public interface UsersApi {
 
 
     @PostMapping("/{username}/friends/{friend_username}")
-    ResponseEntity<?> addFriend(@PathVariable("username") String username, @PathVariable("friend_username") String friendUsername);
+    ResponseEntity<FriendResponseDto> addFriend(@PathVariable("username") String username, @PathVariable("friend_username") String friendUsername);
 
     @GetMapping("/{username}/friends")
     ResponseEntity<UsersPage> getFriends(@PathVariable("username") String username, @RequestParam("type") String type,
-                                         @RequestParam("page") int pageNumber);
+                                         @RequestParam("page") int pageNumber, @RequestParam("query") String query);
+
+    @DeleteMapping("/{username}/friends/{friend_username}")
+    ResponseEntity<?> deleteFriend(@PathVariable("username") String username, @PathVariable("friend_username") String friendUsername);
 
 }

@@ -66,8 +66,6 @@ async function createPost(value) {
 
     let likes = $('<div>').addClass('likes');
 
-    // await generatePromiseRequestWithHeader('/groups/' + groupId + '/posts/' + value['id'] + '/likes/' + currUsername,
-    //     'GET', setLikeStatus);
     let likesBtn = $('<button>').addClass('like-button');
     if (value['isLikedByUser']) {
         likesBtn.addClass('liked');
@@ -75,8 +73,6 @@ async function createPost(value) {
 
     likesBtn.click(putLike);
     let count = $('<span>').addClass('count');
-    // await generatePromiseRequestWithHeader('/groups/' + groupId + '/posts/' + value['id'] + '/likes/count', 'GET',
-    //     setLikesCountToBlock, null, 'json');
 
     count.html(value['likesCount']);
     likes.append(likesBtn);

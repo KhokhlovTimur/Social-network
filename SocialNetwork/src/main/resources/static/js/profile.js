@@ -13,7 +13,7 @@ $(document).ready(function () {
     console.log(profileUsername)
     if (currUsername !== profileUsername) {
         console.log('add')
-        $('.add-friend-btn').click(sendRequestToAddFriend);
+        $('.add-friend-btn').click(processClick);
     }
 });
 
@@ -26,10 +26,43 @@ function setMetaData() {
     profileUsername = window.location.href.split('/').filter(Boolean).pop();
 }
 
-function sendRequestToAddFriend() {
-    console.log(123)
-    generateRequestWithHeaderWithoutPromise('/users/' + currUsername + '/friends/' + profileUsername, 'POST')
-        // .then(r => );
+function processClick(event) {
+    let state = event.target.getAttribute('value');
+    if (state === 'Accept' || state === 'Add') {
+        addFriend(event);
+    } else if (state === 'Delete' || state === 'Revoke') {
+        deleteFriend(event);
+    }
+}
+
+function addFriend(event) {
+    generateRequestWithHeaderWithoutPromise('/users/' + currUsername + '/friends/' + profileUsername, 'POST',
+        function (data) {
+            let state = data['state'];
+            if (state === '-1') {
+                console.log(12332233)
+                $(event.target).text('Revoke');
+            } else if (state === '0') {
+                $(event.target).text('Delete');
+            }
+            $(event.target).off('click');
+            $(event.target).click(deleteFriend);
+        });
+}
+
+function deleteFriend(event) {
+    $.ajax({
+        url: '/api/users/' + currUsername + '/friends/' + profileUsername,
+        method: 'DELETE',
+        headers: {
+            'Authorization': 'Bearer ' + localStorage['accessToken']
+        },
+        success: function () {
+            $(event.target).text('Add');
+            $(event.target).off('click');
+            $(event.target).click(addFriend);
+        }
+    })
 }
 
 function logout() {

@@ -37,12 +37,15 @@ $(document).ready(function () {
         scrollGroups('/users/' + currUsername + '/groups?page=');
     }
 
-    // likeButton.click();
     group.click(getGroupIdFromEvent);
     joinButton.click(joinToGroup);
-    searchInput.keyup(findGroup);
-
-    // $('.like-button').click(putLike);
+    let searchTimer;
+    searchInput.keyup(function () {
+        clearTimeout(searchTimer);
+        searchTimer = setTimeout(function () {
+            findGroup();
+        }, 170)
+    });
 });
 
 function addGroup() {
@@ -117,7 +120,6 @@ async function findGroup() {
     isGroupsLoading = false;
     if (name.length > 0) {
         groupsPageNumber = 0;
-        console.log('NAME > 0')
         generateRequestWithHeaderWithoutPromise('/groups?name=' + name + '&page=' + groupsPageNumber, 'GET', processGroups);
         scrollGroups('/groups?name=' + name + '&page=');
 
@@ -132,7 +134,6 @@ async function findGroup() {
 
     } else {
         groupsPageNumber = 1;
-        console.log(groupsSet)
         for (let group of groupsSet) {
             groups.append(createGroup(group));
         }

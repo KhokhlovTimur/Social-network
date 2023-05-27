@@ -22,7 +22,6 @@ public interface UsersService {
 
     boolean isMyProfile(String token, String username);
 
-    UsersPage findAllExcludeByUsername(String username, int pageNumber);
 
     boolean isUsernameExists(String username);
 }

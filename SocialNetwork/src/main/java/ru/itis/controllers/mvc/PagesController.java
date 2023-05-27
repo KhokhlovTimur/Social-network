@@ -7,17 +7,11 @@ import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import ru.itis.dto.posts.PostDto;
 import ru.itis.dto.user.PublicUserDto;
 import ru.itis.services.groups.GroupsService;
 import ru.itis.services.posts.PostsService;
 import ru.itis.services.users.FriendsService;
 import ru.itis.services.users.UsersService;
-
-import java.text.SimpleDateFormat;
-import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Locale;
 
 import static ru.itis.security.utils.RequestParsingUtilImpl.AUTHORIZATION_COOKIE;
 
@@ -45,6 +39,7 @@ public class PagesController {
     public String getProfilePage(Model model, @CookieValue(AUTHORIZATION_COOKIE) String token, @PathVariable("username") String username) {
         PublicUserDto user = usersService.getByUsername(username, token);
         model.addAttribute("user", user);
+        model.addAttribute("state", friendsService.getStatusNameByTokenAndUsername(token, username));
         model.addAttribute("isMyProfile", usersService.isMyProfile(token, username));
         return "profile";
     }
@@ -57,7 +52,7 @@ public class PagesController {
 
     @GetMapping("/friends")
     public String getFriendsPage(Model model, @CookieValue(AUTHORIZATION_COOKIE) String token) {
-        model.addAttribute("friends", friendsService.getFriendsByToken(token, "friends", 0).getUsers());
+        model.addAttribute("friends", friendsService.getFriendsByToken(token, "friends", "", 0).getUsers());
         return "friends";
     }
 }

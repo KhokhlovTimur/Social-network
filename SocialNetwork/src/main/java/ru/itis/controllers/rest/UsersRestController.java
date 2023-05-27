@@ -32,30 +32,31 @@ public class UsersRestController implements UsersApi {
     @Override
     public ResponseEntity<?> delete(Long id, String rawToken) {
         usersService.banUser(id);
-            return ResponseEntity.status(HttpStatus.ACCEPTED)
+        return ResponseEntity.status(HttpStatus.ACCEPTED)
                 .build();
     }
 
     @Override
     public ResponseEntity<UserUpdateResponseDto> update(String username, UserUpdateDto updateUserDto, String rawToken, HttpServletResponse response) {
-        return ResponseEntity.accepted()
+        return ResponseEntity.status(HttpStatus.OK)
                 .body(usersService.update(username, updateUserDto, response));
     }
 
     @Override
-    public ResponseEntity<UsersPage> getFriends(String username, String type, int pageNumber) {
-        return ResponseEntity.ok(friendsService.getRequestsOrFriends(username, type, pageNumber));
+    public ResponseEntity<?> deleteFriend(String username, String friendUsername) {
+        friendsService.deleteFriendOrRevokeRequest(username, friendUsername);
+        return ResponseEntity.accepted().build();
     }
 
     @Override
-    public ResponseEntity<?> addFriend(String username, String friendUsername) {
-        friendsService.sendFriendRequest(username, friendUsername);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<UsersPage> getFriends(String username, String type, int pageNumber, String query) {
+        return ResponseEntity.ok(friendsService.getRequestsOrFriends(username, type, query, pageNumber));
     }
 
-//    @Override
-//    public ResponseEntity<List<PublicUserDto>> getFriends(Long id) {
-//        return ResponseEntity.ok(friendsService.getFriends(id));
-//    }
+    @Override
+    public ResponseEntity<FriendResponseDto> addFriend(String username, String friendUsername) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(friendsService.sendFriendRequest(username, friendUsername));
+    }
 
 }

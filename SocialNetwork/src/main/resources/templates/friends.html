@@ -23,8 +23,8 @@
 
         <div class="requests">
             <span class="requests-heading">Requests</span>
-            <button class="request-button">Incoming</button>
-            <button class="request-button">Outgoing</button>
+            <button class="request-button incoming">Incoming</button>
+            <button class="request-button outgoing">Outgoing</button>
         </div>
 
         <div class="search moved-search">
@@ -43,11 +43,11 @@
                 </h3>
                 <h6 class="friend-username" th:text="${'@' + friend.username}"></h6>
                 <div class="buttons">
-                    <button class="primary">
+                    <button class="primary friend-message">
                         Message
                     </button>
-                    <button class="primary ghost">
-                        +Add
+                    <button class="primary ghost friend-add" disabled>
+                        Added
                     </button>
                 </div>
             </div>

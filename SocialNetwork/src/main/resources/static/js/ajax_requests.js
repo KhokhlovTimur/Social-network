@@ -62,7 +62,7 @@ async function generatePromiseRequestWithHeader(url, method, successFunc, unSucc
     })
 }
 
-async function generateRequestWithHeaderWithoutPromise(url, method, successFunc, unSuccessFunc) {
+function generateRequestWithHeaderWithoutPromise(url, method, successFunc, unSuccessFunc) {
     $.ajax({
         url: '/api' + url,
         method: method,

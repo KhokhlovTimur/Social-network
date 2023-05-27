@@ -67,7 +67,7 @@
 
                         <div th:if="${!isMyProfile}" class="profile-btn">
                             <button class="chatbtn"><i class="fa fa-comment"></i> Chat</button>
-                            <button class="add-friend-btn"><i class="fa fa-plus"></i> Add</button>
+                            <button class="add-friend-btn" th:value="${state}" th:text="${state}"><i class="fa fa-plus"></i> Add</button>
                         </div>
 
                         <button th:if="${isMyProfile}" class="logout-button"><span>Logout</span></button>

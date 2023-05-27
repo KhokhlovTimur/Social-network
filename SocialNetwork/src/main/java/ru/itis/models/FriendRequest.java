@@ -33,7 +33,8 @@ public class FriendRequest {
     public enum Status {
         ACCEPTED("0"),
         FIRST_WAIT("-1"),
-        SECOND_WAIT("1");
+        SECOND_WAIT("1"),
+        NOT_FRIENDS("2");
         private String state;
     }
 }
