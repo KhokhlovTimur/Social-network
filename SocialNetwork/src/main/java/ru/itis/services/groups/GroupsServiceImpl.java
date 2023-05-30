@@ -110,7 +110,7 @@ public class GroupsServiceImpl implements GroupsService {
         group.getUsers().add(creator);
 
         group.setImageLink(filesServiceUtils.generatePathToFile("groups", newGroupDto.getImage(),
-                "/" + group.getId() + "/profile/"));
+                group.getId() + "/profile/"));
         groupsRepository.save(group);
         return groupMapper.toDto(group);
     }
@@ -138,7 +138,7 @@ public class GroupsServiceImpl implements GroupsService {
         }
         if (groupDto.getImage() != null) {
             group.setImageLink(filesServiceUtils.generatePathToFile("groups", groupDto.getImage(),
-                    "/" + group.getId() + "/profile/"));
+                    group.getId() + "/profile/"));
         }
 
         groupsRepository.save(group);

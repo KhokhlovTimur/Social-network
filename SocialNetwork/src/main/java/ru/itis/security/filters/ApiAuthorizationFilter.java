@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import ru.itis.security.configs.SecurityConfig;
+import ru.itis.security.utils.AuthenticationUtils;
 import ru.itis.security.utils.RequestParsingUtil;
 import ru.itis.security.utils.JwtUtil;
 
@@ -22,7 +23,7 @@ import static ru.itis.security.configs.SecurityConfig.PAGES_AUTH_PATH;
 public class ApiAuthorizationFilter extends OncePerRequestFilter {
     public static final String AUTHENTICATION_PATH = "/api/auth/token";
     private final RequestParsingUtil requestParsingUtil;
-    private final JwtUtil jwtUtil;
+    private final AuthenticationUtils authenticationUtils;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -33,7 +34,7 @@ public class ApiAuthorizationFilter extends OncePerRequestFilter {
             if (requestParsingUtil.hasAuthorizationTokenInHeader(request) && request.getServletPath().startsWith(SecurityConfig.API_PREFIX)) {
                 String token = requestParsingUtil.getTokenFromHeader(request);
 
-                jwtUtil.setAuthentication(token, request, response, filterChain, false);
+                authenticationUtils.setAuthentication(token, request, response, filterChain, false);
             } else {
                 filterChain.doFilter(request, response);
             }

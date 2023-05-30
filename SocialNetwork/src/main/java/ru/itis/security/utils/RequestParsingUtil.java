@@ -17,9 +17,4 @@ public interface RequestParsingUtil {
 
     String getTokenFromHeader(HttpServletRequest request);
 
-    boolean isTokenValid(String token);
-
-    boolean isTokenValid(String token, HttpServletResponse response);
-
-    Cookie generateSecureCookie(String token);
 }

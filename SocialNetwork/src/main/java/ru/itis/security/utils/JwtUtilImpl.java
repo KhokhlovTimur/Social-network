@@ -44,7 +44,6 @@ public class JwtUtilImpl implements JwtUtil {
     private long ACCESS_TOKEN_EXPIRES_TIME;
     @Value("${refresh-token.expires-time}")
     private long REFRESH_TOKEN_EXPIRES_TIME;
-    private final TokensRepository tokensRepository;
     public final static String USERNAME_PARAMETER = "username";
     private final static String ROLE_PARAMETER = "role";
 
@@ -67,53 +66,6 @@ public class JwtUtilImpl implements JwtUtil {
                 .sign(algorithm);
 
         return Map.of("accessToken", accessToken, "refreshToken", refreshToken);
-    }
-
-    @Override
-    public Authentication buildAuthentication(String token) throws JWTVerificationException {
-
-        if (!tokensRepository.isAccessTokenInBlackList(token) || tokensRepository.isRefreshTokenExists(token)) {
-            Map<String, String> data = parse(token);
-            UserDetails userDetails = new UserDetailsImpl(
-                    User.builder()
-                            .role(User.Role.valueOf(data.get(ROLE_PARAMETER)))
-                            .username(data.get(USERNAME_PARAMETER))
-                            .build()
-            );
-            return new UsernamePasswordAuthenticationToken(userDetails, null,
-                    Collections.singleton(new SimpleGrantedAuthority(data.get(ROLE_PARAMETER))));
-        } else {
-            parse("");
-        }
-
-        return null;
-    }
-
-    @Override
-    public void setAuthentication(String token, HttpServletRequest request, HttpServletResponse response, FilterChain filterChain, boolean isAuthPage) throws ServletException, IOException {
-        if (!tokensRepository.isAccessTokenInBlackList(token) && !tokensRepository.isRefreshTokenExists(token)) {
-            try {
-                Authentication authentication = buildAuthentication(token);
-
-                SecurityContextHolder.getContext().setAuthentication(authentication);
-
-                if (isAuthPage) {
-                    response.sendRedirect(REDIRECT_URL);
-                } else {
-                    filterChain.doFilter(request, response);
-                }
-            } catch (JWTVerificationException e) {
-                log.error(e.getMessage());
-                response.setStatus(HttpStatus.FORBIDDEN.value());
-            }
-        } else {
-            if (isAuthPage) {
-                filterChain.doFilter(request, response);
-            } else {
-//                response.setStatus(HttpStatus.FORBIDDEN.value());
-                response.sendRedirect(SecurityConfig.PAGES_AUTH_PATH);
-            }
-        }
     }
 
     public Map<String, String> parse(String token) throws JWTVerificationException {

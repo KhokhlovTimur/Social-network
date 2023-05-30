@@ -28,23 +28,7 @@ public class MyErrorController implements org.springframework.boot.web.servlet.e
             model.addAttribute("message", "Something went wrong");
         }
 
-        if (request.getHeader("Content-Type") != null && request.getHeader("Content-Type").equals("application/json")) {
-            return "forward:/error/json";
-        }
-
         return "error";
     }
-
-    @RequestMapping("/error/json")
-    @ResponseBody
-    private ExceptionDto handleJSON(HttpServletRequest request) {
-
-        Exception exception = (Exception) request.getAttribute("javax.servlet.error.exception");
-
-        String message = exception == null ? "No message" : exception.getMessage();
-        return ExceptionDto.builder()
-                .message(message)
-                .build();
-    }
-
 }
+

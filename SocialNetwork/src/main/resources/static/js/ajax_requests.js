@@ -25,9 +25,7 @@ window.addEventListener("beforeunload", function () {
     if (!window.location.href.toString().includes('/app/login')) {
         let endTime = new Date().getTime();
         passedTime = endTime - parseInt(localStorage.getItem('entryTime'));
-        console.log(passedTime);
         remainedTime = updateTime - passedTime;
-        console.log(remainedTime);
 
         if (remainedTime < 60000) {
             updateToken();
@@ -51,10 +49,8 @@ async function generatePromiseRequestWithHeader(url, method, successFunc, unSucc
             },
             success: function (res, status, xhr) {
                 let contentType = xhr.getResponseHeader('Content-Type');
-                console.log(contentType)
                 if (contentType != null && contentType === 'application/json') {
                     res = sanitize(res);
-                    console.log(res)
                 }
                 if (typeof successFunc === 'function') {
                     successFunc(res);
@@ -78,10 +74,8 @@ function generateRequestWithHeaderWithoutPromise(url, method, successFunc, unSuc
         },
         success: function (res, status, xhr) {
             let contentType = xhr.getResponseHeader('Content-Type');
-            console.log(contentType)
             if (contentType != null && contentType === 'application/json') {
                 res = sanitize(res);
-                console.log(res)
             }
 
             if (typeof successFunc === 'function') {
@@ -101,12 +95,8 @@ function sanitize(data) {
         if (data.hasOwnProperty(key)) {
             if (typeof data[key] === 'object') {
                 data[key] = sanitize(data[key]);
-            } else {
-                let isBaseValInt = typeof data[key] === 'number' && Number.isInteger(data[key]);
+            } else if (typeof data[key] !== 'number') {
                 data[key] = DOMPurify.sanitize(data[key]);
-                if (isBaseValInt) {
-                    data[key] = parseInt(data[key]);
-                }
             }
         }
     }
@@ -141,6 +131,7 @@ function updateToken() {
                 'Authorization': 'Bearer ' + localStorage['refreshToken']
             },
             success: function (res) {
+                res = sanitize(res);
                 localStorage.setItem('entryTime', new Date().getTime().toString());
                 tokens = res;
                 localStorage.setItem('refreshToken', tokens['refreshToken']);

@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import ru.itis.repositories.tokens.TokensRepository;
 import ru.itis.security.authentication.RefreshTokenAuthentication;
 import ru.itis.security.details.UserDetailsImpl;
+import ru.itis.security.utils.AuthenticationUtils;
 import ru.itis.security.utils.JwtUtilImpl;
 import ru.itis.security.utils.RequestParsingUtil;
 import ru.itis.security.utils.JwtUtil;
@@ -29,17 +30,20 @@ import java.util.Map;
 public class TokenAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
     private final RequestParsingUtil requestParsingUtil;
     private final JwtUtil jwtUtil;
+    private final AuthenticationUtils authenticationUtils;
     private final TokensRepository tokensRepository;
 
     public TokenAuthenticationFilter(AuthenticationConfiguration authenticationConfiguration,
                                      RequestParsingUtil requestParsingUtil, JwtUtil jwtUtil,
-                                     TokensRepository tokensRepository, ObjectMapper objectMapper) throws Exception {
+                                     TokensRepository tokensRepository, ObjectMapper objectMapper,
+                                     AuthenticationUtils authenticationUtils) throws Exception {
         super(authenticationConfiguration.getAuthenticationManager());
         this.requestParsingUtil = requestParsingUtil;
         this.setUsernameParameter(JwtUtilImpl.USERNAME_PARAMETER);
         this.jwtUtil = jwtUtil;
         this.tokensRepository = tokensRepository;
         this.objectMapper = objectMapper;
+        this.authenticationUtils = authenticationUtils;
     }
 
     private final ObjectMapper objectMapper;
@@ -51,9 +55,6 @@ public class TokenAuthenticationFilter extends UsernamePasswordAuthenticationFil
             String refreshToken = requestParsingUtil.getTokenFromHeader(request);
 
             RefreshTokenAuthentication authentication = new RefreshTokenAuthentication(refreshToken);
-
-//            Cookie accessCookieToken = requestParsingUtil.generateSecureCookie(refreshToken);
-//            response.addCookie(accessCookieToken);
 
             return super.getAuthenticationManager().authenticate(authentication);
         } else {
@@ -74,7 +75,7 @@ public class TokenAuthenticationFilter extends UsernamePasswordAuthenticationFil
 
         tokensRepository.addRefreshToken(tokens.get("refreshToken"));
 
-        Cookie accessCookieToken = requestParsingUtil.generateSecureCookie(tokens.get("accessToken"));
+        Cookie accessCookieToken = authenticationUtils.generateSecureCookie(tokens.get("accessToken"));
         response.addCookie(accessCookieToken);
 
         objectMapper.writeValue(response.getWriter(), tokens);

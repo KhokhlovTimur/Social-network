@@ -6,6 +6,7 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import ru.itis.security.configs.SecurityConfig;
+import ru.itis.security.utils.AuthenticationUtils;
 import ru.itis.security.utils.JwtUtil;
 import ru.itis.security.utils.RequestParsingUtil;
 
@@ -21,6 +22,7 @@ import java.io.IOException;
 public class AppAuthorizationFilter extends OncePerRequestFilter {
     private final JwtUtil jwtUtil;
     private final RequestParsingUtil requestParsingUtil;
+    private final AuthenticationUtils authenticationUtils;
     public static String REDIRECT_URL = SecurityConfig.APP_PREFIX + "/feeds";
 
     @Override
@@ -30,7 +32,7 @@ public class AppAuthorizationFilter extends OncePerRequestFilter {
 
             if (requestParsingUtil.hasAuthorizationTokenInCookie(request)) {
                 String token = requestParsingUtil.getTokenFromCookie(request);
-                jwtUtil.setAuthentication(token, request, response, filterChain, false);
+                authenticationUtils.setAuthentication(token, request, response, filterChain, false);
             } else {
                 response.sendRedirect(SecurityConfig.PAGES_AUTH_PATH);
                 log.info("Someone try to get resource, but token is outdated");
@@ -40,7 +42,7 @@ public class AppAuthorizationFilter extends OncePerRequestFilter {
 
             if (requestParsingUtil.hasAuthorizationTokenInCookie(request)) {
                 String token = requestParsingUtil.getTokenFromCookie(request);
-                jwtUtil.setAuthentication(token, request, response, filterChain, true);
+                authenticationUtils.setAuthentication(token, request, response, filterChain, true);
             } else {
                 filterChain.doFilter(request, response);
             }

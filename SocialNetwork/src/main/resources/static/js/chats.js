@@ -211,12 +211,15 @@ async function tapOnChat(event) {
 }
 
 function connectToChat() {
-    isMessagesLoading = true;
     chatBlock.empty();
-    generateRequestWithHeaderWithoutPromise('/chats/' + chatId, 'GET', setCurrChat, null);
+    generateRequestWithHeaderWithoutPromise('/chats/' + chatId, 'GET', setCurrChat, function () {
+        history.replaceState(null, null, '/app/chats');
+        isMessagesLoading = false;
+    });
 }
 
 async function setCurrChat(data) {
+    isMessagesLoading = true;
     currentChat = data;
     chatType = currentChat['globalId']['chatType'];
     history.replaceState(null, null, '/app/chats?id=' + chatId);
@@ -251,7 +254,6 @@ function findChat(event) {
 }
 
 function showChats(data) {
-    console.log(data)
     $.each(data, function (index, value) {
         let chat;
         let globalId = value['globalId'];
@@ -305,8 +307,7 @@ function createChat(value, isPersonal) {
     contactDiv.append(nameP);
     if (isPersonal) {
         contactDiv.append(username);
-    }
-    else {
+    } else {
         contactDiv.css('height', '40px');
     }
     let messageP = $('<p>').addClass('message chat-block');
@@ -462,7 +463,7 @@ function createFriendsBlock(data) {
             $.ajax({
                 url: '/api/chats/' + chatId,
                 method: 'POST',
-                data: JSON.stringify({'usernames' : [...request]}),
+                data: JSON.stringify({'usernames': [...request]}),
                 contentType: 'application/json',
                 headers: {
                     'Authorization': 'Bearer ' + localStorage['accessToken']
@@ -470,7 +471,7 @@ function createFriendsBlock(data) {
                 success: function () {
                     usersList.addClass('hide');
                 },
-                error: function (){
+                error: function () {
                     usersList.addClass('hide');
                 }
             })

@@ -96,10 +96,10 @@ async function sendGroup() {
             $('#addGroupForm').fadeOut(400, function () {
                 $('.body-shadow').fadeOut(600);
             })
+            value = sanitize(value);
             createGroup(value).hide().prependTo(groups).slideDown();
         },
         error: function (xhr) {
-            console.log(data)
             let json = xhr.responseText;
             let contentType = xhr.getResponseHeader('Content-type');
             if (contentType != null && contentType === 'application/json') {
@@ -177,7 +177,6 @@ function processGroups(data) {
 }
 
 function createGroup(value) {
-    console.log(value)
     let group = $('<div>').addClass('card group');
     group.attr('value', value['id']);
     let img = $('<img>').attr('src', value['imageLink']);
@@ -238,7 +237,6 @@ function setUrl() {
         groups.css('display', 'flex');
         posts.empty();
         groups.empty();
-        console.log('BACK');
         $('#profile-img').removeClass('edit-img');
         $('.profile-edit-buttons').remove();
         $('.image-edit-icon').remove();
@@ -369,7 +367,7 @@ function editGroup() {
                     'Authorization': 'Bearer ' + localStorage['accessToken']
                 },
                 success: function (res) {
-                    console.log(res)
+                    res = sanitize(res);
                     name.html(res['name']);
                     description.text(res['description']);
                     $('#profile-img').attr('src', res['imageLink']);
@@ -482,6 +480,7 @@ function sendNewPost() {
             'Authorization': 'Bearer ' + localStorage['accessToken']
         },
         success: function (res) {
+            res = sanitize(res);
             appendNewPost(res);
         }
     })
@@ -507,7 +506,6 @@ function checkCurrUser(isExists) {
 }
 
 function setJoinButtonValue(value) {
-    console.log(value)
     if (value === 'join') {
         joinButton.removeClass('subscribed');
     } else {

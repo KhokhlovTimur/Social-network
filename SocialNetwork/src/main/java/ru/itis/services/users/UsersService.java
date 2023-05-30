@@ -22,6 +22,5 @@ public interface UsersService {
 
     boolean isMyProfile(String token, String username);
 
-
     boolean isUsernameExists(String username);
 }

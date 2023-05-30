@@ -23,7 +23,6 @@ public class GroupsRestController implements GroupsApi {
     @Override
     public ResponseEntity<GroupDto> add(@ModelAttribute NewOrUpdateGroupDto groupDto,
                                         String rawToken) {
-        System.out.println(groupDto);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(groupsService.add(groupDto, rawToken));
     }
@@ -42,7 +41,6 @@ public class GroupsRestController implements GroupsApi {
 
     @Override
     public ResponseEntity<GroupDto> update(NewOrUpdateGroupDto groupDto, Long id, String rawToken) {
-        System.out.println(groupDto);
         return ResponseEntity.status(HttpStatus.ACCEPTED)
                 .body(groupsService.update(id, groupDto));
     }

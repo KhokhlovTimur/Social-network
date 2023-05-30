@@ -44,7 +44,6 @@ public class WebSocketChatsController {
 
     @PostMapping("/app/chats")
     public String addChat(@ModelAttribute NewOrUpdateChatDto chatDto, @CookieValue(AUTHORIZATION_COOKIE) String rawToken) {
-        System.out.println(chatDto);
         chatsService.add(chatDto, rawToken);
         return "redirect:/app/chats";
     }

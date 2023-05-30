@@ -54,7 +54,6 @@ async function signUp(event) {
 
     let age = $('#age');
     age.css('border-bottom', '1px solid #a4c2f3');
-    console.log()
     if (isNaN(parseInt(age.val()))) {
         age.css('border-bottom', '1px solid #ff6363');
         age.val('');
@@ -89,7 +88,6 @@ async function signUp(event) {
 
     age.val('');
 
-    console.log(JSON.stringify(details))
     await generateRequestWithoutToken('/users', 'POST',
         function () {
             $('.log-in').prop('disabled', false);
@@ -159,6 +157,7 @@ function generateRequestWithoutToken(url, method, successFunc, unSuccessFunc, co
         dataType: 'json',
         data: data,
         success: function (res) {
+            res = sanitize(res);
             successFunc(res);
             $('.registration-err').empty();
             $('.login-err').empty();
@@ -178,7 +177,7 @@ function onErrorAuth(xhr, object) {
         if (rawResponse !== null && response !== undefined) {
             for (let key in response) {
                 if (response[key] !== null && response[key]['message'] !== undefined) {
-                    console.log(response[key])
+                    response[key] = sanitize(response[key]);
                     object.append('<li>' + response[key]['message'] + '<li>');
                 }
             }

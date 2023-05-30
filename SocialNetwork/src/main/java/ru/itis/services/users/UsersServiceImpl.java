@@ -16,6 +16,7 @@ import ru.itis.mappers.users.UsersCollectionsMapper;
 import ru.itis.mappers.users.UsersMapper;
 import ru.itis.models.User;
 import ru.itis.repositories.UsersRepository;
+import ru.itis.security.utils.AuthenticationUtils;
 import ru.itis.security.utils.JwtUtil;
 import ru.itis.security.utils.RequestParsingUtil;
 import ru.itis.services.utils.FilesServiceUtils;
@@ -34,8 +35,8 @@ public class UsersServiceImpl implements UsersService {
     private final UsersServiceUtils usersServiceUtils;
     private final FilesServiceUtils filesServiceUtils;
     private final JwtUtil jwtUtil;
+    private final AuthenticationUtils authenticationUtils;
     private final RequestParsingUtil requestParsingUtil;
-    private final UsersCollectionsMapper usersCollectionsMapper;
 
     @Value("${default.page-size}")
     private int pageSize;
@@ -125,7 +126,7 @@ public class UsersServiceImpl implements UsersService {
         }
         if (userDto.getAvatar() != null) {
             String filename = filesServiceUtils.generatePathToFile("users", userDto.getAvatar(),
-                    "/" + user.getId() + "/avatar/");
+                    user.getId() + "/avatar/");
             user.setAvatarLink(filename);
         }
         if (userDto.getPhoneNumber() != null) {
@@ -191,7 +192,7 @@ public class UsersServiceImpl implements UsersService {
 
     private TokensDto updateTokens(User user, HttpServletResponse response) {
         Map<String, String> tokens = jwtUtil.generateTokens(user.getUsername(), user.getRole().toString(), null);
-        response.addCookie(requestParsingUtil.generateSecureCookie(tokens.get("accessToken")));
+        response.addCookie(authenticationUtils.generateSecureCookie(tokens.get("accessToken")));
         return TokensDto.builder()
                 .accessToken(tokens.get("accessToken"))
                 .refreshToken(tokens.get("refreshToken"))

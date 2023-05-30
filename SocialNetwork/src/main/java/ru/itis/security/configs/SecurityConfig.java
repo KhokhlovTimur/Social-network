@@ -71,8 +71,8 @@ public class SecurityConfig {
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
         return (web) -> web.ignoring()
-                .antMatchers("/resources/**")
-                .antMatchers("/public/**");
+                .antMatchers("/resources/static/**")
+                .antMatchers("/resources/templates/**");
     }
 
     @Autowired

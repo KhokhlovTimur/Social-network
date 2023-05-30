@@ -19,7 +19,4 @@ public interface PersonalChatsRepository extends JpaRepository<PersonalChat, Lon
 
     @Query(value = "select chat from personal_chats chat where chat.secondUser.username = :username or chat.firstUser.username = :username")
     Set<PersonalChat> findAllByUsername(@Param("username") String username);
-
-//    @Query(value = "select * from personal_chats p join users u on p.second_user_id = u.id where u.username like '%:username%'", nativeQuery = true)
-//    Optional<PersonalChat> findByFirstUserUsernameOrSecondUserUsername(String username);
 }

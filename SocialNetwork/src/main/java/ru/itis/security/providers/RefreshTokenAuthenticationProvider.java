@@ -8,20 +8,21 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Component;
 import ru.itis.security.authentication.RefreshTokenAuthentication;
 import ru.itis.security.exceptions.RefreshTokenException;
+import ru.itis.security.utils.AuthenticationUtils;
 import ru.itis.security.utils.JwtUtil;
 
 @RequiredArgsConstructor
 @Component
 public class RefreshTokenAuthenticationProvider implements AuthenticationProvider {
 
-    private final JwtUtil jwtUtil;
+    private final AuthenticationUtils authenticationUtils;
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         String refreshTokenValue = (String) authentication.getCredentials();
 
         try {
-            return jwtUtil.buildAuthentication(refreshTokenValue);
+            return authenticationUtils.buildAuthentication(refreshTokenValue);
         } catch (JWTVerificationException e) {
             throw new RefreshTokenException(e.getMessage(), e);
         }

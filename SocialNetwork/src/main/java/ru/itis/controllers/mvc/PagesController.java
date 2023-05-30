@@ -12,6 +12,8 @@ import ru.itis.services.groups.GroupsService;
 import ru.itis.services.posts.PostsService;
 import ru.itis.services.users.FriendsService;
 import ru.itis.services.users.UsersService;
+import ru.itis.services.utils.PagesModelsUtils;
+import ru.itis.services.utils.UsersServiceUtils;
 
 import static ru.itis.security.utils.RequestParsingUtilImpl.AUTHORIZATION_COOKIE;
 
@@ -19,10 +21,10 @@ import static ru.itis.security.utils.RequestParsingUtilImpl.AUTHORIZATION_COOKIE
 @RequiredArgsConstructor
 @RequestMapping("/app")
 public class PagesController {
-    private final UsersService usersService;
     private final FriendsService friendsService;
     private final GroupsService groupsService;
     private final PostsService postsService;
+    private final PagesModelsUtils pagesModelsUtils;
 
     @GetMapping("/login")
     public String getAuthPage() {
@@ -37,11 +39,7 @@ public class PagesController {
 
     @GetMapping("/profile/{username}")
     public String getProfilePage(Model model, @CookieValue(AUTHORIZATION_COOKIE) String token, @PathVariable("username") String username) {
-        PublicUserDto user = usersService.getByUsername(username, token);
-        model.addAttribute("user", user);
-        model.addAttribute("state", friendsService.getStatusNameByTokenAndUsername(token, username));
-        model.addAttribute("isMyProfile", usersService.isMyProfile(token, username));
-        return "profile";
+        return pagesModelsUtils.getViewNameByUsername(username, model, token);
     }
 
     @GetMapping("/groups")

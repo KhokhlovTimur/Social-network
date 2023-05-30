@@ -182,7 +182,6 @@ function createPostMenu(postId) {
                     'text': textarea.val(),
                     'files': null
                 };
-                console.log(updatedPost)
 
                 $.ajax({
                     url: '/api/groups/' + groupId + '/posts/' + postId,
@@ -193,6 +192,7 @@ function createPostMenu(postId) {
                         'Authorization': 'Bearer ' + localStorage['accessToken']
                     },
                     success: function (res) {
+                        res = sanitize(res);
                         description.html(res['text']);
                     }
                 })

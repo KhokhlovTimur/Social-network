@@ -9,8 +9,6 @@ $(document).ready(function () {
     $('.edit-icon').click(async function () {
         await generatePromiseRequestWithHeader('/users/' + currUsername, 'GET', editProfile, null, 'json');
     });
-    console.log(currUsername);
-    console.log(profileUsername)
     if (currUsername !== profileUsername) {
         $('.add-friend-btn').click(processClick);
         $('.chatbtn').click(moveToChat);
@@ -114,7 +112,6 @@ function showAcceptButtons() {
     acceptButton.click(function () {
         $('.accept-buttons').remove();
         let file = $('#new-profile-image')[0].files[0];
-        console.log(file);
         let data = new FormData();
         data.append('avatar', file);
 
@@ -128,6 +125,7 @@ function showAcceptButtons() {
             processData: false,
             contentType: false,
             success: function (value) {
+                value = sanitize(value);
                 $('#profile-image').attr('src', value['avatarLink']);
             }
         });
@@ -299,6 +297,7 @@ function update(data) {
             'Authorization': 'Bearer ' + localStorage['accessToken']
         },
         success: function (res) {
+            res = sanitize(res);
             updateProfileFromResponse(res);
 
             $('.edit-form').fadeOut(250, function () {
@@ -322,7 +321,7 @@ function onEditProfileError(xhr) {
         let response = JSON.parse(rawResponse);
         for (let key in response) {
             if (response[key] !== null && response[key]['message'] !== undefined) {
-                console.log(response[key])
+                response[key] = sanitize(response[key]);
                 $('.update-errors').append('<li>' + response[key]['message'] + '</li>');
             }
         }
@@ -347,7 +346,6 @@ function updateBio() {
     if (currUsername === profileUsername) {
         let bio = $('.bio');
         let bioPrev = bio.html();
-        console.log()
         let area = $('<textarea>').addClass('post-area bio-area').val($('.bio-text').html()).attr('maxlength', '255');
         let buttons = $('<div>').addClass('bio-buttons');
         let sendBtn = $('<button>').html('&#10003;');
@@ -366,7 +364,6 @@ function updateBio() {
         sendBtn.click(function () {
             let updatedBio = new FormData();
             updatedBio.append('bio', area.val());
-            console.log(updatedBio.get('bio'))
 
             $.ajax({
                 url: '/api/users/' + currUsername,
@@ -379,6 +376,7 @@ function updateBio() {
                     'Authorization': 'Bearer ' + localStorage['accessToken']
                 },
                 success: function (res) {
+                    res = sanitize(res);
                     area.replaceWith(bio);
                     bio.html(bioPrev);
                     buttons.remove();
@@ -393,7 +391,6 @@ function updateBio() {
 function moveToChat(event) {
     generateRequestWithHeaderWithoutPromise('/chats/personal/' + profileUsername, 'GET',
         function (data) {
-            console.log(data)
             window.location.href = '/app/chats?id=' + data['globalId']['id'];
         },
         function () {
@@ -404,7 +401,6 @@ function moveToChat(event) {
 function sendRequestToCreateChat() {
     generateRequestWithHeaderWithoutPromise('/chats/personal/' + profileUsername, 'POST',
         function (data) {
-            console.log(data)
             window.location.href = '/app/chats?id=' + data['globalId']['id'];
         })
 }

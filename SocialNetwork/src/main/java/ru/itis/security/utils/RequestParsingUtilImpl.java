@@ -24,11 +24,7 @@ import static org.apache.tomcat.websocket.Constants.AUTHORIZATION_HEADER_NAME;
 public class RequestParsingUtilImpl implements RequestParsingUtil {
     public static String BEARER = "Bearer ";
     public static final String AUTHORIZATION_COOKIE = "access_token";
-    @Value("${jwt.secret.key}")
-    private String secretKey;
     private final JwtUtil jwtUtil;
-    @Value("${access-token.expires-time}")
-    private int ACCESS_TOKEN_EXPIRES_TIME;
 
     @Override
     public boolean hasAuthorizationTokenInHeader(HttpServletRequest request) {
@@ -40,27 +36,6 @@ public class RequestParsingUtilImpl implements RequestParsingUtil {
     public String getTokenFromHeader(HttpServletRequest request) {
         String authorizationHeader = request.getHeader(AUTHORIZATION_HEADER_NAME);
         return authorizationHeader.substring(BEARER.length());
-    }
-
-    @Override
-    public boolean isTokenValid(String token) {
-        try {
-            Algorithm algorithm = Algorithm.HMAC256(secretKey.getBytes(StandardCharsets.UTF_8));
-            JWT.require(algorithm).build().verify(token);
-        } catch (JWTVerificationException e) {
-            return false;
-        }
-        return true;
-    }
-
-    public boolean isTokenValid(String token, HttpServletResponse response) {
-        try {
-            Algorithm algorithm = Algorithm.HMAC256(secretKey.getBytes(StandardCharsets.UTF_8));
-            JWT.require(algorithm).build().verify(token);
-        } catch (JWTVerificationException e) {
-            response.setStatus(HttpStatus.FORBIDDEN.value());
-        }
-        return true;
     }
 
     @Override
@@ -97,13 +72,4 @@ public class RequestParsingUtilImpl implements RequestParsingUtil {
     }
 
 
-    @Override
-    public Cookie generateSecureCookie(String token) {
-        Cookie accessToken = new Cookie(AUTHORIZATION_COOKIE, token);
-        accessToken.setHttpOnly(true);
-        accessToken.setMaxAge(ACCESS_TOKEN_EXPIRES_TIME / 1000);
-        accessToken.setPath("/app");
-
-        return accessToken;
-    }
 }

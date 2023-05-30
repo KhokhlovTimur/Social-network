@@ -152,7 +152,7 @@ public class PostsServiceImpl implements PostsService {
         if (postDto.getFiles() != null) {
             for (MultipartFile file : postDto.getFiles()) {
                 String newFileName = filesServiceUtils.generatePathToFile("groups", file,
-                        "/" + groupId + "/posts/" + newPost.getId() + "/");
+                        groupId + "/posts/" + newPost.getId() + "/");
 
                 post.getFiles().add(FileInfo.builder()
                         .fileLink(newFileName)

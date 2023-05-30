@@ -50,13 +50,12 @@ function goToChat(event) {
     let username = $(event.target).closest('.buttons').closest('.friend-card').find('.friend-username').text().substring(1);
     generateRequestWithHeaderWithoutPromise('/chats/personal/' + username, 'GET',
         function (data) {
-            console.log(data)
+
             window.location.href = '/app/chats?id=' + data['globalId']['id'];
         },
         function () {
             generateRequestWithHeaderWithoutPromise('/chats/personal/' + username, 'POST',
                 function (data) {
-                    console.log(data)
                     window.location.href = '/app/chats?id=' + data['globalId']['id'];
                 })
         })
@@ -189,7 +188,6 @@ async function findFriends() {
     let name = $('.search_text').val().trim();
     let chBox = $('#cbx');
     friendsContainer.empty();
-    console.log(name);
 
     let type;
     if (chBox.is(':checked') && !isGlobalSearchDisabled) {
@@ -215,8 +213,6 @@ async function findFriends() {
         isReady = true;
     }
 
-    console.log(isReady)
-
     if (isReady) {
         isFriendsLoading = true
         await generateRequestWithHeaderWithoutPromise(url + pageNumber, 'GET',
@@ -233,7 +229,6 @@ async function findFriends() {
 function scrollFriends(url) {
     $(window).off('scroll');
     $(window).scroll(async function () {
-        // console.log('scroll')
         let scrollHeight = $(window).scrollTop();
         let windowHeight = $(window).height();
         let documentHeight = $(document).height();
@@ -250,7 +245,6 @@ function scrollFriends(url) {
 function processFriends(data) {
     totalPagesCount = data['pagesCount'];
     let friends = data['users'];
-    console.log(friends)
     for (let friend of friends) {
         friendsContainer.append(createFriendCard(friend));
     }
