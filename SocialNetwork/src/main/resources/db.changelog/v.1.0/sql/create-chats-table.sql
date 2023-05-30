@@ -4,6 +4,7 @@ create table if not exists chats
     owner_id  bigint references users (id),
     name      varchar(100),
     global_id bigint references chats_global_ids(id),
+    image_link varchar,
     date_of_creation timestamp
 );
 

@@ -173,19 +173,6 @@ body {
     border-bottom: 3px solid white;
 }
 
-
-* {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-    font-family: "Lato", sans-serif;
-    line-height: 1;
-}
-
-/*body {*/
-/*    overflow: hidden;*/
-/*}*/
-
 .hdr {
     background-color: #475479;
 }
@@ -394,6 +381,8 @@ body {
     content: 'Added';
     background-color: #ceffce;
 }
+
+.post-area::-webkit-scrollbar { width: 0; }
 
 .friend-in-request {
     content: 'Sent';

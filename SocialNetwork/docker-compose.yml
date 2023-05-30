@@ -2,22 +2,57 @@ version: "3.8"
 
 services:
   app:
-    container_name: "app"
+    container_name: 'social_network'
     build: .
     ports:
       - "8080:8080"
     depends_on:
-      - db
+      - postgres
+      - redis
+      - minio
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/social_network
+      SPRING_DATASOURCE_URLв: jdbc:postgresql://postgres:5432/social_network
       SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: postgres
-  db:
+      SPRING_DATASOURCE_PASSWORD: password
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin
+      SPRING_REDIS_HOST: redis
+      SPRING_REDIS_PORT: 6379
+      MINIO_URL: http://127.0.0.1:9000
+  postgres:
     image: postgres
     container_name: 'postgres'
     environment:
       POSTGRES_DB: social_network
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_PASSWORD: password
     ports:
-      - "5432:5432"
+      - "5431:5432"
+    volumes:
+      - postgres_volume:/var/lib/postgresql/data
+  redis:
+    image: redis
+    container_name: 'redis'
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_volume:/var/lib/redis/data
+  minio:
+    image: minio/minio:latest
+    container_name: 'minio'
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin
+    volumes:
+      - minio_volume:/var/lib/minio/data
+    command: server --console-address ":9001" /var/lib/minio/data
+
+volumes:
+  postgres_volume:
+    external: true
+  minio_volume: { }
+  redis_volume:
+    external: true

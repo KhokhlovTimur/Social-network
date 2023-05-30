@@ -35,6 +35,8 @@ $(document).ready(function () {
         }, 120)
     });
 
+    $('.friend-message').click(goToChat);
+
     $('.friend-add').click(addFriend);
 
     generateRequestWithHeaderWithoutPromise('/users/' + currUsername + '/friends?type=friends&query=&page=' + pageNumber,
@@ -43,6 +45,22 @@ $(document).ready(function () {
             scrollFriends('/users/' + currUsername + '/friends?type=friends&query=&page=');
         });
 })
+
+function goToChat(event) {
+    let username = $(event.target).closest('.buttons').closest('.friend-card').find('.friend-username').text().substring(1);
+    generateRequestWithHeaderWithoutPromise('/chats/personal/' + username, 'GET',
+        function (data) {
+            console.log(data)
+            window.location.href = '/app/chats?id=' + data['globalId']['id'];
+        },
+        function () {
+            generateRequestWithHeaderWithoutPromise('/chats/personal/' + username, 'POST',
+                function (data) {
+                    console.log(data)
+                    window.location.href = '/app/chats?id=' + data['globalId']['id'];
+                })
+        })
+}
 
 function addFriend(event) {
     let friendUsername = $(event.target).closest('.buttons').closest('.friend-card').find('.friend-username').text().substring(1);
@@ -119,7 +137,7 @@ function createFriendCard(data) {
 
     let username = $('<h6>').addClass('friend-username').html('@' + data['username']);
     let buttons = $('<div>').addClass('buttons');
-    let messageBtn = $('<button>').addClass('primary friend-message').html('Message');
+    let messageBtn = $('<button>').addClass('primary friend-message').html('Chat');
     buttons.append(messageBtn);
 
     let stateButtonVal;
@@ -150,9 +168,7 @@ function createFriendCard(data) {
     addBtn.addClass(clazz).html(stateButtonVal);
     addBtn.click(clickFunc);
 
-    messageBtn.click(function () {
-
-    })
+    messageBtn.click(goToChat)
 
     buttons.append(addBtn);
     card.append(image, name, username, buttons);

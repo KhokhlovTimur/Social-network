@@ -468,8 +468,7 @@ function sendNewPost() {
 
     let text = $('.new-post-area');
     data.append('text', text.val());
-    console.log(text.val())
-    console.log(text.text())
+
     text.val('');
     $('.files').val('');
 

@@ -36,7 +36,6 @@ public class CustomLogoutFilter extends OncePerRequestFilter {
                 tokensRepository.addAccessToken(token);
                 SecurityContextHolder.clearContext();
             } else {
-//                response.setStatus(HttpStatus.FORBIDDEN.value());
                 response.sendRedirect(SecurityConfig.PAGES_AUTH_PATH);
             }
         } else {

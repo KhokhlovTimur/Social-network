@@ -10,8 +10,8 @@
 
 
 <div class="main-container collapse">
-    <nav th:replace="navbar_template :: mainNavbar"></nav>
-    <div th:replace="navbar_template :: header"></div>
+    <nav th:replace="template :: mainNavbar"></nav>
+    <div th:replace="template :: header"></div>
 
     <div class="body moved">
 
@@ -44,7 +44,7 @@
                 <h6 class="friend-username" th:text="${'@' + friend.username}"></h6>
                 <div class="buttons">
                     <button class="primary friend-message">
-                        Message
+                        Chat
                     </button>
                     <button class="primary ghost friend-add" disabled>
                         Added
@@ -59,9 +59,7 @@
 </div>
 
 
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-<script th:src="@{/js/ajax_requests.js}"></script>
-<script th:src="@{/js/navbar.js}"></script>
+<script th:replace="scripts-import.html"></script>
 <script th:src="@{/js/friends.js}"></script>
 </body>
 </html>

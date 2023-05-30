@@ -9,7 +9,7 @@
 <body>
 
 <div class="main-container collapse">
-    <div th:replace="navbar_template :: header"></div>
+    <div th:replace="template :: header"></div>
 
     <div class="body flex-body">
 
@@ -55,9 +55,7 @@
 
 </div>
 
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-<script th:src="@{/js/navbar.js}"></script>
-<script th:src="@{/js/ajax_requests.js}"></script>
+<script th:replace="scripts-import.html"></script>
 <script th:src="@{/js/authentication.js}"></script>
 
 </body>

@@ -14,7 +14,7 @@ spring.servlet.multipart.max-file-size=4MB
 spring.redis.host=
 spring.redis.port=
 
-minio.url=http://localhost:9000
+minio.url=
 minio.accessKey=
 minio.secretKey=
 

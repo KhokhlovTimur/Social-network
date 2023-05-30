@@ -8,14 +8,12 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.CookieValue;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.*;
+import ru.itis.dto.chats.NewOrUpdateChatDto;
 import ru.itis.dto.messages.MessageDto;
 import ru.itis.dto.messages.NewMessageDto;
-import ru.itis.mappers.chats.ChatsMapper;
 import ru.itis.models.Message;
-import ru.itis.repositories.UsersRepository;
-import ru.itis.security.utils.JwtUtil;
+import ru.itis.services.chats.ChatsGlobalIdsService;
 import ru.itis.services.chats.ChatsService;
 import ru.itis.services.chats.PersonalChatsService;
 import ru.itis.services.messages.MessagesService;
@@ -26,7 +24,6 @@ import javax.websocket.OnClose;
 import javax.websocket.Session;
 
 import static java.lang.String.format;
-import static ru.itis.security.utils.JwtUtilImpl.USERNAME_PARAMETER;
 import static ru.itis.security.utils.RequestParsingUtilImpl.AUTHORIZATION_COOKIE;
 
 @Controller
@@ -40,11 +37,16 @@ public class WebSocketChatsController {
 
     @GetMapping("/app/chats")
     public String showChats(Model model, @CookieValue(AUTHORIZATION_COOKIE) String token) {
+        model.addAttribute("chats", chatsService.getAllByToken(token));
+        model.addAttribute("personalChats", personalChatsService.getAllDtoByToken(token));
+        return "chats";
+    }
 
-        model.addAttribute("chats", chatsService.getByToken(token));
-        model.addAttribute("personalChats", personalChatsService.getByToken(token));
-
-        return "/chats";
+    @PostMapping("/app/chats")
+    public String addChat(@ModelAttribute NewOrUpdateChatDto chatDto, @CookieValue(AUTHORIZATION_COOKIE) String rawToken) {
+        System.out.println(chatDto);
+        chatsService.add(chatDto, rawToken);
+        return "redirect:/app/chats";
     }
 
     @MessageMapping("/chats/{id}/send")
@@ -57,10 +59,9 @@ public class WebSocketChatsController {
 
     @MessageMapping("/chats/{id}/subscribe")
     public void addUser(@DestinationVariable String id, @Payload Message chatMessage) {
-
-//        chatsService.add()
         messagingTemplate.convertAndSend(format("/chat-room/%s", id), chatMessage);
     }
+
 
     @OnClose
     public void close(Session session, CloseReason closeReason) {

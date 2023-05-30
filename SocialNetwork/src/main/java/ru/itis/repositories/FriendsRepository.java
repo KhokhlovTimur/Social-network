@@ -19,7 +19,7 @@ public interface FriendsRepository extends JpaRepository<FriendRequest, Long> {
             "        or friend.firstUser.name like concat('%', :query, '%') or friend.firstUser.surname like concat('%', :query, '%'))" +
             ") " +
             " and friend.state = '0' ", nativeQuery = false)
-    Page<FriendRequest> findAllByUserId(@Param("id") Long userId, @Param("query") String query, Pageable pageable);
+    Page<FriendRequest> findAllByUserIdAndUsernameLike(@Param("id") Long userId, @Param("query") String query, Pageable pageable);
 
     /* */
     @Query(value = "select f from friends f where (f.firstUser.username = :first_username and f.secondUser.username = :second_username and " +
@@ -30,4 +30,9 @@ public interface FriendsRepository extends JpaRepository<FriendRequest, Long> {
     @Query(value = "select f from friends f where (f.firstUser.username = :first_username and f.secondUser.username = :second_username) " +
             " or (f.firstUser.username = :second_username and f.secondUser.username = :first_username)", nativeQuery = false)
     Optional<FriendRequest> findByFirstUserUsernameAndSecondUserUsername(@Param("first_username") String firstUsername, @Param("second_username") String secondUsername);
+
+    @Query(value = "select friend from friends friend " +
+            "where (friend.firstUser.id = :id or friend.secondUser.id = :id) and friend.state = '0' ", nativeQuery = false)
+    List<FriendRequest> findAllFriendsById(@Param("id") Long id);
+
 }

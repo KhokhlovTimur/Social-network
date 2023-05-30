@@ -78,9 +78,7 @@ public class PostsServiceImpl implements PostsService {
 
     @Override
     public void delete(Long postId, Long groupId) {
-        Group group = groupsService.findById(groupId);
-//        group.getPosts().remove(getOrThrow(postId));
-//        postsRepository.deleteFromPostFile(postId);
+        groupsService.findById(groupId);
         postsRepository.delete(getOrThrow(postId));
     }
 

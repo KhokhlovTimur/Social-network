@@ -12,9 +12,11 @@ public interface ChatsService {
 
     Chat getByGlobalChatId(ChatGlobalId globalId);
 
-    Set<ChatDto> getByNameLike(String name, String rawToken);
+    ChatDto getDtoByGlobalChatId(Long globalId);
 
-    Set<ChatDto> getByToken(String token);
+    Set<ChatDto> getAllByNameLike(String name, String rawToken);
+
+    Set<ChatDto> getAllByToken(String token);
 
     Set<ChatDto> getByRawToken(String token);
 

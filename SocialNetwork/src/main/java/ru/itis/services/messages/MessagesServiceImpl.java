@@ -41,7 +41,7 @@ public class MessagesServiceImpl implements MessagesService {
         ChatGlobalId chat = chatsGlobalIdsService.findById(chatGlobalId);
         chat.setLastMessage(message);
         chatsGlobalIdsRepository.save(chat);
-        MessageDto newMessage = messagesMapper.toDto(messagesRepository.save(message));
+        MessageDto newMessage = messagesMapper.toDto(chat.getLastMessage());
         newMessage.setGlobalId(chatsGlobalIdsService.findDtoById(chatGlobalId));
         return newMessage;
     }

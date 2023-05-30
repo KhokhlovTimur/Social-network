@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.web.multipart.MultipartFile;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -12,5 +13,5 @@ import lombok.NoArgsConstructor;
 @Data
 public class NewOrUpdateChatDto {
     private String name;
-    private String imageLink;
+    private MultipartFile image;
 }

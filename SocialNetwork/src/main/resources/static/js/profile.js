@@ -12,8 +12,8 @@ $(document).ready(function () {
     console.log(currUsername);
     console.log(profileUsername)
     if (currUsername !== profileUsername) {
-        console.log('add')
         $('.add-friend-btn').click(processClick);
+        $('.chatbtn').click(moveToChat);
     }
 });
 
@@ -40,7 +40,6 @@ function addFriend(event) {
         function (data) {
             let state = data['state'];
             if (state === '-1') {
-                console.log(12332233)
                 $(event.target).text('Revoke');
             } else if (state === '0') {
                 $(event.target).text('Delete');
@@ -75,6 +74,7 @@ function logout() {
             'Authorization': 'Bearer ' + localStorage['accessToken']
         },
         success: function () {
+            localStorage.setItem('entryTime', new Date().getTime().toString());
             window.location.href = '/app/login';
         }
     })
@@ -388,4 +388,23 @@ function updateBio() {
             })
         })
     }
+}
+
+function moveToChat(event) {
+    generateRequestWithHeaderWithoutPromise('/chats/personal/' + profileUsername, 'GET',
+        function (data) {
+            console.log(data)
+            window.location.href = '/app/chats?id=' + data['globalId']['id'];
+        },
+        function () {
+            sendRequestToCreateChat();
+        })
+}
+
+function sendRequestToCreateChat() {
+    generateRequestWithHeaderWithoutPromise('/chats/personal/' + profileUsername, 'POST',
+        function (data) {
+            console.log(data)
+            window.location.href = '/app/chats?id=' + data['globalId']['id'];
+        })
 }

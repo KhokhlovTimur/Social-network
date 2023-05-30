@@ -11,6 +11,6 @@ import lombok.NoArgsConstructor;
 @Data
 public class NewOrUpdatePersonalChatDto {
     private ChatGlobalIdDto globalId;
-    private Long firstUserId;
-    private Long secondUserId;
+    private String firstUsername;
+    private String secondUsername;
 }

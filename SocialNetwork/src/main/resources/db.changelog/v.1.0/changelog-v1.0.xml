@@ -15,7 +15,6 @@
     <include file="/changesets/5.0--create-messages-table.xml" relativeToChangelogFile="true"/>
     <include file="/changesets/7.0--create-friends-table.xml" relativeToChangelogFile="true"/>
     <include file="/changesets/6.1--add-last_message.xml" relativeToChangelogFile="true"/>
-    <include file="/changesets/6.2--add-chat_image.xml" relativeToChangelogFile="true"/>
     <include file="/changesets/2.2--add-group_photo.xml" relativeToChangelogFile="true"/>
     <include file="/changesets/8.0--create-files_info-table.xml" relativeToChangelogFile="true"/>
     <include file="/changesets/3.1--create-post-file-table.xml" relativeToChangelogFile="true"/>

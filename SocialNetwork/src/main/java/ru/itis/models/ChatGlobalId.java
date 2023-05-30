@@ -24,7 +24,7 @@ public class ChatGlobalId {
     @Type(type = "postgresql_enum")
     private ChatType chatType;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = {CascadeType.MERGE})
     @JoinColumn(name = "last_msg_id")
     private Message lastMessage;
 

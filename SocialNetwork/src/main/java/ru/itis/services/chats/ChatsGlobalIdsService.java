@@ -1,10 +1,12 @@
 package ru.itis.services.chats;
 
+import ru.itis.dto.chats.ChatDto;
 import ru.itis.dto.chats.ChatDtoModel;
 import ru.itis.dto.chats.ChatGlobalIdDto;
+import ru.itis.dto.user.FriendToChatRequestDto;
 import ru.itis.models.ChatGlobalId;
 
-import java.util.Set;
+import java.util.List;
 
 public interface ChatsGlobalIdsService {
     ChatGlobalIdDto findDtoById(Long id);
@@ -13,9 +15,13 @@ public interface ChatsGlobalIdsService {
 
     <T extends ChatDtoModel> T getChatByGlobalId(Long id, String rawToken);
 
-    Set<? extends ChatDtoModel> getChatsByName(String name, String rawToken);
+    List<? extends ChatDtoModel> getChatsByName(String name, String rawToken);
 
-    Set<? extends ChatDtoModel> getAllChats(String rawToken);
+    List<? extends ChatDtoModel> getAllChats(String rawToken);
 
     boolean isUserInChat(Long chatGlobalId, Long userId);
+
+    void addUserToChat(Long id, String username);
+
+    ChatDto addUsersToChat(Long id, FriendToChatRequestDto requestDto);
 }

@@ -5,7 +5,8 @@
 
 .header-title {
     position: absolute;
-    margin-top: 5px !important;
+    margin-top: 0px !important;
+    top: -7px!important;
 }
 
 .moved-search {
@@ -118,10 +119,6 @@
     background-color: #ececec;
     color: #545454;
     width: 100%;
-}
-
-.fr-add {
-
 }
 
 .fr-add {

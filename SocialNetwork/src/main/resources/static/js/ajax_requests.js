@@ -49,7 +49,13 @@ async function generatePromiseRequestWithHeader(url, method, successFunc, unSucc
             headers: {
                 'Authorization': 'Bearer ' + localStorage['accessToken']
             },
-            success: function (res) {
+            success: function (res, status, xhr) {
+                let contentType = xhr.getResponseHeader('Content-Type');
+                console.log(contentType)
+                if (contentType != null && contentType === 'application/json') {
+                    res = sanitize(res);
+                    console.log(res)
+                }
                 if (typeof successFunc === 'function') {
                     successFunc(res);
                 }
@@ -70,8 +76,17 @@ function generateRequestWithHeaderWithoutPromise(url, method, successFunc, unSuc
         headers: {
             'Authorization': 'Bearer ' + localStorage['accessToken']
         },
-        success: function (res) {
-            successFunc(res);
+        success: function (res, status, xhr) {
+            let contentType = xhr.getResponseHeader('Content-Type');
+            console.log(contentType)
+            if (contentType != null && contentType === 'application/json') {
+                res = sanitize(res);
+                console.log(res)
+            }
+
+            if (typeof successFunc === 'function') {
+                successFunc(res);
+            }
         },
         error: function (xhr) {
             if (typeof unSuccessFunc === 'function') {
@@ -79,6 +94,24 @@ function generateRequestWithHeaderWithoutPromise(url, method, successFunc, unSuc
             }
         }
     })
+}
+
+function sanitize(data) {
+    for (let key in data) {
+        if (data.hasOwnProperty(key)) {
+            if (typeof data[key] === 'object') {
+                data[key] = sanitize(data[key]);
+            } else {
+                let isBaseValInt = typeof data[key] === 'number' && Number.isInteger(data[key]);
+                data[key] = DOMPurify.sanitize(data[key]);
+                if (isBaseValInt) {
+                    data[key] = parseInt(data[key]);
+                }
+            }
+        }
+    }
+
+    return data;
 }
 
 function onError(xhr, unSuccessFunc, reject) {
@@ -99,22 +132,24 @@ function onError(xhr, unSuccessFunc, reject) {
 }
 
 function updateToken() {
-    console.log('updating token...')
-    $.ajax({
-        url: '/api/auth/token',
-        method: 'POST',
-        headers: {
-            'Authorization': 'Bearer ' + localStorage['refreshToken']
-        },
-        success: function (res) {
-            localStorage.setItem('entryTime', new Date().getTime().toString());
-            tokens = res;
-            localStorage.setItem('refreshToken', tokens['refreshToken']);
-            localStorage.setItem('accessToken', tokens['accessToken']);
+    if (!window.location.href.includes('/app/login')) {
+        console.log('updating token...')
+        $.ajax({
+            url: '/api/auth/token',
+            method: 'POST',
+            headers: {
+                'Authorization': 'Bearer ' + localStorage['refreshToken']
+            },
+            success: function (res) {
+                localStorage.setItem('entryTime', new Date().getTime().toString());
+                tokens = res;
+                localStorage.setItem('refreshToken', tokens['refreshToken']);
+                localStorage.setItem('accessToken', tokens['accessToken']);
 
-            setInterval(updateToken, updateTime);
-            localStorage.setItem('deltaTime', updateTime.toString());
-        }
-    })
+                setInterval(updateToken, updateTime);
+                localStorage.setItem('deltaTime', updateTime.toString());
+            }
+        })
+    }
 
 }

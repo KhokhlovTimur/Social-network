@@ -28,4 +28,5 @@ public interface FriendsService {
 
     String getStatusNameByTokenAndUsername(String token, String username);
 
+    UsersPage getAllFriendsInChat(String username, Long id);
 }

@@ -28,7 +28,7 @@ public class Chat {
 
     private String name;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "owner_id")
     private User owner;
 

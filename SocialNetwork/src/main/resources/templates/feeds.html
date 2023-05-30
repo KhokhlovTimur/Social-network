@@ -11,8 +11,8 @@
 <body>
 
 <div class="main-container collapse">
-    <nav th:replace="navbar_template :: mainNavbar"></nav>
-    <div th:replace="navbar_template :: header"></div>
+    <nav th:replace="template :: mainNavbar"></nav>
+    <div th:replace="template :: header"></div>
 
     <div class="body body-relative">
         <span class="heading">#feeds</span>
@@ -42,9 +42,7 @@
     </div>
 </div>
 
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-<script th:src="@{/js/ajax_requests.js}"></script>
-<script th:src="@{/js/navbar.js}"></script>
+<script th:replace="scripts-import.html"></script>
 <script th:src="@{/js/posts.js}"></script>
 <script th:src="@{/js/feeds.js}"></script>
 </body>

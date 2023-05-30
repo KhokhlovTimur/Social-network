@@ -3,6 +3,7 @@ package ru.itis.mappers.users;
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.IterableMapping;
 import org.mapstruct.Mapper;
+import ru.itis.dto.user.ChatFriendResponseDto;
 import ru.itis.dto.user.PublicUserDto;
 import ru.itis.dto.user.UserFriendResponseDto;
 import ru.itis.models.User;
@@ -17,6 +18,8 @@ public interface UsersCollectionsMapper {
     Set<PublicUserDto> toPublicUsersDtoSet(Set<User> users);
 
     Set<PublicUserDto> toPublicUsersDtoSet(List<User> users);
+
+    Set<ChatFriendResponseDto> toChatFriendResponseDtoSet(List<User> users);
 
     @IterableMapping(qualifiedByName = "toPublic")
     List<PublicUserDto> toPublicUsersDtoList(List<User> users);

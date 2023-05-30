@@ -2,22 +2,22 @@ package ru.itis.services.chats;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.itis.dto.chats.NewOrUpdatePersonalChatDto;
 import ru.itis.dto.chats.PersonalChatDto;
 import ru.itis.exceptions.AlreadyExistsException;
 import ru.itis.exceptions.NotFoundException;
 import ru.itis.mappers.chats.ChatsMapper;
 import ru.itis.models.ChatGlobalId;
+import ru.itis.models.Message;
 import ru.itis.models.PersonalChat;
 import ru.itis.models.User;
 import ru.itis.repositories.ChatsGlobalIdsRepository;
+import ru.itis.repositories.MessagesRepository;
 import ru.itis.repositories.PersonalChatsRepository;
 import ru.itis.services.users.UsersService;
+import ru.itis.services.utils.ChatsServiceUtils;
 import ru.itis.services.utils.UsersServiceUtils;
 
-import java.util.Locale;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -28,35 +28,50 @@ public class PersonalChatsServiceImpl implements PersonalChatsService {
     private final ChatsGlobalIdsRepository chatsGlobalIdsRepository;
     private final UsersService usersService;
     private final UsersServiceUtils usersServiceUtils;
+    private final MessagesRepository messagesRepository;
+    private final ChatsServiceUtils chatServiceUtils;
 
 
     @Override
-    public Set<PersonalChatDto> getBySecondUserUsername(String username, String rawToken) {
+    public PersonalChatDto getByTokenAndUsername(String token, String secondUsername) {
+        return chatsMapper.toPersonalChatDto(personalChatsRepository
+                .findByFirstUsernameAndSecondUsername(usersServiceUtils.getUserFromToken(token).getUsername(), secondUsername)
+                .orElseThrow(() -> new NotFoundException("Chat not found")));
+    }
+
+    @Override
+    public Set<PersonalChatDto> getAllBySecondUserUsernameLike(String username, String rawToken) {
         Set<PersonalChatDto> chats = chatsMapper.toPersonalChatSetDto(getByRawToken(rawToken));
-        return chats.stream().filter(x -> x.getFirstUser().getUsername().toLowerCase(Locale.ROOT)
+        return chats.stream().filter(x -> x.getSecondUser().getUsername().toLowerCase(Locale.ROOT)
                         .contains(username.toLowerCase(Locale.ROOT))
-                        || x.getSecondUser().getUsername().toLowerCase(Locale.ROOT)
-                        .contains(username.toLowerCase(Locale.ROOT)))
+                        || x.getSecondUser().getName().toLowerCase(Locale.ROOT).contains(username.toLowerCase(Locale.ROOT))
+                        || x.getSecondUser().getSurname().toLowerCase(Locale.ROOT).contains(username.toLowerCase(Locale.ROOT)))
                 .collect(Collectors.toSet());
     }
 
     @Override
-    public PersonalChatDto add(NewOrUpdatePersonalChatDto personalChatDto, String rawToken) {
-        PersonalChat chat = chatsMapper.toPersonalChat(personalChatDto);
-        if (personalChatsRepository.findAllBySecondUserIdOrFirstUserId(personalChatDto.getSecondUserId()).size() == 0 &&
-                personalChatsRepository.findAllBySecondUserIdOrFirstUserId(personalChatDto.getFirstUserId()).size() == 0) {
-            chat.setFirstUser(usersServiceUtils.getUserFromToken(rawToken));
-            chat.setSecondUser(usersService.findById(personalChatDto.getSecondUserId()));
+    public PersonalChatDto add(String username, String rawToken) {
+        Optional<PersonalChat> personalChat = personalChatsRepository.findByFirstUsernameAndSecondUsername(username,
+                usersServiceUtils.getUserFromToken(rawToken).getUsername());
+        if (personalChat.isEmpty()) {
+            PersonalChat chat = PersonalChat.builder()
+                    .firstUser(usersServiceUtils.getUserFromToken(rawToken))
+                    .secondUser(usersService.findByUsername(username))
+                    .build();
 
-            chat.setGlobalId(chatsGlobalIdsRepository.save(ChatGlobalId.builder()
+            ChatGlobalId chatGlobalId = chatsGlobalIdsRepository.save(ChatGlobalId.builder()
                     .chatType(ChatGlobalId.ChatType.PERSONAL)
-                    .build()));
-        }
-        else {
+                    .build());
+
+            Message message = chatServiceUtils.createChatMessage(chatGlobalId, "Chat was created", Message.MessageType.JOIN, null);
+            chatGlobalId.setLastMessage(message);
+            chat.setGlobalId(chatGlobalId);
+            messagesRepository.save(message);
+
+            return chatsMapper.toPersonalChatDto(personalChatsRepository.save(chat));
+        } else {
             throw new AlreadyExistsException("Chat with this users already exists");
         }
-
-        return chatsMapper.toPersonalChatDto(personalChatsRepository.save(chat));
     }
 
     @Override
@@ -66,16 +81,13 @@ public class PersonalChatsServiceImpl implements PersonalChatsService {
     }
 
     @Override
-    public Set<PersonalChatDto> getByToken(String token) {
-        User user = usersServiceUtils.getUserFromToken(token);
-        Set<PersonalChat> chats = personalChatsRepository.findAllBySecondUserIdOrFirstUserId(user.getId());
-
-        return chatsMapper.toPersonalChatSetDto(switchUsers(chats, user));
+    public Set<PersonalChatDto> getAllDtoByToken(String token) {
+        return chatsMapper.toPersonalChatSetDto(getByRawToken(token));
     }
 
     private Set<PersonalChat> getByRawToken(String token) {
         User user = usersServiceUtils.getUserFromToken(token);
-        Set<PersonalChat> chats = personalChatsRepository.findAllBySecondUserIdOrFirstUserId(user.getId());
+        Set<PersonalChat> chats = personalChatsRepository.findAllByUsername(user.getUsername());
 
         return switchUsers(chats, user);
     }
@@ -91,4 +103,5 @@ public class PersonalChatsServiceImpl implements PersonalChatsService {
 
         return chats;
     }
+
 }

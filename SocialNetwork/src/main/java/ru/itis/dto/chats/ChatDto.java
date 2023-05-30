@@ -15,9 +15,9 @@ import java.util.Date;
 @SuperBuilder
 @Data
 public class ChatDto extends ChatDtoModel {
-    //    private Long id;
     private String name;
     private PublicUserDto owner;
     private String imageLink;
     private Date dateOfCreation;
+    private int membersCount;
 }

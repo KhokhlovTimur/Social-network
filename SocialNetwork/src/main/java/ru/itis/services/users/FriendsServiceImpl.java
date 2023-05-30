@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import ru.itis.dto.user.ChatFriendResponseDto;
 import ru.itis.dto.user.FriendResponseDto;
 import ru.itis.dto.user.UserFriendResponseDto;
 import ru.itis.dto.user.UsersPage;
@@ -16,9 +17,11 @@ import ru.itis.models.FriendRequest;
 import ru.itis.models.User;
 import ru.itis.repositories.FriendsRepository;
 import ru.itis.repositories.UsersRepository;
+import ru.itis.services.chats.ChatsGlobalIdsService;
 import ru.itis.services.utils.UsersServiceUtils;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +32,8 @@ public class FriendsServiceImpl implements FriendsService {
     private final UsersCollectionsMapper usersCollectionsMapper;
     private final UsersServiceUtils usersServiceUtils;
     private final UsersMapper usersMapper;
+    private final ChatsGlobalIdsService chatsGlobalIdsService;
+
 
     @Value("${default.posts-page-size}")
     private int pageSize;
@@ -106,7 +111,7 @@ public class FriendsServiceImpl implements FriendsService {
         if (friendsRepository.findByFirstUserUsernameAndSecondUserUsername(firstUsername, secondUsername).isPresent()) {
 
             FriendRequest friendRequest = friendsRepository.findByFirstUserUsernameAndSecondUserUsername(firstUsername, secondUsername).get();
-            
+
             if (friendRequest.getState().equals(FriendRequest.Status.ACCEPTED.getState())
                     || (friendRequest.getState().equals(FriendRequest.Status.FIRST_WAIT.getState())
                     && friendRequest.getFirstUser().getUsername().equals(firstUsername))
@@ -157,7 +162,7 @@ public class FriendsServiceImpl implements FriendsService {
         User user = usersService.findByUsername(username);
         List<User> users = new ArrayList<>();
         PageRequest pageRequest = PageRequest.of(pageNumber, pageSize);
-        Page<FriendRequest> requests = friendsRepository.findAllByUserId(user.getId(), query, pageRequest);
+        Page<FriendRequest> requests = friendsRepository.findAllByUserIdAndUsernameLike(user.getId(), query, pageRequest);
 
         requests.getContent().forEach(x -> {
             if (!x.getFirstUser().getId().equals(user.getId())) {
@@ -196,10 +201,27 @@ public class FriendsServiceImpl implements FriendsService {
 
     @Override
     public Set<UserFriendResponseDto> addStateToRelations(Set<UserFriendResponseDto> users, String username) {
-        users.forEach(x -> {
-            x.setFriendStatus(getStateByUsernames(username, x.getUsername()));
-        });
+        users.forEach(x -> x.setFriendStatus(getStateByUsernames(username, x.getUsername())));
         return users;
+    }
+
+    @Override
+    public UsersPage getAllFriendsInChat(String username, Long id) {
+        List<User> users = new ArrayList<>();
+        User user = usersService.findByUsername(username);
+        friendsRepository.findAllFriendsById(user.getId()).forEach(x -> {
+            if (!x.getFirstUser().getId().equals(user.getId()) && !chatsGlobalIdsService.isUserInChat(id, x.getFirstUser().getId())) {
+                users.add(x.getFirstUser());
+            } else if (!x.getSecondUser().getId().equals(user.getId()) && !chatsGlobalIdsService.isUserInChat(id, x.getSecondUser().getId())) {
+                users.add(x.getSecondUser());
+            }
+        });
+
+        return UsersPage.builder()
+                .pagesCount(1)
+                .users(usersCollectionsMapper.toPublicUsersDtoSet(users))
+                .totalCount(users.size())
+                .build();
     }
 
     @Override
@@ -213,5 +235,4 @@ public class FriendsServiceImpl implements FriendsService {
             default -> "";
         };
     }
-
 }

@@ -11,8 +11,8 @@
 
 <div class="main-container collapse">
 
-    <nav th:replace="navbar_template :: mainNavbar"></nav>
-    <div th:replace="navbar_template :: header"></div>
+    <nav th:replace="template :: mainNavbar"></nav>
+    <div th:replace="template :: header"></div>
     <div class="body overflow-h">
 
         <div class="container">
@@ -35,7 +35,7 @@
                     </div>
 
                     <div class="bio">
-                        <span class="bio-header" style="font-weight: bold; margin-top: 2px">Bio:  </span>
+                        <span class="bio-header" style="font-weight: bold">Bio:  </span>
                         <span class="bio-text" th:text="${user.bio}"></span>
                     </div>
 
@@ -90,9 +90,7 @@
     </div>
 </div>
 
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-<script th:src="@{/js/navbar.js}"></script>
-<script th:src="@{/js/ajax_requests.js}"></script>
+<script th:replace="scripts-import.html"></script>
 <script th:src="@{/js/profile.js}"></script>
 </body>
 </html>
