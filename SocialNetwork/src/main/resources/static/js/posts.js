@@ -32,11 +32,16 @@ function setLikesCount(data) {
     currBtn.next('.count').html(data);
 }
 
-async function createPost(value) {
+async function createPost(value, isFeeds) {
     let post = $('<div>').addClass('post');
     post.attr('value', value['id']);
     let inner = $('<div>').addClass('post-inner');
-    inner.attr('value', value['group']['id'])
+    if (value['group'] !== null) {
+        inner.attr('value', value['group']['id'])
+    }
+    else {
+        inner.css('background-color', '#faefef');
+    }
     if (isCurrUserOwner) {
         let menuBtn = $('<div>').addClass('menu-btn');
 
@@ -51,12 +56,16 @@ async function createPost(value) {
 
     let textDiv = $('<div>').addClass('post-text');
     let groupName = $('<p>').addClass('group-name');
-    groupName.html(value['group']['name']);
-
+    if (value['group'] !== null) {
+        groupName.html(value['group']['name']);
+        if (isFeeds) {
+            groupName.click(redirectToGroups);
+        }
+    } else {
+        groupName.html('News*').css('color', '#000000').css('cursor', 'default');
+    }
     let imagesDiv = createImagesDiv(value);
 
-    let author = $('<p>').addClass('post-author');
-    // author.html(value['author']['username']);
     let text = $('<div>').addClass('post-description');
     text.html(value['text']);
 
@@ -64,21 +73,22 @@ async function createPost(value) {
     let time = $('<span>').addClass('time');
     time.html(convertDate(value['dateOfPublication']));
 
-    let likes = $('<div>').addClass('likes');
-
-    let likesBtn = $('<button>').addClass('like-button');
-    if (value['isLikedByUser']) {
-        likesBtn.addClass('liked');
-    }
-
-    likesBtn.click(putLike);
-    let count = $('<span>').addClass('count');
-
-    count.html(value['likesCount']);
-    likes.append(likesBtn);
-    likes.append(count);
     footer.append(time);
-    footer.append(likes);
+
+    if (value['group'] !== null) {
+        let likes = $('<div>').addClass('likes');
+        let likesBtn = $('<button>').addClass('like-button');
+        likesBtn.click(putLike);
+        let count = $('<span>').addClass('count');
+        if (value['isLikedByUser']) {
+            likesBtn.addClass('liked');
+        }
+
+        count.html(value['likesCount']);
+        likes.append(likesBtn);
+        likes.append(count);
+        footer.append(likes);
+    }
 
     textDiv.append(groupName);
     textDiv.append(imagesDiv);
@@ -233,7 +243,7 @@ async function processPosts(data) {
     totalPostsPagesCount = data['totalPagesCount'];
 
     for (let post of postsData) {
-        await createPost(post).then((data) => posts.append(data));
+        await createPost(post, true).then((data) => posts.append(data));
     }
     postsPageNumber++;
     isPostsLoading = false;
@@ -268,4 +278,14 @@ function scrollPosts(url) {
             }
         }
     });
+}
+
+function redirectToGroups(event) {
+    let groupId = event.target.closest('.post-inner').getAttribute('value');
+    if (groupId !== '-1') {
+        window.location.href = '/app/groups?id=' + groupId;
+    }
+    else {
+        $(event.target).css('cursor', 'default');
+    }
 }

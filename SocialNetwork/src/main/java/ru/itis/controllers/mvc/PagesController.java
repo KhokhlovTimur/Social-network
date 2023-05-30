@@ -1,12 +1,12 @@
 package ru.itis.controllers.mvc;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.CookieValue;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
+import ru.itis.dto.posts.NewAdminPostDto;
+import ru.itis.dto.posts.NewOrUpdateGroupPostDto;
 import ru.itis.dto.user.PublicUserDto;
 import ru.itis.services.groups.GroupsService;
 import ru.itis.services.posts.PostsService;
@@ -52,5 +52,16 @@ public class PagesController {
     public String getFriendsPage(Model model, @CookieValue(AUTHORIZATION_COOKIE) String token) {
         model.addAttribute("friends", friendsService.getFriendsByToken(token, "friends", "", 0).getUsers());
         return "friends";
+    }
+
+    @GetMapping("/admin/posts")
+    public String getAdminPostsPage(@CookieValue(AUTHORIZATION_COOKIE) String token) {
+        return "admin-posts";
+    }
+
+    @PostMapping("/admin/posts")
+    public String addAdminPost(@ModelAttribute NewAdminPostDto postDto, @CookieValue(AUTHORIZATION_COOKIE) String token) {
+        postsService.addAdminPost(postDto, token);
+        return "redirect:/app/admin/posts";
     }
 }

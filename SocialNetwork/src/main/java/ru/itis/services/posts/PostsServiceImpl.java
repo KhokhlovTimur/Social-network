@@ -4,15 +4,16 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import ru.itis.dto.other.LikesPage;
+import ru.itis.dto.posts.NewAdminPostDto;
 import ru.itis.dto.posts.NewOrUpdateGroupPostDto;
 import ru.itis.dto.posts.PostDto;
 import ru.itis.dto.posts.PostsPage;
 import ru.itis.dto.user.PublicUserDto;
+import ru.itis.exceptions.NoAccessException;
 import ru.itis.exceptions.NotFoundException;
 import ru.itis.mappers.posts.PostsCollectionMapper;
 import ru.itis.mappers.posts.PostsMapper;
@@ -27,10 +28,7 @@ import ru.itis.services.users.UsersService;
 import ru.itis.services.utils.FilesServiceUtils;
 import ru.itis.services.utils.UsersServiceUtils;
 
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -49,9 +47,9 @@ public class PostsServiceImpl implements PostsService {
     private int defaultSize;
 
     @Override
-    public LikesPage getLikes(Long groupId, Long postId) {
+    public LikesPage getLikes(Long postId) {
         Set<PublicUserDto> users = usersCollectionsMapper
-                .toPublicUsersDtoSet(getOrThrow(groupId, postId).getUsersHaveLiked());
+                .toPublicUsersDtoSet(getOrThrow(postId).getUsersHaveLiked());
 
         return LikesPage.builder()
                 .users(users)
@@ -66,8 +64,8 @@ public class PostsServiceImpl implements PostsService {
     }
 
     @Override
-    public void putLike(Long groupId, Long postId, String token) {
-        Post post = getOrThrow(groupId, postId);
+    public void putLike(Long postId, String token) {
+        Post post = getOrThrow(postId);
         User user = usersServiceUtils.getUserFromToken(token);
 
         post.getUsersHaveLiked().add(user);
@@ -77,22 +75,20 @@ public class PostsServiceImpl implements PostsService {
     }
 
     @Override
-    public void delete(Long postId, Long groupId) {
-        groupsService.findById(groupId);
+    public void delete(Long postId) {
         postsRepository.delete(getOrThrow(postId));
     }
 
     @Override
-    public Boolean isUserPutLikeToPost(String username, Long postId, Long groupId) {
+    public Boolean isUserPutLikeToPost(String username, Long postId) {
         User user = usersService.findByUsername(username);
         getOrThrow(postId);
-        groupsService.findById(groupId);
         return postsRepository.isUserPutLikeToPost(user.getId(), postId);
     }
 
     @Override
-    public void removeLike(Long groupId, Long postId, String token) {
-        Post post = getOrThrow(groupId, postId);
+    public void removeLike(Long postId, String token) {
+        Post post = getOrThrow(postId);
         User user = usersServiceUtils.getUserFromToken(token);
 
         post.getUsersHaveLiked().remove(user);
@@ -118,7 +114,7 @@ public class PostsServiceImpl implements PostsService {
     }
 
     @Override
-    public PostsPage getPosts(Long id, int pageNumber, String token) {
+    public PostsPage getPostsByGroupId(Long id, int pageNumber, String token) {
         groupsService.findById(id);
         User user = usersServiceUtils.getUserFromToken(token);
 
@@ -138,22 +134,48 @@ public class PostsServiceImpl implements PostsService {
     }
 
     @Override
+    public void addAdminPost(NewAdminPostDto postDto, String token) {
+        User author = usersServiceUtils.getUserFromToken(token);
+        if (author.getRole().equals(User.Role.SUPER_ADMIN) || author.getRole().equals(User.Role.ADMIN)) {
+            NewOrUpdateGroupPostDto newOrUpdateGroupPostDto = NewOrUpdateGroupPostDto.builder()
+                    .text(postDto.getText())
+                    .files(new MultipartFile[]{postDto.getImage()})
+                    .build();
+            Post post = postsMapper.toPost(add(null, newOrUpdateGroupPostDto, token));
+            postsMapper.toDto(postsRepository.save(post));
+        } else {
+            throw new NoAccessException("Can't save admin post");
+        }
+    }
+
+    @Override
     public PostDto add(Long groupId, NewOrUpdateGroupPostDto postDto, String token) {
         Post post = Post.builder()
                 .dateOfPublication(new Date())
                 .text(postDto.getText())
-                .group(groupsService.findById(groupId))
                 .author(usersServiceUtils.getUserFromToken(token))
                 .files(new HashSet<>())
                 .build();
 
+        User creator = usersServiceUtils.getUserFromToken(token);
+
+        if (groupId == null && (creator.getRole().equals(User.Role.ADMIN) || creator.getRole().equals(User.Role.SUPER_ADMIN))) {
+            post.setGroup(null);
+        } else {
+            post.setGroup(groupsService.findById(groupId));
+        }
         PostDto newPost = postsMapper.toDto(postsRepository.save(post));
 
         if (postDto.getFiles() != null) {
             for (MultipartFile file : postDto.getFiles()) {
-                String newFileName = filesServiceUtils.generatePathToFile("groups", file,
-                        groupId + "/posts/" + newPost.getId() + "/");
-
+                String newFileName;
+                if (groupId != null) {
+                    newFileName = filesServiceUtils.generatePathToFile(file
+                    );
+                } else {
+                    newFileName = filesServiceUtils.generatePathToFile(file
+                    );
+                }
                 post.getFiles().add(FileInfo.builder()
                         .fileLink(newFileName)
                         .originalFilename(file.getOriginalFilename())
@@ -166,8 +188,8 @@ public class PostsServiceImpl implements PostsService {
     }
 
     @Override
-    public PostDto update(Long groupId, Long postId, NewOrUpdateGroupPostDto postDto) {
-        Post post = getOrThrow(groupId, postId);
+    public PostDto update(Long postId, NewOrUpdateGroupPostDto postDto) {
+        Post post = getOrThrow(postId);
 
         post.setText(postDto.getText());
         postsRepository.save(post);
@@ -197,7 +219,7 @@ public class PostsServiceImpl implements PostsService {
                 .stream()
                 .peek(x -> {
                     x.setLikesCount(getLikesCountByPostId(x.getId()));
-                    x.setIsLikedByUser(isUserPutLikeToPost(username, x.getId(), x.getGroup().getId()));
+                    x.setIsLikedByUser(isUserPutLikeToPost(username, x.getId()));
                 })
                 .collect(Collectors.toList());
     }

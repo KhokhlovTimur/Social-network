@@ -14,11 +14,10 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/social_network
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: password
-      MINIO_ACCESS_KEY: minioadmin
-      MINIO_SECRET_KEY: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+      MINIO_ROOT_USER: minioadmin
       SPRING_REDIS_HOST: redis
       SPRING_REDIS_PORT: 6379
-      MINIO_HOST: minio
   postgres:
     image: postgres
     container_name: 'postgres'
@@ -39,22 +38,22 @@ services:
     volumes:
       - redis_volume:/var/lib/redis/data
   minio:
-    image: minio/minio:latest
+    image: minio/minio
     container_name: 'minio'
     hostname: 'minio'
     ports:
       - "9000:9000"
       - "9001:9001"
     environment:
-      MINIO_ACCESS_KEY: minioadmin
-      MINIO_SECRET_KEY: minioadmin
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
     volumes:
       - minio_volume:/var/lib/minio/data
-    command: server --console-address ":9001" /var/lib/minio/data
+    command: server --console-address ":9001" /data
 
 volumes:
   postgres_volume:
     external: true
-  minio_volume: { }
+  minio_volume: {}
   redis_volume:
     external: true

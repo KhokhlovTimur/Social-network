@@ -29,13 +29,13 @@ public class PostsGroupsController implements PostsGroupsApi {
 
     @Override
     public ResponseEntity<PostsPage> getPosts(Long id, int pageNumber, String rawToken) {
-        return ResponseEntity.ok(postsService.getPosts(id, pageNumber, rawToken));
+        return ResponseEntity.ok(postsService.getPostsByGroupId(id, pageNumber, rawToken));
     }
 
     @Override
     public ResponseEntity<PostDto> updatePost(Long groupId, Long postId, NewOrUpdateGroupPostDto postDto) {
         return ResponseEntity.status(HttpStatus.ACCEPTED)
-                .body(postsService.update(groupId, postId, postDto));
+                .body(postsService.update(postId, postDto));
     }
 
     @Override
@@ -45,14 +45,14 @@ public class PostsGroupsController implements PostsGroupsApi {
 
     @Override
     public ResponseEntity<?> delete(Long groupId, Long postId) {
-        postsService.delete(postId, groupId);
+        postsService.delete(postId);
         return ResponseEntity.accepted()
                 .build();
     }
 
     @Override
     public ResponseEntity<Boolean> isUserPutLikeToPost(Long groupId, Long postId, String username) {
-        return ResponseEntity.ok(postsService.isUserPutLikeToPost(username, postId, groupId));
+        return ResponseEntity.ok(postsService.isUserPutLikeToPost(username, postId));
     }
 
     @Override
@@ -62,19 +62,19 @@ public class PostsGroupsController implements PostsGroupsApi {
 
     @Override
     public ResponseEntity<?> removeLike(Long groupId, Long postId, String rawToken) {
-        postsService.removeLike(groupId, postId, rawToken);
+        postsService.removeLike(postId, rawToken);
         return ResponseEntity.status(HttpStatus.ACCEPTED)
                 .build();
     }
 
     @Override
     public ResponseEntity<LikesPage> getLikes(Long groupId, Long postId) {
-        return ResponseEntity.ok(postsService.getLikes(groupId, postId));
+        return ResponseEntity.ok(postsService.getLikes(postId));
     }
 
     @Override
     public ResponseEntity<?> putLike(Long groupId, Long postId, String rawToken) {
-        postsService.putLike(groupId, postId, rawToken);
+        postsService.putLike(postId, rawToken);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .build();
     }

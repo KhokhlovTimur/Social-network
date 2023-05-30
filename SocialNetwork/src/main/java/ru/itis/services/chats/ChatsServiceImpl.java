@@ -54,7 +54,7 @@ public class ChatsServiceImpl implements ChatsService {
         chat = chatsRepository.save(chat);
         chat.setUsers(new HashSet<>());
         chat.getUsers().add(usersServiceUtils.getUserFromToken(rawToken));
-        chat.setImageLink(filesServiceUtils.generatePathToFile("chats", chatDto.getImage(), chat.getId() + "/"));
+        chat.setImageLink(filesServiceUtils.generatePathToFile(chatDto.getImage()));
 
         ChatGlobalId chatGlobalId = chatsGlobalIdsRepository.save(ChatGlobalId.builder()
                 .chatType(ChatGlobalId.ChatType.PUBLIC)

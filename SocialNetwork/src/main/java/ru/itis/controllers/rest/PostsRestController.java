@@ -9,7 +9,7 @@ import ru.itis.services.posts.PostsService;
 
 @RequiredArgsConstructor
 @RestController
-public class PostsController implements PostsApi {
+public class PostsRestController implements PostsApi {
     private final PostsService postsService;
 
     @Override

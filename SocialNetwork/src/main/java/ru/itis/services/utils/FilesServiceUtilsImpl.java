@@ -3,6 +3,7 @@ package ru.itis.services.utils;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.compress.utils.FileNameUtils;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import ru.itis.services.files.FilesService;
@@ -14,10 +15,13 @@ import java.sql.Timestamp;
 public class FilesServiceUtilsImpl implements FilesServiceUtils {
     private final FilesService filesService;
 
+    @Value("${minio.bucketName}")
+    private String bucketName;
+
     @Override
-    public String generatePathToFile(String bucketName, MultipartFile multipartFile, String directories) {
+    public String generatePathToFile(MultipartFile multipartFile) {
         String imageName = generateFileName(multipartFile.getOriginalFilename());
-        return filesService.savePhoto(multipartFile, directories + imageName, bucketName);
+        return filesService.savePhoto(multipartFile, imageName, this.bucketName);
     }
 
     private String generateFileName(String originalFileName) {

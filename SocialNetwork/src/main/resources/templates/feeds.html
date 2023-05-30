@@ -18,18 +18,23 @@
         <span class="heading">#feeds</span>
         <div class="posts">
             <div class="post" th:each="post : ${posts}" th:value="${post.id}">
-                <div class="post-inner" th:value="${post.group.id}">
+                <div class="post-inner" th:value="${post.group != null ? post.group.id : '-1'}"
+                     th:style="${post.group == null ? 'background-color:#faefef' : ''}">
                     <div class="post-text">
-                        <p class="group-name" th:text="${post.group.name}"></p>
+                        <p class="group-name" th:text="${post.group != null ? post.group.name : 'News*'}"
+                           th:style="${post.group == null? 'cursor: default; color: black' : ''}"></p>
                         <div class="images" th:if="${post.files != null}">
-                            <img class="post-img" th:each="file, iterStat: ${post.files}" th:src="${file.fileLink}" th:classappend="${iterStat.first}? 'active' : ''">
+                            <img class="post-img" th:each="file, iterStat: ${post.files}"
+                                 th:src="${file.fileLink}"
+                                 th:classappend="${iterStat.first}? 'active' : ''">
                             <div th:if="${post.files.size > 1}" class="prev">&lt;</div>
                             <div th:if="${post.files.size > 1}" class="next">&gt;</div>
                         </div>
                         <div class="post-description" th:text="${post.text}"></div>
                         <div class="post-footer">
-                            <span class="time" th:text="${#dates.format(post.dateOfPublication, 'HH:mm, dd MMM')}"></span>
-                            <div class="likes">
+                            <span class="time"
+                                  th:text="${#dates.format(post.dateOfPublication, 'HH:mm, dd MMM')}"></span>
+                            <div class="likes" th:if="${post.group != null}">
                                 <button th:if="${post.isLikedByUser}" class="like-button liked"></button>
                                 <button th:if="${!post.isLikedByUser}" class="like-button"></button>
                                 <span class="count" th:text="${post.likesCount}"></span>

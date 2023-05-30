@@ -18,7 +18,6 @@ import ru.itis.mappers.users.UsersCollectionsMapper;
 import ru.itis.models.Group;
 import ru.itis.models.User;
 import ru.itis.repositories.GroupsRepository;
-import ru.itis.services.files.FilesService;
 import ru.itis.services.users.UsersService;
 import ru.itis.services.utils.FilesServiceUtils;
 import ru.itis.services.utils.UsersServiceUtils;
@@ -109,8 +108,8 @@ public class GroupsServiceImpl implements GroupsService {
         creator.getGroups().add(group);
         group.getUsers().add(creator);
 
-        group.setImageLink(filesServiceUtils.generatePathToFile("groups", newGroupDto.getImage(),
-                group.getId() + "/profile/"));
+        group.setImageLink(filesServiceUtils.generatePathToFile(newGroupDto.getImage()
+        ));
         groupsRepository.save(group);
         return groupMapper.toDto(group);
     }
@@ -137,8 +136,8 @@ public class GroupsServiceImpl implements GroupsService {
             group.setDescription(groupDto.getDescription());
         }
         if (groupDto.getImage() != null) {
-            group.setImageLink(filesServiceUtils.generatePathToFile("groups", groupDto.getImage(),
-                    group.getId() + "/profile/"));
+            group.setImageLink(filesServiceUtils.generatePathToFile(groupDto.getImage()
+            ));
         }
 
         groupsRepository.save(group);
@@ -165,6 +164,9 @@ public class GroupsServiceImpl implements GroupsService {
     }
 
     private Group getOrThrow(Long id) {
+        if (id == null) {
+            throw new NotFoundException("Group not found");
+        }
         Group group = groupsRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Group with id \"" + id + "\" not found"));
 

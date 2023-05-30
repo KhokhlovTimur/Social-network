@@ -1,6 +1,9 @@
 package ru.itis.models;
 
+import io.hypersistence.utils.hibernate.type.basic.PostgreSQLEnumType;
 import lombok.*;
+import org.hibernate.annotations.Type;
+import org.hibernate.annotations.TypeDef;
 import org.hibernate.engine.internal.Cascade;
 
 import javax.persistence.*;

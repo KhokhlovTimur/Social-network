@@ -3,8 +3,6 @@ package ru.itis.services.users;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import ru.itis.dto.other.TokensDto;
@@ -12,7 +10,6 @@ import ru.itis.dto.user.*;
 import ru.itis.exceptions.AlreadyExistsException;
 import ru.itis.exceptions.NotFoundException;
 import ru.itis.exceptions.WrongPasswordException;
-import ru.itis.mappers.users.UsersCollectionsMapper;
 import ru.itis.mappers.users.UsersMapper;
 import ru.itis.models.User;
 import ru.itis.repositories.UsersRepository;
@@ -125,8 +122,8 @@ public class UsersServiceImpl implements UsersService {
             user.setBio(userDto.getBio());
         }
         if (userDto.getAvatar() != null) {
-            String filename = filesServiceUtils.generatePathToFile("users", userDto.getAvatar(),
-                    user.getId() + "/avatar/");
+            String filename = filesServiceUtils.generatePathToFile(userDto.getAvatar()
+            );
             user.setAvatarLink(filename);
         }
         if (userDto.getPhoneNumber() != null) {

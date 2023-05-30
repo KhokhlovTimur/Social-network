@@ -29,6 +29,9 @@ $(document).ready(function () {
     $('.add-group-btn').click(addGroup);
     if (url.includes('/app/groups?id=') && url.indexOf('?id=') !== -1) {
         groupId = url.substring(url.lastIndexOf('=') + 1, url.length);
+        if (groupId === null || groupId === 'null'){
+            processError();
+        }
         sendRequestToGetGroup();
     } else {
         main.css('display', 'flex');
@@ -494,7 +497,7 @@ async function appendNewPost(data) {
     $('.new-post').slideUp(300);
     let addPostBtn = $('.add-post');
     addPostBtn.slideDown();
-    await createPost(data).then((post) => addPostBtn.after(post.hide().fadeIn(1000)));
+    await createPost(data, false).then((post) => addPostBtn.after(post.hide().fadeIn(1000)));
 }
 
 function checkCurrUser(isExists) {

@@ -10,10 +10,6 @@ $(document).ready(function () {
     generateRequestToGetJson('/posts/' + currUsername + '?page=' + 0, 'GET', setCounters, null);
 });
 
-function redirectToGroups(event) {
-    let groupId = event.target.closest('.post-inner').getAttribute('value');
-    window.location.href = '/app/groups?id=' + groupId;
-}
 
 function updatePostsImages() {
     let posts = $('.post');

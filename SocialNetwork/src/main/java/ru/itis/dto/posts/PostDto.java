@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import ru.itis.dto.group.GroupDto;
 import ru.itis.dto.user.PublicUserDto;
 import ru.itis.models.FileInfo;
+import ru.itis.models.Post;
 
 import java.util.Date;
 import java.util.List;

@@ -53,6 +53,8 @@ public class SecurityConfig {
 
         http.authorizeHttpRequests()
                 .antMatchers("/swagger-ui/index.html/**").permitAll()
+                .antMatchers("/api/admin/**").hasAnyAuthority("ADMIN", "SUPER_ADMIN")
+                .antMatchers("/app/admin/**").hasAnyAuthority("ADMIN", "SUPER_ADMIN")
                 .antMatchers("/api/auth/token").permitAll()
                 .antMatchers(HttpMethod.POST, "/api/users").permitAll()
                 .antMatchers("/api/**").authenticated()

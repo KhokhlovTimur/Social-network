@@ -1,3 +1,6 @@
+<!DOCTYPE html>
+<html xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4" xmlns="http://www.w3.org/1999/xhtml">
+
 <div class="sidebar-navigation" th:fragment="mainNavbar">
     <ul class="list-unstyled">
         <li class="navbarImage" th:value="profile">
@@ -14,13 +17,18 @@
         </li>
 
         <li class="navbarImage" th:value="friends">
-            <i class="fa fa-user" th:value="friends"></i>
-            <span class="tooltip">Friends</span>
+            <i class="fa fa-handshake" th:value="friends"></i>
+            <span class=" tooltip">Friends</span>
         </li>
 
         <li class="navbarImage" th:value="groups">
             <i class="fa fa-users" th:value="groups"></i>
             <span class="tooltip">Groups</span>
+        </li>
+
+        <li sec:authorize="hasAnyAuthority('ADMIN', 'SUPER_ADMIN')" class="navbarImage" th:value="'admin/posts'">
+            <i class="fa fa-user-secret" th:value="'admin/posts'"></i>
+            <span class="tooltip">Admin posts</span>
         </li>
     </ul>
 </div>
