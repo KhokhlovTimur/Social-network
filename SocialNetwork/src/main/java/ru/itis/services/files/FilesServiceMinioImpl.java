@@ -56,14 +56,6 @@ public class FilesServiceMinioImpl implements FilesService {
                     .contentType(file.getContentType())
                     .build();
             minioClient.putObject(args);
-            String url = minioClient.getPresignedObjectUrl(
-                    GetPresignedObjectUrlArgs.builder()
-                            .bucket(bucketName)
-                            .object(myFileName)
-                            .method(Method.GET)
-                            .build());
-
-//            url = url.replace("minio:9000", "127.0.0.1:9000");
 
             return "/app/files/" + myFileName;
         } catch (MinioException | NoSuchAlgorithmException | InvalidKeyException | IOException e) {

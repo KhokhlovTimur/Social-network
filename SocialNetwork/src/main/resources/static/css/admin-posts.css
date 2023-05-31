@@ -35,7 +35,7 @@
     padding: 20px;
 }
 
-.file-upload-btn {
+.file-upload-btn, .file-generate-btn {
     width: 100%;
     margin: 0;
     color: #fff;
@@ -50,7 +50,7 @@
     font-weight: 700;
 }
 
-.file-upload-btn:hover {
+.file-upload-btn:hover, .file-generate-btn {
     background: #1AA059;
     color: #ffffff;
     transition: all .2s ease;
@@ -134,7 +134,7 @@
     width: 200px;
     height: 40px;
     position: absolute;
-    bottom: -40px;
+    bottom: -90px;
     font-size: 1.3rem;
     cursor: pointer;
     background-color: white;

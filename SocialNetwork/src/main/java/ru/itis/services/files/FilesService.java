@@ -9,4 +9,5 @@ public interface FilesService {
     String savePhoto(MultipartFile file, String myFileName, String bucket);
 
     ResponseEntity<ByteArrayResource> getFile(String fileName);
+
 }
