@@ -16,6 +16,7 @@ Social network. The project for adding friends and communicating with them.
 - MapStruct
 - WebSocket
 - PostgreSQL
+- Hibernate
 - MinIO
 - Redis
 - Liquibase
